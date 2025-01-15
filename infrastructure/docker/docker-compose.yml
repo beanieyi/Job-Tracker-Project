@@ -1,0 +1,61 @@
+# Docker Compose configuration for Job Tracker development environment
+# This file defines the services and their relationships for local development
+version: "3.8"
+
+services:
+  # Frontend Service Configuration
+  # Runs the React/Vite development server
+  frontend:
+    build:
+      context: ../../frontend # Path to frontend source code
+      dockerfile: Dockerfile.dev # Development-specific Dockerfile
+    ports:
+      - "5173:5173" # Map Vite's development port
+    command: npm run dev -- --host # Start development server with host access
+    volumes:
+      - type: bind # Use bind mount for development
+        source: ../../frontend # Local frontend directory
+        target: /app # Container mount point
+
+  # Backend Service Configuration
+  # Runs the FastAPI application server
+  backend:
+    build:
+      context: ../../backend # Path to backend source code
+      dockerfile: Dockerfile.dev # Development-specific Dockerfile
+    ports:
+      - "8000:8000" # Map FastAPI port
+    volumes:
+      - type: bind # Use bind mount for development
+        source: ../../backend # Local backend directory
+        target: /app # Container mount point
+    environment:
+      # Database connection string for backend service
+      - DATABASE_URL=postgresql://jobtracker:jobtracker@db:5432/jobtracker
+      # Development secret key (should be changed in production)
+      - SECRET_KEY=development_secret_key
+
+  # Database Service Configuration
+  # PostgreSQL database server with persistent storage
+  db:
+    image: postgres:14-alpine # Use Alpine-based PostgreSQL for smaller image size
+    ports:
+      - "5432:5432" # Map PostgreSQL port for external access
+    environment:
+      # Database access credentials
+      - POSTGRES_USER=jobtracker
+      - POSTGRES_PASSWORD=jobtracker
+      - POSTGRES_DB=jobtracker
+      # Security configuration
+      - POSTGRES_HOST_AUTH_METHOD=scram-sha-256
+    volumes:
+      # Persistent storage for database files
+      - pgdata:/var/lib/postgresql/data
+      # Initialize database with sample data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+
+# Volume Definitions
+# These volumes persist data between container restarts
+volumes:
+  # PostgreSQL data volume for persistent storage
+  pgdata:

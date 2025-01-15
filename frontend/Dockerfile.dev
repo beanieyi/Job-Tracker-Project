@@ -1,0 +1,17 @@
+# Use the Node.js slim image to minimize container size
+FROM node:18-slim
+
+# Set working directory for application
+WORKDIR /app
+
+# Clean install dependencies
+COPY package*.json ./
+RUN rm -rf node_modules package-lock.json
+RUN npm install
+
+# Copy source code
+COPY . .
+
+# Start development server
+EXPOSE 5173
+CMD ["npm", "run", "dev", "--", "--host"]
