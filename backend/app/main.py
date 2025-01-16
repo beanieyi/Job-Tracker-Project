@@ -1,24 +1,26 @@
-"""
-Job Tracker API main application module.
-
-This module initializes the FastAPI application and defines the core API endpoints.
-The application provides RESTful endpoints for managing job applications and user data.
-"""
-
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
+from typing import List
+from pydantic import BaseModel
+from datetime import datetime
+import psycopg2
+from psycopg2.extras import RealDictCursor
 
-# Initialize FastAPI application with metadata
-app = FastAPI(
-    title="Job Tracker API",
-    description="API for managing job applications and tracking application status",
-    version="1.0.0"
-)
+class JobApplication(BaseModel):
+    id: int
+    company_name: str
+    position_title: str
+    application_date: datetime
+    status: str
+    location: str | None
+    salary_range: str | None
+    notes: str | None
 
-# Configure CORS middleware for frontend integration
+app = FastAPI(title="Job Tracker API")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # Development frontend server
+    allow_origins=["http://localhost:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -26,13 +28,19 @@ app.add_middleware(
 
 @app.get("/")
 async def read_root():
-    """
-    Root endpoint providing API status information.
-    
-    Returns:
-        dict: Status message indicating API availability
-    """
-    return {
-        "status": "online",
-        "message": "Welcome to the Job Tracker API"
-    }
+    return {"status": "online", "message": "Welcome to the Job Tracker API"}
+
+@app.get("/api/applications", response_model=List[JobApplication])
+async def get_applications():
+    try:
+        conn = psycopg2.connect(
+            "postgresql://jobtracker:jobtracker@db:5432/jobtracker"
+        )
+        cur = conn.cursor(cursor_factory=RealDictCursor)
+        cur.execute("SELECT * FROM job_applications ORDER BY application_date DESC")
+        applications = cur.fetchall()
+        cur.close()
+        conn.close()
+        return applications
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

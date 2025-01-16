@@ -1,19 +1,18 @@
-
 services:
   # Frontend service - This will run your React development server
   frontend:
-    build: 
-      context: ../../frontend  # Tell Docker where to find frontend files
-      dockerfile: Dockerfile.dev  # Use development-specific Dockerfile
+    build:
+      context: ../../frontend # Tell Docker where to find frontend files
+      dockerfile: Dockerfile.dev # Use development-specific Dockerfile
     ports:
-      - "5173:5173"  # Map Vite's default port
+      - "5173:5173" # Map Vite's default port
     volumes:
-      - ../../frontend:/app  # Sync local files with container
-      - /app/node_modules  # Keep node_modules in container
+      - ../../frontend:/app # Sync local files with container
+      - /app/node_modules # Keep node_modules in container
     environment:
-      - VITE_API_URL=http://localhost:8000  # Backend API address
+      - VITE_API_URL=http://localhost:8000 # Backend API address
     depends_on:
-      - backend  # Ensure backend starts first
+      - backend # Ensure backend starts first
 
   # Backend service - This will run your FastAPI server
   backend:
@@ -21,28 +20,29 @@ services:
       context: ../../backend
       dockerfile: Dockerfile.dev
     ports:
-      - "8000:8000"  # FastAPI's port
+      - "8000:8000" # FastAPI's port
     volumes:
-      - ../../backend:/app  # Sync local files with container
+      - ../../backend:/app # Sync local files with container
     environment:
       - DATABASE_URL=postgresql://jobtracker:jobtracker@db:5432/jobtracker
       - SECRET_KEY=development_secret_key
     depends_on:
       db:
-        condition: service_healthy  # Wait for database to be ready
+        condition: service_healthy # Wait for database to be ready
 
   # Database service - PostgreSQL for storing application data
   db:
-    image: postgres:14-alpine  # Using Alpine for smaller image size
+    image: postgres:14-alpine # Using Alpine for smaller image size
     ports:
-      - "5432:5432"  # PostgreSQL's default port
+      - "5432:5432" # PostgreSQL's default port
     environment:
       - POSTGRES_USER=jobtracker
       - POSTGRES_PASSWORD=jobtracker
       - POSTGRES_DB=jobtracker
     volumes:
-      - postgres_data:/var/lib/postgresql/data  # Persist database data
-    healthcheck:  # Check if database is ready to accept connections
+      - postgres_data:/var/lib/postgresql/data # Persist database data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck: # Check if database is ready to accept connections
       test: ["CMD-SHELL", "pg_isready -U jobtracker"]
       interval: 5s
       timeout: 5s
@@ -50,4 +50,4 @@ services:
 
 # Define named volumes for persistent data
 volumes:
-  postgres_data:  # This volume persists database data between container restarts
+  postgres_data: # This volume persists database data between container restarts
