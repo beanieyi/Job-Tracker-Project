@@ -1,3 +1,4 @@
+// This configuration tells Vite how to serve our React application
 import { defineConfig } from "vite"
 import react from "@vitejs/plugin-react"
 
@@ -11,12 +12,6 @@ export default defineConfig({
     // Enable hot module replacement
     hmr: {
       clientPort: 5173,
-    },
-  },
-  // Configure path aliases and build options as needed
-  resolve: {
-    alias: {
-      "@": "/src",
     },
   },
 })

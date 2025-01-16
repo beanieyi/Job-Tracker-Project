@@ -1,17 +1,16 @@
-# Use the Node.js slim image to minimize container size
-FROM node:18-slim
+# Use Node.js as our base image
+FROM node:18-alpine
 
-# Set working directory for application
+# Set working directory in the container
 WORKDIR /app
 
-# Clean install dependencies
-COPY package*.json ./
-RUN rm -rf node_modules package-lock.json
+# Install dependencies first (for better caching)
+COPY package.json .
+COPY package-lock.json* .
 RUN npm install
 
-# Copy source code
+# Copy the rest of the application
 COPY . .
 
-# Start development server
-EXPOSE 5173
+# Start the development server with the host flag to allow external connections
 CMD ["npm", "run", "dev", "--", "--host"]
