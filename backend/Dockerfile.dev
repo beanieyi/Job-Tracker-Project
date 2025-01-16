@@ -1,23 +1,37 @@
-# Use Python 3.12 slim image to minimize container size
+# Development Dockerfile for the Job Tracker backend service
+# Based on Python 3.12 slim image for minimal container size while maintaining functionality
+
+# Use official Python slim image as base
+# Slim variant reduces image size while keeping essential functionality
 FROM python:3.12-slim
 
-# Set working directory for application
+# Set the working directory for the application
+# All subsequent commands will be run from this directory
 WORKDIR /app
 
 # Install system dependencies required for Python packages
+# Specifically gcc for compiling certain Python packages
+# Clean up apt cache to reduce image size
 RUN apt-get update \
     && apt-get install -y gcc \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python dependencies
+# Copy only requirements.txt first to leverage Docker cache
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Copy application code
+# Copy the rest of the application code
+# This is done after installing dependencies to leverage Docker cache
 COPY . .
 
-# Expose port for API access
+# Expose port 8000 for the FastAPI application
+# This is the default port for the development server
 EXPOSE 8000
 
-# Start development server with hot reload
+# Start the development server with hot reload enabled
+# uvicorn is run with the following options:
+# --host 0.0.0.0: Allow external connections
+# --port 8000: Use port 8000
+# --reload: Enable hot reload for development
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]

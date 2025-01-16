@@ -1,53 +1,81 @@
+# Docker Compose configuration for Job Tracker application
+# This file defines the multi-container setup for local development
+
 services:
-  # Frontend service - This will run your React development server
+  # Frontend Service Configuration
+  # Runs the React development server with hot-reload capabilities
   frontend:
     build:
-      context: ../../frontend # Tell Docker where to find frontend files
-      dockerfile: Dockerfile.dev # Use development-specific Dockerfile
-    ports:
-      - "5173:5173" # Map Vite's default port
-    volumes:
-      - ../../frontend:/app # Sync local files with container
-      - /app/node_modules # Keep node_modules in container
-    environment:
-      - VITE_API_URL=http://localhost:8000 # Backend API address
-    depends_on:
-      - backend # Ensure backend starts first
-
-  # Backend service - This will run your FastAPI server
-  backend:
-    build:
-      context: ../../backend
+      # Specify the frontend application root directory
+      context: ../../frontend
+      # Use development-specific Dockerfile for optimal developer experience
       dockerfile: Dockerfile.dev
     ports:
-      - "8000:8000" # FastAPI's port
+      # Map container port 5173 to host port 5173 (Vite's default)
+      - "5173:5173"
     volumes:
-      - ../../backend:/app # Sync local files with container
+      # Mount frontend source code for hot-reload functionality
+      - ../../frontend:/app
+      # Prevent overwriting of node_modules with host directory
+      - /app/node_modules
     environment:
+      # Configure API endpoint for frontend service
+      - VITE_API_URL=http://localhost:8000
+    # Ensure backend is available before starting frontend
+    depends_on:
+      - backend
+
+  # Backend Service Configuration
+  # Runs the FastAPI server with auto-reload for development
+  backend:
+    build:
+      # Specify the backend application root directory
+      context: ../../backend
+      # Use development-specific Dockerfile
+      dockerfile: Dockerfile.dev
+    ports:
+      # Map container port 8000 to host port 8000
+      - "8000:8000"
+    volumes:
+      # Mount backend source code for hot-reload functionality
+      - ../../backend:/app
+    environment:
+      # Database connection string using service name 'db' for hostname
       - DATABASE_URL=postgresql://jobtracker:jobtracker@db:5432/jobtracker
+      # Development secret key (should be changed in production)
       - SECRET_KEY=development_secret_key
+    # Ensure database is healthy before starting backend
     depends_on:
       db:
-        condition: service_healthy # Wait for database to be ready
+        condition: service_healthy
 
-  # Database service - PostgreSQL for storing application data
+  # Database Service Configuration
+  # PostgreSQL database for storing application data
   db:
-    image: postgres:14-alpine # Using Alpine for smaller image size
+    # Use Alpine-based PostgreSQL for smaller image size
+    image: postgres:14-alpine
     ports:
-      - "5432:5432" # PostgreSQL's default port
+      # Map container port 5432 to host port 5432
+      - "5432:5432"
     environment:
+      # Database credentials (should be changed in production)
       - POSTGRES_USER=jobtracker
       - POSTGRES_PASSWORD=jobtracker
       - POSTGRES_DB=jobtracker
     volumes:
-      - postgres_data:/var/lib/postgresql/data # Persist database data
+      # Persist database data between container restarts
+      - postgres_data:/var/lib/postgresql/data
+      # Mount initialization script for database setup
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-    healthcheck: # Check if database is ready to accept connections
+    # Health check configuration to ensure database availability
+    healthcheck:
       test: ["CMD-SHELL", "pg_isready -U jobtracker"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-# Define named volumes for persistent data
+# Volume Definitions
 volumes:
-  postgres_data: # This volume persists database data between container restarts
+  # Named volume for persistent database storage
+  postgres_data:
+    # Using default driver for local development

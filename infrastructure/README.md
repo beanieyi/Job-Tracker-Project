@@ -1,33 +1,131 @@
 # Job Tracker Infrastructure
 
 ## Overview
-This directory contains the infrastructure configuration for the Job Tracker application, including Docker configurations for local development and deployment. The infrastructure is designed to provide a consistent development environment across all team members.
 
-## Components
-The infrastructure consists of three main services:
-- Frontend Service (React/Vite)
-- Backend Service (FastAPI)
-- Database Service (PostgreSQL)
+The infrastructure configuration for the Job Tracker application provides a containerized development environment using Docker and Docker Compose. This setup ensures consistency across development environments and simplifies the deployment process.
 
-## Local Development Setup
+## Architecture Components
+
+### Services
+
+1. **Frontend Service (React/Vite)**
+
+   - Development server with hot-reload
+   - Port: 5173
+   - Environment variables for API configuration
+   - Volume-mounted source code
+
+2. **Backend Service (FastAPI)**
+
+   - Auto-reloading development server
+   - Port: 8000
+   - Database connection configuration
+   - Volume-mounted source code
+
+3. **Database Service (PostgreSQL)**
+   - Alpine-based PostgreSQL 14
+   - Port: 5432
+   - Persistent data storage
+   - Health monitoring
+   - Initialization scripts
+
+## Getting Started
 
 ### Prerequisites
-- Docker Desktop with WSL 2 backend
+
+- Docker Desktop 4.0 or higher with WSL 2 backend
 - Docker Compose version 2.0 or higher
-- A modern terminal (WSL recommended for Windows users)
+- Modern terminal (WSL recommended for Windows users)
+- Git for version control
 
-### Starting the Environment
-From the infrastructure/docker directory:
-docker-compose up --build
+### Environment Setup
 
-### Service Access
-Once running, services are available at:
-- Frontend: http://localhost:5173
+1. Clone the repository
+2. Navigate to the infrastructure/docker directory
+3. Run the following command:
+   ```bash
+   docker-compose up --build
+   ```
+
+### Service Access Points
+
+After successful startup, services are available at:
+
+- Frontend Application: http://localhost:5173
 - Backend API: http://localhost:8000
 - Database: localhost:5432
 
-### Database Connection
-When using tools like DBeaver or pgAdmin:
+## Configuration Management
+
+### Environment Variables
+
+The development environment uses the following configuration:
+
+**Frontend Service:**
+
+```env
+VITE_API_URL=http://localhost:8000
+```
+
+**Backend Service:**
+
+```env
+DATABASE_URL=postgresql://jobtracker:jobtracker@db:5432/jobtracker
+SECRET_KEY=development_secret_key
+```
+
+**Database Service:**
+
+```env
+POSTGRES_USER=jobtracker
+POSTGRES_PASSWORD=jobtracker
+POSTGRES_DB=jobtracker
+```
+
+### Volume Management
+
+The infrastructure uses Docker volumes for data persistence:
+
+1. **postgres_data**
+
+   - Purpose: PostgreSQL data storage
+   - Persistence: Survives container restarts
+   - Management: Handled by Docker Compose
+
+2. **Source Code Volumes**
+   - Frontend: `../../frontend:/app`
+   - Backend: `../../backend:/app`
+   - Purpose: Development hot-reload
+
+## Development Workflow
+
+### Starting the Environment
+
+```bash
+# Start all services
+docker-compose up --build
+
+# Start specific service
+docker-compose up frontend --build
+```
+
+### Monitoring and Maintenance
+
+```bash
+# View service logs
+docker-compose logs -f [service_name]
+
+# Check service status
+docker-compose ps
+
+# Restart services
+docker-compose restart [service_name]
+```
+
+### Database Operations
+
+**Connection Parameters:**
+
 - Host: localhost (Windows) or Docker IP (WSL)
 - Port: 5432
 - Database: jobtracker
@@ -35,39 +133,39 @@ When using tools like DBeaver or pgAdmin:
 - Password: jobtracker
 - Auth Method: scram-sha-256
 
-### Volume Management
-Persistent data is managed through Docker volumes:
-- pgdata: PostgreSQL data storage
+**Management Operations:**
 
-### Development Workflow
-1. Code changes in frontend and backend directories are automatically reflected
-2. Database data persists between container restarts
-3. Container logs are available via docker-compose logs
-4. Environment variables are managed through docker-compose.yml
+```bash
+# Access PostgreSQL CLI
+docker-compose exec db psql -U jobtracker
 
-### Common Commands
-docker-compose up --build          # Start all services
-docker-compose down -v            # Stop services and remove volumes
-docker-compose logs -f           # Follow log output
-docker-compose ps                # List running services
+# Backup database
+docker-compose exec db pg_dump -U jobtracker jobtracker > backup.sql
 
-### Troubleshooting
-1. Database Connection Issues:
-   - Verify PostgreSQL container is running
-   - Check authentication method configuration
-   - Ensure correct connection parameters
+# Restore database
+cat backup.sql | docker-compose exec -T db psql -U jobtracker jobtracker
+```
 
-2. Frontend/Backend Connection:
-   - Verify CORS configuration in backend
-   - Check API URL configuration in frontend
-   - Ensure all containers are on same network
+## Troubleshooting Guide
 
-3. Volume Issues:
-   - Clear volumes with docker-compose down -v
-   - Verify volume mount permissions
-   - Check Docker Desktop WSL integration
+### Debugging Commands
 
-### Security Notes
-- Development credentials should never be used in production
-- Environment variables should be properly secured
-- Database ports should be restricted in production
+```bash
+# Check container logs
+docker-compose logs [service_name]
+
+# Inspect container
+docker-compose exec [service_name] sh
+
+# Check network connectivity
+docker network inspect job-tracker_default
+```
+
+## Security Considerations
+
+### Development Environment
+
+1. Default credentials are for development only
+2. Ports are exposed for local access
+3. Debug mode is enabled
+4. Source code is mounted for hot-reload

@@ -1,87 +1,120 @@
 # Job Tracker Frontend
 
 ## Overview
-The frontend application for the Job Tracker project, built with React and Vite. This service provides the user interface for managing job applications, tracking application status, and managing professional contacts.
+
+The frontend application for the Job Tracker project provides a modern, responsive user interface for managing job applications, tracking application statuses, and maintaining professional contacts. Built with React and Vite, it offers a seamless experience for job seekers to organize their job search process.
 
 ## Technology Stack
-- React 18.3: Core UI framework
-- Vite: Build tool and development server
-- ESLint: Code quality and style enforcement
-- Docker: Development environment containerization
 
-## Local Development Setup
+- **React 18.3**: Modern UI framework for building component-based interfaces
+- **Vite**: Next-generation frontend tooling for faster development and optimized builds
+- **ESLint**: Static code analysis tool for identifying problematic patterns
+- **Docker**: Container platform for consistent development environments
+
+## Getting Started
 
 ### Prerequisites
+
 - Node.js 18 or higher
 - Docker and Docker Compose
-- A modern web browser (Chrome, Firefox, Safari, or Edge)
 
 ### Environment Configuration
-The frontend service uses the following environment variables:
+
+Create a `.env` file in the project root with the following variables:
+
+```env
 VITE_API_URL=http://localhost:8000
+```
 
-### Running the Service
-Using Docker (recommended):
+### Installation and Setup
+
+#### Using Docker (Recommended)
+
+```bash
+# Start the frontend service with Docker Compose
 docker-compose up frontend
+```
 
-Direct development:
+#### Direct Development
+
+```bash
+# Install dependencies
 npm install
+
+# Start development server
 npm run dev
+```
 
 ### Available Scripts
-- npm run dev: Start development server
-- npm run build: Build for production
-- npm run preview: Preview production build locally
+
+| Command           | Description              |
+| ----------------- | ------------------------ |
+| `npm run dev`     | Start development server |
+| `npm run build`   | Build for production     |
+| `npm run preview` | Preview production build |
 
 ## Project Structure
+
+```
 frontend/
 ├── Dockerfile.dev         # Development container configuration
 ├── eslint.config.js      # ESLint configuration
 ├── index.html            # HTML entry point
 ├── package.json          # Project dependencies and scripts
-├── public/              # Static assets
-├── src/                 # Application source code
-│   ├── App.jsx         # Root component
-│   ├── App.css         # Root styles
-│   ├── main.jsx        # Application entry point
-│   ├── assets/         # Project assets
-│   └── index.css       # Global styles
-└── vite.config.js      # Vite configuration
+├── public/               # Static assets
+├── src/                  # Application source code
+│   ├── App.jsx          # Root component
+│   ├── App.css          # Root styles
+│   ├── main.jsx         # Application entry point
+│   ├── assets/          # Project assets
+│   └── index.css        # Global styles
+└── vite.config.js       # Vite configuration
+```
 
 ## Development Guidelines
 
-### Code Style
+### Code Style and Standards
+
 - Follow ESLint configuration guidelines
 - Use functional components with hooks
 - Implement proper prop-types validation
 - Follow React best practices for component organization
 - Use CSS modules for component-specific styles
 
-### Component Structure
-1. Place new components in appropriate directories
-2. Include proper JSDoc documentation
-3. Maintain single responsibility principle
-4. Add proper error boundaries
-5. Implement loading states
+### Component Development
 
-### State Management
-- Use React hooks for local state
+1. Place new components in appropriate directories
+2. Include JSDoc documentation
+3. Maintain single responsibility principle
+4. Implement error boundaries
+5. Handle loading states appropriately
+
+### State Management Best Practices
+
+- Utilize React hooks for local state
 - Implement proper data fetching patterns
-- Handle loading and error states
-- Use appropriate caching strategies
+- Handle loading and error states comprehensively
+- Apply appropriate caching strategies
 
 ### API Integration
-Backend API available at:
+
+The backend API is available at:
+
 - Development: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
 
-### Browser Support
-- Chrome (latest 2 versions)
-- Firefox (latest 2 versions)
-- Safari (latest 2 versions)
-- Edge (latest 2 versions)
+## Deployment
 
-### Deployment
-1. Build the application: npm run build
-2. Test the production build: npm run preview
-3. Deploy the contents of the dist directory
+1. Build the application:
+
+   ```bash
+   npm run build
+   ```
+
+2. Test the production build:
+
+   ```bash
+   npm run preview
+   ```
+
+3. Deploy the contents of the `dist` directory to your hosting platform
