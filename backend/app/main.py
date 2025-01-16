@@ -1,24 +1,37 @@
-# This is our FastAPI application entry point. It sets up a basic API endpoint
-# that we can use to verify our backend is working correctly.
+"""
+Job Tracker API main application module.
+
+This module initializes the FastAPI application and defines the core API endpoints.
+The application provides RESTful endpoints for managing job applications and user data.
+"""
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-# Create the FastAPI application instance
-app = FastAPI(title="Job Tracker API")
+# Initialize FastAPI application with metadata
+app = FastAPI(
+    title="Job Tracker API",
+    description="API for managing job applications and tracking application status",
+    version="1.0.0"
+)
 
-# Configure CORS to allow requests from our frontend
+# Configure CORS middleware for frontend integration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173"],  # This is where our Vite frontend will run
+    allow_origins=["http://localhost:5173"],  # Development frontend server
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
 
-# A simple endpoint to test that our API is working
 @app.get("/")
 async def read_root():
+    """
+    Root endpoint providing API status information.
+    
+    Returns:
+        dict: Status message indicating API availability
+    """
     return {
         "status": "online",
         "message": "Welcome to the Job Tracker API"
