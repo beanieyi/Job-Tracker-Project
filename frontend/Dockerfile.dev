@@ -1,0 +1,29 @@
+# Development Dockerfile for the Job Tracker frontend
+# Uses Node.js Alpine for a lightweight development environment
+
+# Base image: Node.js 18 Alpine for minimal image size while maintaining
+# full Node.js functionality
+FROM node:18-alpine
+
+# Set the working directory in the container
+# This directory will hold all application files
+WORKDIR /app
+
+# Copy package files first to leverage Docker layer caching
+# This step is separated from the full copy to avoid reinstalling
+# dependencies when only source code changes
+COPY package.json .
+COPY package-lock.json .
+
+# Install all dependencies including development dependencies
+# Using npm ci would be preferred for production builds
+RUN npm install
+
+# Copy the rest of the application code
+# This includes source files, configuration files, and static assets
+COPY . .
+
+# Start the Vite development server with host networking enabled
+# The --host flag allows connections from outside the container
+# This is necessary for Docker network communication
+CMD ["npm", "run", "dev", "--", "--host"]
