@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import "./App.css"
+import GroupSizesColors from './components/nav-button';
 
 function App() {
   const [applications, setApplications] = useState([])
@@ -60,6 +61,7 @@ function App() {
 
   return (
     <div className="container mx-auto p-4">
+          <GroupSizesColors />
       <nav className="flex space-x-4 mb-4">
         <TabButton
           active={activeTab === "applications"}
