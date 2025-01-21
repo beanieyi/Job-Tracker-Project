@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import "./App.css"
-import GroupSizesColors from './components/nav-button';
+import BasicTabs from './components/nav-tabs';
 
 function App() {
   const [applications, setApplications] = useState([])
@@ -60,47 +60,52 @@ function App() {
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>
 
   return (
-    <div className="container mx-auto p-4">
-          <GroupSizesColors />
-      <nav className="flex space-x-4 mb-4">
-        <TabButton
-          active={activeTab === "applications"}
-          onClick={() => setActiveTab("applications")}
-        >
-          Applications
-        </TabButton>
-        <TabButton
-          active={activeTab === "timeline"}
-          onClick={() => setActiveTab("timeline")}
-        >
-          Timeline
-        </TabButton>
-        <TabButton
-          active={activeTab === "contacts"}
-          onClick={() => setActiveTab("contacts")}
-        >
-          Network
-        </TabButton>
-        <TabButton
-          active={activeTab === "insights"}
-          onClick={() => setActiveTab("insights")}
-        >
-          Role Insights
-        </TabButton>
-      </nav>
+    
+    <nav>
+      <BasicTabs/>
+    </nav>
 
-      {activeTab === "applications" && (
-        <ApplicationsView applications={applications} />
-      )}
+    // <div className="container mx-auto p-4">
+    //   <nav className="flex space-x-4 mb-4">
+    //     <BasicTabs />
+    //     <TabButton
+    //       active={activeTab === "applications"}
+    //       onClick={() => setActiveTab("applications")}
+    //     >
+    //       Applications
+    //     </TabButton>
+    //     <TabButton
+    //       active={activeTab === "timeline"}
+    //       onClick={() => setActiveTab("timeline")}
+    //     >
+    //       Timeline
+    //     </TabButton>
+    //     <TabButton
+    //       active={activeTab === "contacts"}
+    //       onClick={() => setActiveTab("contacts")}
+    //     >
+    //       Network
+    //     </TabButton>
+    //     <TabButton
+    //       active={activeTab === "insights"}
+    //       onClick={() => setActiveTab("insights")}
+    //     >
+    //       Role Insights
+    //     </TabButton>
+    //   </nav>
 
-      {activeTab === "timeline" && (
-        <TimelineView timelines={timelines} applications={applications} />
-      )}
+    //   {activeTab === "applications" && (
+    //     <ApplicationsView applications={applications} />
+    //   )}
 
-      {activeTab === "contacts" && <NetworkView contacts={contacts} />}
+    //   {activeTab === "timeline" && (
+    //     <TimelineView timelines={timelines} applications={applications} />
+    //   )}
 
-      {activeTab === "insights" && <InsightsView insights={roleInsights} />}
-    </div>
+    //   {activeTab === "contacts" && <NetworkView contacts={contacts} />}
+
+    //   {activeTab === "insights" && <InsightsView insights={roleInsights} />}
+    // </div>
   )
 }
 
@@ -149,6 +154,7 @@ function TimelineView({ timelines, applications }) {
     </div>
   )
 }
+export { TimelineView };
 
 function ApplicationsView({ applications }) {
   return (
@@ -195,6 +201,7 @@ function ApplicationsView({ applications }) {
     </div>
   )
 }
+export { ApplicationsView };
 
 function NetworkView({ contacts }) {
   return (
@@ -228,6 +235,7 @@ function NetworkView({ contacts }) {
     </div>
   )
 }
+export { NetworkView };
 
 function InsightsView({ insights }) {
   return (
@@ -273,21 +281,22 @@ function InsightsView({ insights }) {
     </div>
   )
 }
+export { InsightsView };
 
-function TabButton({ children, active, onClick }) {
-  return (
-    <button
-      className={`px-4 py-2 rounded-lg ${
-        active
-          ? "bg-blue-600 text-white"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }`}
-      onClick={onClick}
-    >
-      {children}
-    </button>
-  )
-}
+// function TabButton({ children, active, onClick }) {
+//   return (
+//     <button
+//       className={`px-4 py-2 rounded-lg ${
+//         active
+//           ? "bg-blue-600 text-white"
+//           : "bg-gray-200 text-gray-700 hover:bg-gray-300"
+//       }`}
+//       onClick={onClick}
+//     >
+//       {children}
+//     </button>
+//   )
+// }
 
 function StatusBadge({ status }) {
   const statusColors = {
