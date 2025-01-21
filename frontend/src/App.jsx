@@ -146,4 +146,60 @@ function InsightView() {
 export { InsightView }
 
 
+function StatusBadge({ status }) {
+  const statusColors = {
+    Offer: "bg-green-100 text-green-800",
+    Accepted: "bg-blue-100 text-blue-800",
+    Rejected: "bg-red-100 text-red-800",
+    Withdrawn: "bg-gray-100 text-gray-800",
+    "No Response": "bg-yellow-100 text-yellow-800",
+    "Technical Interview": "bg-purple-100 text-purple-800",
+    "Initial Screen": "bg-indigo-100 text-indigo-800",
+    "Final Interview": "bg-pink-100 text-pink-800",
+    Applied: "bg-orange-100 text-orange-800",
+  }
+
+  const colorClass = statusColors[status] || "bg-gray-100 text-gray-800"
+
+  return (
+    <span className={`px-2 py-1 rounded-full text-sm ${colorClass}`}>
+      {status}
+    </span>
+  )
+}
+
+function PriorityBadge({ priority }) {
+  const priorityColors = {
+    High: "bg-red-100 text-red-800",
+    Medium: "bg-yellow-100 text-yellow-800",
+    Low: "bg-green-100 text-green-800",
+  }
+
+  const colorClass = priorityColors[priority] || "bg-gray-100 text-gray-800"
+
+  return (
+    <span className={`px-2 py-1 rounded-full text-sm ${colorClass}`}>
+      {priority}
+    </span>
+  )
+}
+
+function SkillsList({ skills }) {
+  if (!Array.isArray(skills)) return null
+
+  return (
+    <div className="flex flex-wrap gap-1">
+      {skills.map((skill, index) => (
+        <span
+          key={index}
+          className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
+        >
+          {skill}
+        </span>
+      ))}
+    </div>
+  )
+}
+
+
 export default App;
