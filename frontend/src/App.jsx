@@ -61,51 +61,51 @@ function App() {
 
   return (
     
-    <nav>
-      <BasicTabs/>
-    </nav>
+    // <nav>
+    //   <BasicTabs/>
+    // </nav>
 
-    // <div className="container mx-auto p-4">
-    //   <nav className="flex space-x-4 mb-4">
-    //     <BasicTabs />
-    //     <TabButton
-    //       active={activeTab === "applications"}
-    //       onClick={() => setActiveTab("applications")}
-    //     >
-    //       Applications
-    //     </TabButton>
-    //     <TabButton
-    //       active={activeTab === "timeline"}
-    //       onClick={() => setActiveTab("timeline")}
-    //     >
-    //       Timeline
-    //     </TabButton>
-    //     <TabButton
-    //       active={activeTab === "contacts"}
-    //       onClick={() => setActiveTab("contacts")}
-    //     >
-    //       Network
-    //     </TabButton>
-    //     <TabButton
-    //       active={activeTab === "insights"}
-    //       onClick={() => setActiveTab("insights")}
-    //     >
-    //       Role Insights
-    //     </TabButton>
-    //   </nav>
+    <div className="container mx-auto p-4">
+      <nav className="flex space-x-4 mb-4">
+        <BasicTabs />
+        <TabButton
+          active={activeTab === "applications"}
+          onClick={() => setActiveTab("applications")}
+        >
+          Applications
+        </TabButton>
+        <TabButton
+          active={activeTab === "timeline"}
+          onClick={() => setActiveTab("timeline")}
+        >
+          Timeline
+        </TabButton>
+        <TabButton
+          active={activeTab === "contacts"}
+          onClick={() => setActiveTab("contacts")}
+        >
+          Network
+        </TabButton>
+        <TabButton
+          active={activeTab === "insights"}
+          onClick={() => setActiveTab("insights")}
+        >
+          Role Insights
+        </TabButton>
+      </nav>
 
-    //   {activeTab === "applications" && (
-    //     <ApplicationsView applications={applications} />
-    //   )}
+      {activeTab === "applications" && (
+        <ApplicationsView applications={applications} />
+      )}
 
-    //   {activeTab === "timeline" && (
-    //     <TimelineView timelines={timelines} applications={applications} />
-    //   )}
+      {activeTab === "timeline" && (
+        <TimelineView timelines={timelines} applications={applications} />
+      )}
 
-    //   {activeTab === "contacts" && <NetworkView contacts={contacts} />}
+      {activeTab === "contacts" && <NetworkView contacts={contacts} />}
 
-    //   {activeTab === "insights" && <InsightsView insights={roleInsights} />}
-    // </div>
+      {activeTab === "insights" && <InsightsView insights={roleInsights} />}
+    </div>
   )
 }
 
