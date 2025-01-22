@@ -2,6 +2,18 @@ import { useState, useEffect } from "react"
 import "./App.css"
 import NavTabs from './components/NavTabs'
 
+
+// MUI Imports (AppView Table)
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+
+
+// Main App function
 function App() {
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
@@ -58,7 +70,6 @@ function App() {
   if (loading) return <div className="p-4">Loading data...</div>
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>
 
-
   return (
     <div>
       <h1 className="header">
@@ -77,14 +88,41 @@ function App() {
 
 }
 
+
 // Applications page
-function ApplicationView() {
+function ApplicationView( { applications } ) {
   return (
-    <p>Hello</p>
-  )
-  
+    <TableContainer component={Paper}>
+      <Table sx={{ minWidth: 650 }} aria-label="simple table">
+        <TableHead>
+          <TableRow>
+            <TableCell>Job Title</TableCell>
+            <TableCell align="right">Company</TableCell>
+            <TableCell align="right">Date Applied</TableCell>
+            <TableCell align="right">Status</TableCell>
+          </TableRow>
+        </TableHead>
+        <TableBody>
+          {applications.map((row) => (
+            <TableRow
+              key={app.id}
+              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+            >
+              <TableCell component="th" scope="row">
+                {row.name}
+              </TableCell>
+              <TableCell align="right">{app.company}</TableCell>
+              <TableCell align="right">{app.dateApplied}</TableCell>
+              <TableCell align="right">{row.status}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </TableContainer>
+  );
 }
 export { ApplicationView }
+
 
 // Timeline of applications page
 function TimelineView({timelines, applications}) {
@@ -134,6 +172,7 @@ function TimelineView({timelines, applications}) {
   }
 export { TimelineView }
 
+
 // Network Page
 function NetworkView() {
   return (
@@ -141,6 +180,7 @@ function NetworkView() {
   )
 }
 export { NetworkView }
+
 
 // Insight page
 function InsightView() {
