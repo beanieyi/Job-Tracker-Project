@@ -12,6 +12,9 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 
+// motion.dev imports for animations
+import * as motion from "motion/react-client";
+
 
 // Main App function
 function App() {
@@ -95,33 +98,43 @@ function ApplicationView({ applications }) {
   // console.log(applications);
 
   return (
-    <TableContainer component={Paper}>
-      <Table sx={{ minWidth: 650 }} aria-label="simple table">
-        <TableHead>
-          <TableRow>
-            <TableCell>Job Title</TableCell>
-            <TableCell align="right">Company</TableCell>
-            <TableCell align="right">Date Applied</TableCell>
-            <TableCell align="right">Status</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {applications.map((app) => (
-            <TableRow
-              key={app.id}
-              sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-            >
-              <TableCell component="th" scope="app">
-                {app.position}
-              </TableCell>
-              <TableCell align="right">{app.company}</TableCell>
-              <TableCell align="right">{app.date}</TableCell>
-              <TableCell align="right">{app.status}</TableCell>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+          duration: 0.5,
+          delay: 0.2,
+          ease: [0, 0.71, 0.2, 1.01],
+      }}
+    >
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Job Title</TableCell>
+              <TableCell align="right">Company</TableCell>
+              <TableCell align="right">Date Applied</TableCell>
+              <TableCell align="right">Status</TableCell>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
+          </TableHead>
+          <TableBody>
+            {applications.map((app) => (
+              <TableRow
+                key={app.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="app">
+                  {app.position}
+                </TableCell>
+                <TableCell align="right">{app.company}</TableCell>
+                <TableCell align="right">{app.date}</TableCell>
+                <TableCell align="right">{app.status}</TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </motion.div>
   );
 }
 export { ApplicationView }

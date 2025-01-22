@@ -6,6 +6,9 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { ApplicationView, TimelineView, NetworkView, InsightView } from '../App';
 
+// motion.dev imports for animations
+import * as motion from "motion/react-client";
+
 export default function LabTabs({ timelines, applications, contacts, roleInsights }) {
   const [value, setValue] = React.useState('applications');
 
@@ -16,15 +19,24 @@ export default function LabTabs({ timelines, applications, contacts, roleInsight
   return (
     <Box sx={{ width: '100%', typography: 'body1' }}>
       <TabContext value={value}>
-        <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-          <TabList onChange={handleChange} aria-label="navigation bar">
-            <Tab label="Application" value="applications" />
-            <Tab label="Timeline" value="timelines" />
-            <Tab label="Network" value="contacts" />
-            <Tab label="Insight" value="roleInsights" />
-          </TabList>
-        </Box>
-
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+          duration: 0.4,
+          type: "spring",
+          bounce: 0.5,
+          }}
+        >
+          <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
+            <TabList onChange={handleChange} aria-label="navigation bar">
+              <Tab label="Application" value="applications" />
+              <Tab label="Timeline" value="timelines" />
+              <Tab label="Network" value="contacts" />
+              <Tab label="Insight" value="roleInsights" />
+            </TabList>
+          </Box>
+        </motion.div>
         <TabPanel value="applications">
           <ApplicationView applications={applications}/>
         </TabPanel>
