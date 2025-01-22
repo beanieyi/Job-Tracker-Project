@@ -6,7 +6,7 @@ import TabList from '@mui/lab/TabList';
 import TabPanel from '@mui/lab/TabPanel';
 import { ApplicationView, TimelineView, NetworkView, InsightView } from '../App';
 
-export default function LabTabs() {
+export default function LabTabs({ timelines, applications, contacts, roleInsights }) {
   const [value, setValue] = React.useState('applications');
 
   const handleChange = (event, newValue) => {
@@ -20,25 +20,25 @@ export default function LabTabs() {
           <TabList onChange={handleChange} aria-label="navigation bar">
             <Tab label="Application" value="applications" />
             <Tab label="Timeline" value="timelines" />
-            <Tab label="Network" value="networks" />
-            <Tab label="Insight" value="insights" />
+            <Tab label="Network" value="contacts" />
+            <Tab label="Insight" value="roleInsights" />
           </TabList>
         </Box>
 
         <TabPanel value="applications">
-          <ApplicationView />
+          <ApplicationView applications={applications}/>
         </TabPanel>
 
         <TabPanel value="timelines">
-          <TimelineView/>
+          <TimelineView timelines={timelines} applications={applications}/>
         </TabPanel>
 
-        <TabPanel value="networks">
-          <NetworkView/>
+        <TabPanel value="contacts">
+          <NetworkView contacts={contacts}/>
         </TabPanel>
 
-        <TabPanel value="insights">
-          <InsightView/>
+        <TabPanel value="roleInsights">
+          <InsightView roleInsights={roleInsights}/>
         </TabPanel>
 
       </TabContext>
