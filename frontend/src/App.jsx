@@ -89,7 +89,11 @@ function App() {
 
 
 // Applications page
-function ApplicationView( { applications } ) {
+function ApplicationView({ applications }) {
+
+  // Debugging Purposes
+  // console.log(applications);
+
   return (
     <TableContainer component={Paper}>
       <Table sx={{ minWidth: 650 }} aria-label="simple table">
@@ -102,17 +106,17 @@ function ApplicationView( { applications } ) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {applications.map((row) => (
+          {applications.map((app) => (
             <TableRow
               key={app.id}
               sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
             >
-              <TableCell component="th" scope="row">
-                {row.name}
+              <TableCell component="th" scope="app">
+                {app.position}
               </TableCell>
               <TableCell align="right">{app.company}</TableCell>
-              <TableCell align="right">{app.dateApplied}</TableCell>
-              <TableCell align="right">{row.status}</TableCell>
+              <TableCell align="right">{app.date}</TableCell>
+              <TableCell align="right">{app.status}</TableCell>
             </TableRow>
           ))}
         </TableBody>
