@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import "./App.css"
 import NavTabs from './components/NavTabs'
+import * as React from 'react';
 
 
 // MUI Imports (AppView Table)
@@ -11,6 +12,14 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+
+// MUI Imports (NetworkView Cards)
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
 
 // motion.dev imports for animations
 import * as motion from "motion/react-client";
@@ -150,9 +159,40 @@ export { TimelineView }
 
 
 // Network Page
-function NetworkView() {
+function NetworkView({ contacts }) {
   return (
-    <p>People</p>
+    <motion.div
+    initial={{ opacity: 0, scale: 0.5 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{
+        duration: 0.6,
+        delay: 0.3,
+        ease: [0, 0.71, 0.2, 1.01],
+      }}
+    >
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '50px', justifyContent: 'center' }}>
+        {contacts.map((contact, index) => (
+          <motion.div
+            whileHover={{ scale: 1.2 }}
+          >
+            <Card key={index} sx={{ width: 300 }}>
+              <CardContent>
+                <Typography gutterBottom variant="h5" component="div">
+                  {contact.name || "Unknown Name"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {contact.company || "Company not found."}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button size="small">Email</Button>
+                <Button size="small">LinkedIn</Button>
+              </CardActions>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
   )
 }
 export { NetworkView }
@@ -161,7 +201,7 @@ export { NetworkView }
 // Insight page
 function InsightView() {
   return (
-    <p>No way</p>
+    <p>hello</p>
   )
 }
 export { InsightView }
