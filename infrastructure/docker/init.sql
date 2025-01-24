@@ -3,11 +3,20 @@
 BEGIN;
 
 -- Drop existing tables if they exist (in correct order to handle dependencies)
+DROP TABLE IF EXISTS users CASCADE;
 DROP TABLE IF EXISTS application_timeline CASCADE;
 DROP TABLE IF EXISTS network_contacts CASCADE;
 DROP TABLE IF EXISTS role_insights CASCADE;
 DROP TABLE IF EXISTS job_applications CASCADE;
 
+CREATE TABLE IF NOT EXISTS users (
+            id SERIAL PRIMARY KEY,
+            username VARCHAR(100) NOT NULL,
+            email VARCHAR(150) UNIQUE NOT NULL,
+            password_hash VARCHAR(255) NOT NULL,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        );
+        
 -- Create job applications table with expanded tracking fields
 CREATE TABLE job_applications (
     id SERIAL PRIMARY KEY,

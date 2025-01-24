@@ -2,7 +2,7 @@
 Job Tracker API Backend Service
 This module implements the REST API endpoints for the Job Tracker application using FastAPI.
 """
-
+from app.routers import auth
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
@@ -10,8 +10,18 @@ from pydantic import BaseModel
 from datetime import date, datetime
 import psycopg2
 from psycopg2.extras import RealDictCursor
+from app.database import get_db_connection
 
-
+class User(BaseModel):
+    """
+    Pydantic model for users
+    """
+    id: int
+    email: str
+    password: str
+    skills: List[str]
+    name: str
+    
 class JobApplication(BaseModel):
     """
     Pydantic model for job applications matching our new schema
@@ -79,13 +89,13 @@ app.add_middleware(
 )
 
 
-def get_db_connection():
-    """Helper function to create database connection"""
-    return psycopg2.connect(
-        "postgresql://jobtracker:jobtracker@db:5432/jobtracker",
-        cursor_factory=RealDictCursor,
-    )
-
+# def get_db_connection():
+#     """Helper function to create database connection"""
+#     return psycopg2.connect(
+#         "postgresql://jobtracker:jobtracker@db:5432/jobtracker",
+#         cursor_factory=RealDictCursor,
+#     )
+app.include_router(auth.router)
 
 @app.get("/")
 async def read_root():
