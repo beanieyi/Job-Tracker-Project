@@ -31,7 +31,7 @@ def create_access_token(data: dict) -> str:
     """Creates a JWT token with an expiration."""
 
     to_encode = data.copy()
-    expire = datetime.now() + timedelta(minutes=settings.TOKEN_EXPIRY)
+    expire = datetime.now() + timedelta(minutes=int(settings.TOKEN_EXPIRY))
     to_encode.update({"exp": expire})
     encoded_jwt = jwt.encode(
         to_encode, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
@@ -47,7 +47,7 @@ def verify_access_token(token: str) -> dict:
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         return payload
     except InvalidTokenError:
         raise credentials_exception
