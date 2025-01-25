@@ -9,12 +9,13 @@ DROP TABLE IF EXISTS network_contacts CASCADE;
 DROP TABLE IF EXISTS role_insights CASCADE;
 DROP TABLE IF EXISTS job_applications CASCADE;
 
-CREATE TABLE IF NOT EXISTS users (
+CREATE TABLE users (
             id SERIAL PRIMARY KEY,
             username VARCHAR(100) NOT NULL,
             email VARCHAR(150) UNIQUE NOT NULL,
             password_hash VARCHAR(255) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            skills TEXT[]
         );
         
 -- Create job applications table with expanded tracking fields
@@ -44,8 +45,7 @@ CREATE TABLE network_contacts (
     name VARCHAR(100) NOT NULL,
     role VARCHAR(100) NOT NULL,
     company VARCHAR(200) NOT NULL,
-    connection VARCHAR(100) NOT NULL,
-    last_contact DATE NOT NULL,
+    linkedin VARCHAR(200) NOT NULL,
     email VARCHAR(200),
     phone VARCHAR(20)
 );
@@ -182,12 +182,12 @@ INSERT INTO application_timeline (application_id, status, date, notes) VALUES
 SELECT setval('application_timeline_id_seq', (SELECT MAX(id) FROM application_timeline));
 
 -- Insert network contacts
-INSERT INTO network_contacts (id, name, role, company, connection, last_contact, email, phone) VALUES
-    (1, 'Alice Johnson',  'Recruiter',             'Tech Corp',            'LinkedIn',  '2025-01-15', 'alice@techcorp.com',     '555-0101'),
-    (2, 'Bob Williams',   'HR Manager',            'Design Co',           'Referral',  '2025-01-18', 'bob@designco.com',       '555-0202'),
-    (3, 'Carol Smith',    'Engineering Manager',   'Startup Inc',         'Meetup',    '2025-01-19', 'carol@startupinc.com',   '555-0303'),
-    (4, 'David Brown',    'DevOps Lead',           'Cloud Systems',       'Conference','2025-01-20', 'david@cloudsystems.com', '555-0404'),
-    (5, 'Eve Davis',      'CEO',                   'Data Systems Inc',    'Alumni',    '2025-01-21', 'eve@datasystems.com',    '555-0505');
+INSERT INTO network_contacts (id, name, role, company, linkedin, email, phone) VALUES
+    (1, 'Alice Johnson',  'Recruiter',             'Tech Corp',            'LinkedIn',  'alice@techcorp.com',     '555-0101'),
+    (2, 'Bob Williams',   'HR Manager',            'Design Co',           'LinkedIn',   'bob@designco.com',       '555-0202'),
+    (3, 'Carol Smith',    'Engineering Manager',   'Startup Inc',         'LinkedIn',   'carol@startupinc.com',   '555-0303'),
+    (4, 'David Brown',    'DevOps Lead',           'Cloud Systems',       'LinkedIn',   'david@cloudsystems.com', '555-0404'),
+    (5, 'Eve Davis',      'CEO',                   'Data Systems Inc',    'LinkedIn',   'eve@datasystems.com',    '555-0505');
 
 -- Reset network contacts sequence
 SELECT setval('network_contacts_id_seq', (SELECT MAX(id) FROM network_contacts));
