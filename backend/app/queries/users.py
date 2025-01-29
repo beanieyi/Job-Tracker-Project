@@ -8,6 +8,10 @@ GET_USER_BY_EMAIL = """
 SELECT * FROM users WHERE email = %s;
 """
 
+FIND_USER = """
+SELECT * FROM users WHERE email = %s;
+"""
+
 UPDATE_USER_SKILLS = """
 UPDATE users
 SET skills = %s
