@@ -1,5 +1,5 @@
-import React from "react"
-import { motion } from "motion/react-client"
+import { motion } from "framer-motion"
+import PropTypes from "prop-types"
 
 const NavTabs = ({ activeTab, setActiveTab }) => {
   const tabs = [
@@ -34,6 +34,11 @@ const NavTabs = ({ activeTab, setActiveTab }) => {
       </div>
     </div>
   )
+}
+
+NavTabs.propTypes = {
+  activeTab: PropTypes.string.isRequired,
+  setActiveTab: PropTypes.func.isRequired,
 }
 
 export default NavTabs

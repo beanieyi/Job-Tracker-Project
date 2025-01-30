@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "motion/react-client"
+import { useState } from "react"
+import { motion, AnimatePresence } from "framer-motion"
 
 // Component Imports
 import Login from "./components/Auth/Login"
@@ -9,133 +9,69 @@ import ApplicationView from "./components/Applications/ApplicationView"
 import NetworkView from "./components/Network/NetworkView"
 import InsightView from "./components/Insights/InsightView"
 
+// Sample data for development
+const sampleApplications = [
+  {
+    id: 1,
+    position: "Frontend Developer",
+    company: "Tech Corp",
+    status: "Applied",
+    date: "2025-01-15",
+    priority: "High",
+  },
+  {
+    id: 2,
+    position: "Full Stack Developer",
+    company: "Design Co",
+    status: "Technical Interview",
+    date: "2025-01-14",
+    priority: "Medium",
+  },
+  // Add more sample data as needed
+]
+
+const sampleContacts = [
+  {
+    id: 1,
+    name: "Alice Johnson",
+    role: "Recruiter",
+    company: "Tech Corp",
+    linkedin: "linkedin.com",
+    email: "alice@techcorp.com",
+    phone: "555-0101",
+  },
+  // Add more sample contacts
+]
+
+const sampleRoleInsights = [
+  {
+    role_title: "Frontend Developer",
+    common_skills: ["React", "JavaScript", "CSS", "HTML"],
+    average_salary: "$80K - $110K",
+    demand_trend: "High",
+  },
+  // Add more sample insights
+]
+
 function App() {
-  // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState("dashboard")
-  const [userData, setUserData] = useState(null)
+  const [applications] = useState(sampleApplications)
+  const [contacts] = useState(sampleContacts)
+  const [roleInsights] = useState(sampleRoleInsights)
 
-  // Application data state
-  const [applications, setApplications] = useState([])
-  const [timelines, setTimelines] = useState([])
-  const [contacts, setContacts] = useState([])
-  const [roleInsights, setRoleInsights] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-
-  // Fetch data when authenticated
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [applicationsRes, timelinesRes, contactsRes, insightsRes] =
-          await Promise.all([
-            fetch("http://localhost:8000/api/applications"),
-            fetch("http://localhost:8000/api/timelines"),
-            fetch("http://localhost:8000/api/contacts"),
-            fetch("http://localhost:8000/api/role-insights"),
-          ])
-
-        // Check response status
-        if (!applicationsRes.ok)
-          throw new Error(
-            `Applications fetch failed: ${applicationsRes.status}`
-          )
-        if (!timelinesRes.ok)
-          throw new Error(`Timelines fetch failed: ${timelinesRes.status}`)
-        if (!contactsRes.ok)
-          throw new Error(`Contacts fetch failed: ${contactsRes.status}`)
-        if (!insightsRes.ok)
-          throw new Error(`Insights fetch failed: ${insightsRes.status}`)
-
-        // Parse response data
-        const [applicationsData, timelinesData, contactsData, insightsData] =
-          await Promise.all([
-            applicationsRes.json(),
-            timelinesRes.json(),
-            contactsRes.json(),
-            insightsRes.json(),
-          ])
-
-        // Update state with fetched data
-        setApplications(applicationsData)
-        setTimelines(timelinesData)
-        setContacts(contactsData)
-        setRoleInsights(insightsData)
-        setLoading(false)
-      } catch (err) {
-        console.error("Fetch error:", err)
-        setError(err.message)
-        setLoading(false)
-      }
-    }
-
-    if (isAuthenticated) {
-      fetchData()
-    }
-  }, [isAuthenticated])
-
-  const handleLogin = (userData) => {
+  const handleLogin = () => {
     setIsAuthenticated(true)
-    setUserData(userData)
   }
 
-  // Show login screen if not authenticated
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />
   }
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-[#313338] flex items-center justify-center">
-        <div className="text-white text-lg">Loading...</div>
-      </div>
-    )
-  }
-
-  // Show error state
-  if (error) {
-    return (
-      <div className="min-h-screen bg-[#313338] flex items-center justify-center">
-        <div className="text-[#ED4245] text-lg">Error: {error}</div>
-      </div>
-    )
-  }
-
-  // Render active tab content
-  const renderContent = () => {
-    switch (activeTab) {
-      case "dashboard":
-        return <Dashboard applications={applications} timelines={timelines} />
-      case "applications":
-        return <ApplicationView applications={applications} />
-      case "network":
-        return <NetworkView contacts={contacts} />
-      case "insights":
-        return <InsightView roleInsights={roleInsights} />
-      default:
-        return <Dashboard applications={applications} />
-    }
-  }
-
-  // Main app layout
   return (
     <div className="min-h-screen bg-[#313338]">
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Header section */}
-        <header className="mb-8">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white">Job Tracker</h1>
-            {userData && (
-              <div className="text-[#B5BAC1]">Welcome, {userData.email}</div>
-            )}
-          </div>
-        </header>
-
-        {/* Navigation */}
         <NavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-        {/* Main content area */}
         <AnimatePresence mode="wait">
           <motion.main
             key={activeTab}
@@ -144,7 +80,16 @@ function App() {
             exit={{ opacity: 0, y: -20 }}
             className="mt-6"
           >
-            {renderContent()}
+            {activeTab === "dashboard" && (
+              <Dashboard applications={applications} />
+            )}
+            {activeTab === "applications" && (
+              <ApplicationView applications={applications} />
+            )}
+            {activeTab === "network" && <NetworkView contacts={contacts} />}
+            {activeTab === "insights" && (
+              <InsightView roleInsights={roleInsights} />
+            )}
           </motion.main>
         </AnimatePresence>
       </div>

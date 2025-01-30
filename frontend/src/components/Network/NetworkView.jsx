@@ -1,5 +1,5 @@
-import React from "react"
-import { motion } from "motion/react-client"
+import { motion } from "framer-motion"
+import PropTypes from "prop-types"
 import { LinkedinIcon, MailIcon, PhoneIcon } from "lucide-react"
 
 const NetworkView = ({ contacts }) => {
@@ -32,31 +32,21 @@ const NetworkView = ({ contacts }) => {
                   </h3>
                   <p className="text-[#B5BAC1] text-sm">{contact.role}</p>
                 </div>
-                <div className="w-10 h-10 bg-[#5865F2] rounded-full flex items-center justify-center">
-                  {contact.name.charAt(0)}
-                </div>
               </div>
 
-              <div className="mt-4">
-                <p className="text-[#B5BAC1] font-medium">{contact.company}</p>
-              </div>
-
-              <div className="mt-6 flex gap-4">
+              <div className="flex gap-4 mt-4">
                 {contact.email && (
                   <motion.a
                     whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.95 }}
                     href={`mailto:${contact.email}`}
                     className="text-[#B5BAC1] hover:text-[#5865F2]"
                   >
                     <MailIcon size={20} />
                   </motion.a>
                 )}
-
                 {contact.linkedin && (
                   <motion.a
                     whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.95 }}
                     href={contact.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
@@ -65,11 +55,9 @@ const NetworkView = ({ contacts }) => {
                     <LinkedinIcon size={20} />
                   </motion.a>
                 )}
-
                 {contact.phone && (
                   <motion.a
                     whileHover={{ y: -2 }}
-                    whileTap={{ scale: 0.95 }}
                     href={`tel:${contact.phone}`}
                     className="text-[#B5BAC1] hover:text-[#5865F2]"
                   >
@@ -83,6 +71,20 @@ const NetworkView = ({ contacts }) => {
       </div>
     </motion.div>
   )
+}
+
+NetworkView.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      role: PropTypes.string.isRequired,
+      company: PropTypes.string.isRequired,
+      linkedin: PropTypes.string,
+      email: PropTypes.string,
+      phone: PropTypes.string,
+    })
+  ).isRequired,
 }
 
 export default NetworkView

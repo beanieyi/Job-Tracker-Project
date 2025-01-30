@@ -1,7 +1,11 @@
-import React from "react"
-import { motion } from "motion/react-client"
-import * as LucideIcons from "lucide-react"
-const { TrendingUpIcon, DollarSignIcon, BriefcaseIcon, CodeIcon } = LucideIcons
+import { motion } from "framer-motion"
+import PropTypes from "prop-types"
+import {
+  TrendingUpIcon,
+  DollarSignIcon,
+  BriefcaseIcon,
+  CodeIcon,
+} from "lucide-react"
 
 const InsightView = ({ roleInsights }) => {
   return (
@@ -32,7 +36,6 @@ const InsightView = ({ roleInsights }) => {
               </div>
             </div>
 
-            {/* Skills Section */}
             <div className="mb-6">
               <div className="flex items-center gap-2 mb-2">
                 <CodeIcon size={16} className="text-[#B5BAC1]" />
@@ -50,12 +53,11 @@ const InsightView = ({ roleInsights }) => {
               </div>
             </div>
 
-            {/* Salary and Demand */}
-            <div className="grid grid-cols-2 gap-4 mb-6">
+            <div className="grid grid-cols-2 gap-4">
               <div>
                 <div className="flex items-center gap-2 mb-2">
                   <DollarSignIcon size={16} className="text-[#57F287]" />
-                  <h4 className="text-[#B5BAC1] font-medium">Average Salary</h4>
+                  <h4 className="text-[#B5BAC1] font-medium">Salary</h4>
                 </div>
                 <p className="text-white">{role.average_salary}</p>
               </div>
@@ -67,26 +69,22 @@ const InsightView = ({ roleInsights }) => {
                 <p className="text-white">{role.demand_trend}</p>
               </div>
             </div>
-
-            {/* Top Companies */}
-            <div>
-              <h4 className="text-[#B5BAC1] font-medium mb-2">Top Companies</h4>
-              <div className="flex flex-wrap gap-2">
-                {role.top_companies.map((company, index) => (
-                  <span
-                    key={index}
-                    className="bg-[#383A40] text-white px-3 py-1 rounded-md text-sm"
-                  >
-                    {company}
-                  </span>
-                ))}
-              </div>
-            </div>
           </motion.div>
         ))}
       </div>
     </motion.div>
   )
+}
+
+InsightView.propTypes = {
+  roleInsights: PropTypes.arrayOf(
+    PropTypes.shape({
+      role_title: PropTypes.string.isRequired,
+      common_skills: PropTypes.arrayOf(PropTypes.string).isRequired,
+      average_salary: PropTypes.string.isRequired,
+      demand_trend: PropTypes.string.isRequired,
+    })
+  ).isRequired,
 }
 
 export default InsightView

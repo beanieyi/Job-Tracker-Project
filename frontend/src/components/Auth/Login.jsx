@@ -1,28 +1,26 @@
-import React, { useState } from "react"
-import { motion } from "motion/react-client"
+import { useState } from "react"
+import { motion } from "framer-motion"
+import PropTypes from "prop-types"
 
 const Login = ({ onLogin }) => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
+  const [email, setEmail] = useState("demo@example.com")
+  const [password, setPassword] = useState("password")
+  const [loading, setLoading] = useState(false)
   const [error, setError] = useState("")
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    setIsLoading(true)
+    setLoading(true)
     setError("")
 
     try {
-      // This will be replaced with actual backend integration
-      // For now, we'll simulate a login
-      if (email && password) {
-        await new Promise((resolve) => setTimeout(resolve, 1000)) // Simulate API call
-        onLogin({ email })
-      }
+      // For development, accept any credentials
+      await new Promise((resolve) => setTimeout(resolve, 500)) // Simulate API call
+      onLogin()
     } catch (err) {
-      setError("Invalid credentials. Please try again.")
+      setError("Invalid credentials")
     } finally {
-      setIsLoading(false)
+      setLoading(false)
     }
   }
 
@@ -33,7 +31,12 @@ const Login = ({ onLogin }) => {
         animate={{ opacity: 1, y: 0 }}
         className="bg-[#2B2D31] p-8 rounded-lg w-full max-w-md"
       >
-        <h2 className="text-2xl font-bold text-white mb-6">Welcome back!</h2>
+        <h2 className="text-2xl font-bold text-white mb-6">
+          Welcome to Job Tracker
+        </h2>
+        <p className="text-[#B5BAC1] mb-6">
+          Use any email and password to log in during development.
+        </p>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
@@ -45,6 +48,7 @@ const Login = ({ onLogin }) => {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full px-3 py-2 bg-[#383A40] border border-[#222327] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#5865F2]"
+              placeholder="Enter any email"
               required
             />
           </div>
@@ -58,6 +62,7 @@ const Login = ({ onLogin }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-3 py-2 bg-[#383A40] border border-[#222327] rounded-md text-white focus:outline-none focus:ring-2 focus:ring-[#5865F2]"
+              placeholder="Enter any password"
               required
             />
           </div>
@@ -71,16 +76,24 @@ const Login = ({ onLogin }) => {
             className={`
               w-full py-2 px-4 bg-[#5865F2] text-white rounded-md font-medium
               hover:bg-[#4752C4] transition-colors duration-200
-              ${isLoading ? "opacity-50 cursor-not-allowed" : ""}
+              ${loading ? "opacity-50 cursor-not-allowed" : ""}
             `}
-            disabled={isLoading}
+            disabled={loading}
           >
-            {isLoading ? "Logging in..." : "Log In"}
+            {loading ? "Logging in..." : "Enter Dashboard"}
           </motion.button>
         </form>
+
+        <div className="mt-4 text-sm text-[#B5BAC1] text-center">
+          Development mode: All credentials accepted
+        </div>
       </motion.div>
     </div>
   )
+}
+
+Login.propTypes = {
+  onLogin: PropTypes.func.isRequired,
 }
 
 export default Login
