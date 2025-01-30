@@ -2,14 +2,15 @@
 Job Tracker API Backend Service
 This module implements the REST API endpoints for the Job Tracker application using FastAPI.
 """
-
+from app.routers import auth, contacts, applications
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from typing import List, Optional
 from pydantic import BaseModel
 from datetime import date, datetime
-import psycopg2
-from psycopg2.extras import RealDictCursor
+# import psycopg2
+# from psycopg2.extras import RealDictCursor
+from app.database import get_db_connection
 
 
 class JobApplication(BaseModel):
@@ -48,8 +49,7 @@ class NetworkContact(BaseModel):
     name: str
     role: str
     company: str
-    connection: str
-    last_contact: date
+    linkedin: str
     email: Optional[str]
     phone: Optional[str]
 
@@ -79,12 +79,15 @@ app.add_middleware(
 )
 
 
-def get_db_connection():
-    """Helper function to create database connection"""
-    return psycopg2.connect(
-        "postgresql://jobtracker:jobtracker@db:5432/jobtracker",
-        cursor_factory=RealDictCursor,
-    )
+# def get_db_connection():
+#     """Helper function to create database connection"""
+#     return psycopg2.connect(
+#         "postgresql://jobtracker:jobtracker@db:5432/jobtracker",
+#         cursor_factory=RealDictCursor,
+#     )
+app.include_router(auth.router)
+app.include_router(contacts.router)
+app.include_router(applications.router)
 
 
 @app.get("/")
@@ -149,10 +152,10 @@ async def get_contacts():
 
         cur.execute(
             """
-            SELECT id, name, role, company, connection, 
-                   last_contact, email, phone 
+            SELECT id, name, role, company, linkedin, 
+                   email, phone 
             FROM network_contacts 
-            ORDER BY last_contact DESC
+            ORDER BY name DESC
         """
         )
         contacts = cur.fetchall()
