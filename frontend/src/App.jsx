@@ -3,6 +3,10 @@ import "./App.css"
 import NavTabs from './components/NavTabs'
 import * as React from 'react';
 
+// MUI Toolpad (Auth Page)
+import { useTheme } from '@mui/material/styles';
+import { AppProvider } from '@toolpad/core/AppProvider';
+import { SignInPage } from '@toolpad/core/SignInPage';
 
 // MUI Imports (AppView Table)
 import Table from '@mui/material/Table';
@@ -24,17 +28,36 @@ import Typography from '@mui/material/Typography';
 // motion.dev imports for animations
 import * as motion from "motion/react-client";
 
+// Authentication state
+const providers = [{ id: 'credentials', name: 'Email and Password' }];
+
 
 // Main App function
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
   const [contacts, setContacts] = useState([])
   const [roleInsights, setRoleInsights] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
+  const theme = useTheme()
+
+  // Mock sign-in function
+  const signIn = async (provider, formData) => {
+    return new Promise((resolve) => {
+      setTimeout(() => {
+        alert(`Signing in as ${formData.get("email")}`);
+        setIsAuthenticated(true); // Set user as authenticated
+        resolve();
+      }, 300);
+    });
+  };
 
   useEffect(() => {
+
+    if (!isAuthenticated) return;
+
     const fetchData = async () => {
       try {
         const [applicationsRes, timelinesRes, contactsRes, insightsRes] =
@@ -77,7 +100,20 @@ function App() {
     }
 
     fetchData()
-  }, [])
+  }, [isAuthenticated])
+
+  // If not authenticated, show Sign-In Page
+  if (!isAuthenticated) {
+    return (
+      <AppProvider theme={theme}>
+        <SignInPage
+          signIn={signIn}
+          providers={providers}
+          slotProps={{ emailField: { autoFocus: false } }}
+        />
+      </AppProvider>
+    );
+  }
 
   if (loading) return <div className="p-4">Loading data...</div>
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>
