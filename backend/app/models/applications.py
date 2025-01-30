@@ -1,10 +1,13 @@
+# backend/app/models/applications.py
+
 from pydantic import BaseModel
 from datetime import date
 from typing import List
 
+
 class JobApplication(BaseModel):
     """
-    Pydantic model for job applications matching our new schema
+    Pydantic model for job applications
     """
 
     id: int

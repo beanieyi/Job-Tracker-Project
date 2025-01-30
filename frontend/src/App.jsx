@@ -1,4 +1,6 @@
-import { useState } from "react"
+// frontend/src/App.jsx
+
+import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 
 // Component Imports
@@ -9,56 +11,81 @@ import ApplicationView from "./components/Applications/ApplicationView"
 import NetworkView from "./components/Network/NetworkView"
 import InsightView from "./components/Insights/InsightView"
 
-// Sample data for development
-const sampleApplications = [
-  {
-    id: 1,
-    position: "Frontend Developer",
-    company: "Tech Corp",
-    status: "Applied",
-    date: "2025-01-15",
-    priority: "High",
-  },
-  {
-    id: 2,
-    position: "Full Stack Developer",
-    company: "Design Co",
-    status: "Technical Interview",
-    date: "2025-01-14",
-    priority: "Medium",
-  },
-  // Add more sample data as needed
-]
-
-const sampleContacts = [
-  {
-    id: 1,
-    name: "Alice Johnson",
-    role: "Recruiter",
-    company: "Tech Corp",
-    linkedin: "linkedin.com",
-    email: "alice@techcorp.com",
-    phone: "555-0101",
-  },
-  // Add more sample contacts
-]
-
-const sampleRoleInsights = [
-  {
-    role_title: "Frontend Developer",
-    common_skills: ["React", "JavaScript", "CSS", "HTML"],
-    average_salary: "$80K - $110K",
-    demand_trend: "High",
-  },
-  // Add more sample insights
-]
-
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAuthenticated, setIsAuthenticated] = useState(true) // Skip auth for now
   const [activeTab, setActiveTab] = useState("dashboard")
-  const [applications] = useState(sampleApplications)
-  const [contacts] = useState(sampleContacts)
-  const [roleInsights] = useState(sampleRoleInsights)
+  const [applications, setApplications] = useState([])
+  const [contacts, setContacts] = useState([])
+  const [roleInsights, setRoleInsights] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+
+  useEffect(() => {
+    const fetchData = async () => {
+      setLoading(true)
+      setError(null)
+
+      try {
+        // Fetch applications
+        const appResponse = await fetch(
+          "http://localhost:8000/api/applications"
+        )
+        if (!appResponse.ok) {
+          throw new Error(`Applications API error: ${appResponse.statusText}`)
+        }
+        const appData = await appResponse.json()
+        console.log("Applications data:", {
+          count: appData.length,
+          sample: appData[0],
+        })
+        setApplications(appData)
+
+        // Fetch contacts
+        const contactsResponse = await fetch(
+          "http://localhost:8000/api/contacts"
+        )
+        if (!contactsResponse.ok) {
+          throw new Error(`Contacts API error: ${contactsResponse.statusText}`)
+        }
+        const contactsData = await contactsResponse.json()
+        console.log("Contacts data:", {
+          count: contactsData.length,
+          sample: contactsData[0],
+        })
+        setContacts(contactsData)
+
+        // Fetch role insights
+        const insightsResponse = await fetch(
+          "http://localhost:8000/api/role-insights"
+        )
+        if (!insightsResponse.ok) {
+          throw new Error(`Insights API error: ${insightsResponse.statusText}`)
+        }
+        const insightsData = await insightsResponse.json()
+        console.log("Insights data:", {
+          count: insightsData.length,
+          sample: insightsData[0],
+        })
+        setRoleInsights(insightsData)
+      } catch (err) {
+        console.error("Fetch error:", err)
+        setError(err.message)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // Debug effect to log state changes
+  useEffect(() => {
+    console.log("Current state:", {
+      applicationsCount: applications.length,
+      contactsCount: contacts.length,
+      insightsCount: roleInsights.length,
+    })
+  }, [applications, contacts, roleInsights])
 
   const handleLogin = () => {
     setIsAuthenticated(true)
@@ -66,6 +93,35 @@ function App() {
 
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />
+  }
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-[#313338] flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-white text-xl"
+        >
+          Loading...
+        </motion.div>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-[#313338] flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="text-red-500 text-xl p-4 bg-[#2B2D31] rounded-lg"
+        >
+          <div className="font-bold mb-2">Error loading data:</div>
+          <div>{error}</div>
+        </motion.div>
+      </div>
+    )
   }
 
   return (

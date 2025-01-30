@@ -1,17 +1,20 @@
-FROM node:18-alpine
+# frontend/Dockerfile.dev
 
+# Use a specific version tag instead of just 'alpine'
+FROM node:18.19.0-alpine3.19
+
+# Set the working directory
 WORKDIR /app
 
 # Copy package files
-COPY package*.json ./
+COPY package.json .
+COPY package-lock.json .
 
-# Clean install dependencies
-RUN npm ci
+# Install dependencies
+RUN npm install
 
 # Copy the rest of the application code
 COPY . .
 
-# Start the development server
+# Start the Vite development server
 CMD ["npm", "run", "dev", "--", "--host"]
-
-EXPOSE 5173

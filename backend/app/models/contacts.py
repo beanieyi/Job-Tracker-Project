@@ -1,3 +1,5 @@
+# backend/app/models/contacts.py
+
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 
@@ -12,5 +14,5 @@ class NetworkContact(BaseModel):
     role: str
     company: str
     linkedin: str
-    email: EmailStr
-    phone: Optional[str]
+    email: Optional[str] = None
+    phone: Optional[str] = None

@@ -1,12 +1,14 @@
+// frontend/src/components/Dashboard/Dashboard.jsx
+
 import { motion } from "framer-motion"
 import PropTypes from "prop-types"
 import ApplicationSankey from "./ApplicationSankey"
 
-const Dashboard = ({ applications }) => {
+const Dashboard = ({ applications, timelineEntries }) => {
   const stats = {
     total: applications.length,
     inProgress: applications.filter((app) =>
-      ["Initial Screen", "Technical Interview", "Final Interview"].includes(
+      ["Initial Screen", "Technical Interview", "Final Interview", "Under Review"].includes(
         app.status
       )
     ).length,
@@ -83,7 +85,11 @@ const Dashboard = ({ applications }) => {
       >
         <h2 className="text-xl font-bold text-white mb-4">Application Flow</h2>
         <div className="h-[400px]">
-          <ApplicationSankey applications={applications} />
+          {/* Pass both apps and timeline to your Sankey */}
+          <ApplicationSankey
+            applications={applications}
+            timelineEntries={timelineEntries}
+          />
         </div>
       </motion.div>
     </motion.div>
@@ -95,6 +101,14 @@ Dashboard.propTypes = {
     PropTypes.shape({
       id: PropTypes.number.isRequired,
       status: PropTypes.string.isRequired,
+    })
+  ).isRequired,
+  timelineEntries: PropTypes.arrayOf(
+    PropTypes.shape({
+      application_id: PropTypes.number,
+      status: PropTypes.string,
+      date: PropTypes.string,
+      notes: PropTypes.string,
     })
   ).isRequired,
 }

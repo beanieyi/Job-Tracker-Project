@@ -24,3 +24,13 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #4752c4;
 }
+
+/* Sankey diagram tooltips */
+.nivo-tooltip {
+  background: #2b2d31 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+    0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  z-index: 1000;
+}
+
+/* Discord-inspired custom scrollbar */
