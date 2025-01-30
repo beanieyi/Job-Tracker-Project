@@ -1,21 +1,17 @@
 import { useState, useEffect } from "react"
-import { motion, AnimatePresence } from "motion/react-client"
-
-// Component Imports
-import Login from "./components/Auth/Login"
-import NavTabs from "./components/Navigation/NavTabs"
-import Dashboard from "./components/Dashboard/Dashboard"
-import ApplicationView from "./components/Applications/ApplicationView"
-import NetworkView from "./components/Network/NetworkView"
-import InsightView from "./components/Insights/InsightView"
+import Login from "./components/Login"
+import NavTabs from "./components/NavTabs"
+import Dashboard from "./components/Dashboard"
+import ApplicationView from "./components/ApplicationView"
+import NetworkView from "./components/NetworkView"
+import InsightView from "./components/InsightView"
 
 function App() {
-  // Authentication state
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [activeTab, setActiveTab] = useState("dashboard")
   const [userData, setUserData] = useState(null)
 
-  // Application data state
+  // State for all our data
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
   const [contacts, setContacts] = useState([])
@@ -23,7 +19,6 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
-  // Fetch data when authenticated
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -35,7 +30,6 @@ function App() {
             fetch("http://localhost:8000/api/role-insights"),
           ])
 
-        // Check response status
         if (!applicationsRes.ok)
           throw new Error(
             `Applications fetch failed: ${applicationsRes.status}`
@@ -47,16 +41,14 @@ function App() {
         if (!insightsRes.ok)
           throw new Error(`Insights fetch failed: ${insightsRes.status}`)
 
-        // Parse response data
         const [applicationsData, timelinesData, contactsData, insightsData] =
           await Promise.all([
             applicationsRes.json(),
             timelinesRes.json(),
-            contactsRes.json(),
+            contactsData.json(),
             insightsRes.json(),
           ])
 
-        // Update state with fetched data
         setApplications(applicationsData)
         setTimelines(timelinesData)
         setContacts(contactsData)
@@ -79,34 +71,30 @@ function App() {
     setUserData(userData)
   }
 
-  // Show login screen if not authenticated
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />
   }
 
-  // Show loading state
   if (loading) {
     return (
       <div className="min-h-screen bg-[#313338] flex items-center justify-center">
-        <div className="text-white text-lg">Loading...</div>
+        <div className="text-white">Loading...</div>
       </div>
     )
   }
 
-  // Show error state
   if (error) {
     return (
       <div className="min-h-screen bg-[#313338] flex items-center justify-center">
-        <div className="text-[#ED4245] text-lg">Error: {error}</div>
+        <div className="text-[#ED4245]">Error: {error}</div>
       </div>
     )
   }
 
-  // Render active tab content
   const renderContent = () => {
     switch (activeTab) {
       case "dashboard":
-        return <Dashboard applications={applications} timelines={timelines} />
+        return <Dashboard applications={applications} />
       case "applications":
         return <ApplicationView applications={applications} />
       case "network":
@@ -118,35 +106,11 @@ function App() {
     }
   }
 
-  // Main app layout
   return (
     <div className="min-h-screen bg-[#313338]">
       <div className="max-w-7xl mx-auto px-4 py-6">
-        {/* Header section */}
-        <header className="mb-8">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-bold text-white">Job Tracker</h1>
-            {userData && (
-              <div className="text-[#B5BAC1]">Welcome, {userData.email}</div>
-            )}
-          </div>
-        </header>
-
-        {/* Navigation */}
         <NavTabs activeTab={activeTab} setActiveTab={setActiveTab} />
-
-        {/* Main content area */}
-        <AnimatePresence mode="wait">
-          <motion.main
-            key={activeTab}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            className="mt-6"
-          >
-            {renderContent()}
-          </motion.main>
-        </AnimatePresence>
+        {renderContent()}
       </div>
     </div>
   )

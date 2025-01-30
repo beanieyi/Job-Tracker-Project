@@ -61,8 +61,7 @@ cd job-tracker
 
 ```bash
 cd infrastructure/docker
-docker-compose up --build
-```
+````
 
 3. Access the application:
 
