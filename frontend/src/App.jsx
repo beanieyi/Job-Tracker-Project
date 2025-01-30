@@ -1,6 +1,31 @@
 import { useState, useEffect } from "react"
 import "./App.css"
+import NavTabs from './components/NavTabs'
+import * as React from 'react';
 
+
+// MUI Imports (AppView Table)
+import Table from '@mui/material/Table';
+import TableBody from '@mui/material/TableBody';
+import TableCell from '@mui/material/TableCell';
+import TableContainer from '@mui/material/TableContainer';
+import TableHead from '@mui/material/TableHead';
+import TableRow from '@mui/material/TableRow';
+import Paper from '@mui/material/Paper';
+
+// MUI Imports (NetworkView Cards)
+import Card from '@mui/material/Card';
+import CardActions from '@mui/material/CardActions';
+import CardContent from '@mui/material/CardContent';
+import CardMedia from '@mui/material/CardMedia';
+import Button from '@mui/material/Button';
+import Typography from '@mui/material/Typography';
+
+// motion.dev imports for animations
+import * as motion from "motion/react-client";
+
+
+// Main App function
 function App() {
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
@@ -8,7 +33,6 @@ function App() {
   const [roleInsights, setRoleInsights] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
-  const [activeTab, setActiveTab] = useState("applications")
 
   useEffect(() => {
     const fetchData = async () => {
@@ -59,287 +83,128 @@ function App() {
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>
 
   return (
-    <div className="container mx-auto p-4">
-      <nav className="flex space-x-4 mb-4">
-        <TabButton
-          active={activeTab === "applications"}
-          onClick={() => setActiveTab("applications")}
-        >
-          Applications
-        </TabButton>
-        <TabButton
-          active={activeTab === "timeline"}
-          onClick={() => setActiveTab("timeline")}
-        >
-          Timeline
-        </TabButton>
-        <TabButton
-          active={activeTab === "contacts"}
-          onClick={() => setActiveTab("contacts")}
-        >
-          Network
-        </TabButton>
-        <TabButton
-          active={activeTab === "insights"}
-          onClick={() => setActiveTab("insights")}
-        >
-          Role Insights
-        </TabButton>
+    <div>
+      <h1 className="header">
+        Robin Yi 
+      </h1>
+      <nav>
+        <NavTabs
+        timelines={timelines}
+        applications={applications}
+        contacts={contacts}
+        roleInsights={roleInsights}
+        />
       </nav>
-
-      {activeTab === "applications" && (
-        <ApplicationsView applications={applications} />
-      )}
-
-      {activeTab === "timeline" && (
-        <TimelineView timelines={timelines} applications={applications} />
-      )}
-
-      {activeTab === "contacts" && <NetworkView contacts={contacts} />}
-
-      {activeTab === "insights" && <InsightsView insights={roleInsights} />}
     </div>
   )
 }
 
-function TimelineView({ timelines, applications }) {
-  // Create a map of application IDs to company names for reference
-  const applicationMap = applications.reduce((acc, app) => {
-    acc[app.id] = { company: app.company, position: app.position }
-    return acc
-  }, {})
+
+// Applications page
+function ApplicationView({ applications }) {
+
+  // Debugging Purposes
+  // console.log(applications);
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Application Timeline</h1>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="px-6 py-3 border-b text-left">Company</th>
-              <th className="px-6 py-3 border-b text-left">Position</th>
-              <th className="px-6 py-3 border-b text-left">Status</th>
-              <th className="px-6 py-3 border-b text-left">Date</th>
-              <th className="px-6 py-3 border-b text-left">Notes</th>
-            </tr>
-          </thead>
-          <tbody>
-            {timelines.map((entry) => (
-              <tr key={entry.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 border-b">
-                  {applicationMap[entry.application_id]?.company || "Unknown"}
-                </td>
-                <td className="px-6 py-4 border-b">
-                  {applicationMap[entry.application_id]?.position || "Unknown"}
-                </td>
-                <td className="px-6 py-4 border-b">
-                  <StatusBadge status={entry.status} />
-                </td>
-                <td className="px-6 py-4 border-b">
-                  {new Date(entry.date).toLocaleString()}
-                </td>
-                <td className="px-6 py-4 border-b">{entry.notes}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  )
-}
-
-function ApplicationsView({ applications }) {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Job Applications</h1>
-      <div className="overflow-x-auto">
-        <table className="min-w-full bg-white border border-gray-300">
-          <thead>
-            <tr className="bg-gray-100">
-              <th className="px-6 py-3 border-b text-left">Company</th>
-              <th className="px-6 py-3 border-b text-left">Position</th>
-              <th className="px-6 py-3 border-b text-left">Status</th>
-              <th className="px-6 py-3 border-b text-left">Date</th>
-              <th className="px-6 py-3 border-b text-left">Priority</th>
-              <th className="px-6 py-3 border-b text-left">Matched Skills</th>
-              <th className="px-6 py-3 border-b text-left">Required Skills</th>
-            </tr>
-          </thead>
-          <tbody>
+    <motion.div
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+          duration: 0.6,
+          delay: 0.3,
+          ease: [0, 0.71, 0.2, 1.01],
+      }}
+    >
+      <TableContainer component={Paper}>
+        <Table sx={{ minWidth: 650 }} aria-label="simple table">
+          <TableHead>
+            <TableRow>
+              <TableCell>Job Title</TableCell>
+              <TableCell align="right">Company</TableCell>
+              <TableCell align="right">Date Applied</TableCell>
+              <TableCell align="right">Status</TableCell>
+            </TableRow>
+          </TableHead>
+          <TableBody>
             {applications.map((app) => (
-              <tr key={app.id} className="hover:bg-gray-50">
-                <td className="px-6 py-4 border-b">{app.company}</td>
-                <td className="px-6 py-4 border-b">{app.position}</td>
-                <td className="px-6 py-4 border-b">
-                  <StatusBadge status={app.status} />
-                </td>
-                <td className="px-6 py-4 border-b">
-                  {new Date(app.date).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4 border-b">
-                  <PriorityBadge priority={app.priority} />
-                </td>
-                <td className="px-6 py-4 border-b">
-                  <SkillsList skills={app.matched_skills} />
-                </td>
-                <td className="px-6 py-4 border-b">
-                  <SkillsList skills={app.required_skills} />
-                </td>
-              </tr>
+              <TableRow
+                key={app.id}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+              >
+                <TableCell component="th" scope="app">
+                  {app.position}
+                </TableCell>
+                <TableCell align="right">{app.company}</TableCell>
+                <TableCell align="right">{app.date}</TableCell>
+                <TableCell align="right">{app.status}</TableCell>
+              </TableRow>
             ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </motion.div>
+  );
+}
+export { ApplicationView }
+
+
+// Timeline of applications page
+function TimelineView() {
+  return (
+    <p>Wowwww</p>
   )
 }
+export { TimelineView }
 
+
+// Network Page
 function NetworkView({ contacts }) {
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Network Contacts</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {contacts.map((contact) => (
-          <div key={contact.id} className="bg-white p-4 rounded-lg shadow">
-            <h3 className="font-bold text-lg">{contact.name}</h3>
-            <p className="text-gray-600">{contact.role}</p>
-            <p className="text-gray-600">{contact.company}</p>
-            <div className="mt-2">
-              <p className="text-sm">
-                <span className="font-semibold">Connection:</span>{" "}
-                {contact.connection}
-              </p>
-              <p className="text-sm">
-                <span className="font-semibold">Last Contact:</span>{" "}
-                {new Date(contact.last_contact).toLocaleDateString()}
-              </p>
-              <p className="text-sm">
-                <span className="font-semibold">Email:</span> {contact.email}
-              </p>
-              <p className="text-sm">
-                <span className="font-semibold">Phone:</span> {contact.phone}
-              </p>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function InsightsView({ insights }) {
-  return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Role Insights</h1>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {insights.map((insight) => (
-          <div
-            key={insight.role_title}
-            className="bg-white p-4 rounded-lg shadow"
-          >
-            <h3 className="font-bold text-lg">{insight.role_title}</h3>
-            <div className="mt-2">
-              <p className="text-sm">
-                <span className="font-semibold">Average Salary:</span>{" "}
-                {insight.average_salary}
-              </p>
-              <p className="text-sm">
-                <span className="font-semibold">Demand:</span>{" "}
-                {insight.demand_trend}
-              </p>
-              <div className="mt-2">
-                <p className="font-semibold text-sm">Common Skills:</p>
-                <SkillsList skills={insight.common_skills} />
-              </div>
-              <div className="mt-2">
-                <p className="font-semibold text-sm">Top Companies:</p>
-                <div className="flex flex-wrap gap-1">
-                  {insight.top_companies.map((company, index) => (
-                    <span
-                      key={index}
-                      className="bg-blue-100 text-blue-800 text-xs px-2 py-1 rounded"
-                    >
-                      {company}
-                    </span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-    </div>
-  )
-}
-
-function TabButton({ children, active, onClick }) {
-  return (
-    <button
-      className={`px-4 py-2 rounded-lg ${
-        active
-          ? "bg-blue-600 text-white"
-          : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-      }`}
-      onClick={onClick}
+    <motion.div
+    initial={{ opacity: 0, scale: 0.5 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{
+        duration: 0.6,
+        delay: 0.3,
+        ease: [0, 0.71, 0.2, 1.01],
+      }}
     >
-      {children}
-    </button>
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '50px', justifyContent: 'center' }}>
+        {contacts.map((contact, index) => (
+          <motion.div
+            whileHover={{ scale: 1.2 }}
+          >
+            <Card key={index} sx={{ width: 300 }}>
+              <CardContent>
+                <Typography gutterBottom variant="h5" component="div">
+                  {contact.name || "Unknown Name"}
+                </Typography>
+                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                  {contact.company || "Company not found."}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button size="small">Email</Button>
+                <Button size="small">LinkedIn</Button>
+              </CardActions>
+            </Card>
+          </motion.div>
+        ))}
+      </div>
+    </motion.div>
   )
 }
+export { NetworkView }
 
-function StatusBadge({ status }) {
-  const statusColors = {
-    Offer: "bg-green-100 text-green-800",
-    Accepted: "bg-blue-100 text-blue-800",
-    Rejected: "bg-red-100 text-red-800",
-    Withdrawn: "bg-gray-100 text-gray-800",
-    "No Response": "bg-yellow-100 text-yellow-800",
-    "Technical Interview": "bg-purple-100 text-purple-800",
-    "Initial Screen": "bg-indigo-100 text-indigo-800",
-    "Final Interview": "bg-pink-100 text-pink-800",
-    Applied: "bg-orange-100 text-orange-800",
-  }
 
-  const colorClass = statusColors[status] || "bg-gray-100 text-gray-800"
-
+// Insight page
+function InsightView() {
   return (
-    <span className={`px-2 py-1 rounded-full text-sm ${colorClass}`}>
-      {status}
-    </span>
+    <p>hello</p>
   )
 }
+export { InsightView }
 
-function PriorityBadge({ priority }) {
-  const priorityColors = {
-    High: "bg-red-100 text-red-800",
-    Medium: "bg-yellow-100 text-yellow-800",
-    Low: "bg-green-100 text-green-800",
-  }
 
-  const colorClass = priorityColors[priority] || "bg-gray-100 text-gray-800"
-
-  return (
-    <span className={`px-2 py-1 rounded-full text-sm ${colorClass}`}>
-      {priority}
-    </span>
-  )
-}
-
-function SkillsList({ skills }) {
-  if (!Array.isArray(skills)) return null
-
-  return (
-    <div className="flex flex-wrap gap-1">
-      {skills.map((skill, index) => (
-        <span
-          key={index}
-          className="bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded"
-        >
-          {skill}
-        </span>
-      ))}
-    </div>
-  )
-}
-
-export default App
+export default App;
