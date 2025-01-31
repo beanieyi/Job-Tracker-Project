@@ -21,16 +21,15 @@ import Paper from '@mui/material/Paper';
 import Card from '@mui/material/Card';
 import CardActions from '@mui/material/CardActions';
 import CardContent from '@mui/material/CardContent';
-import CardMedia from '@mui/material/CardMedia';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
 // motion.dev imports for animations
 import * as motion from "motion/react-client";
 
+
 // Authentication state
 const providers = [{ id: 'credentials', name: 'Email and Password' }];
-
 
 // Main App function
 function App() {
@@ -120,8 +119,15 @@ function App() {
 
   return (
     <div>
+      {/* Import fonts */}
+      <style>
+        {`
+          @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
+        `}
+      </style>
+
       <h1 className="header">
-        Robin Yi 
+        Job Tracker Application
       </h1>
       <nav>
         <NavTabs
@@ -206,23 +212,25 @@ function NetworkView({ contacts }) {
         ease: [0, 0.71, 0.2, 1.01],
       }}
     >
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '50px', justifyContent: 'center' }}>
+      <h2 className="network-header">Professional Network</h2>
+      
+      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '50px', justifyContent: 'flex-start' }}>
         {contacts.map((contact, index) => (
           <motion.div
             whileHover={{ scale: 1.2 }}
           >
-            <Card key={index} sx={{ width: 300 }}>
+            <Card key={index} sx={{ width: 300, backgroundColor: '#282b30' }}>
               <CardContent>
-                <Typography gutterBottom variant="h5" component="div">
+                <Typography sx={{color:'#FFFFFF'}} gutterBottom variant="h5" component="div">
                   {contact.name || "Unknown Name"}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary' }}>
+                <Typography variant="body2" sx={{ color: 'text.secondary', color:'#FFFFFF'}}>
                   {contact.company || "Company not found."}
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button size="small">Email</Button>
-                <Button size="small">LinkedIn</Button>
+                <Button sx={{color:'#5865F2'}} size="small">Email</Button>
+                <Button sx={{color:'#5865F2'}} size="small">LinkedIn</Button>
               </CardActions>
             </Card>
           </motion.div>
