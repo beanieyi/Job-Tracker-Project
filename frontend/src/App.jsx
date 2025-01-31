@@ -7,6 +7,7 @@ import * as React from 'react';
 import { useTheme } from '@mui/material/styles';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { SignInPage } from '@toolpad/core/SignInPage';
+import { createTheme } from '@mui/material/styles';
 
 // MUI Imports (AppView Table)
 import Table from '@mui/material/Table';
@@ -26,6 +27,22 @@ import Typography from '@mui/material/Typography';
 
 // motion.dev imports for animations
 import * as motion from "motion/react-client";
+
+// Create theme for Auth page
+const customTheme = createTheme({
+  palette: {
+    primary: {
+      main: '#5865F2', // Change to your preferred color for primary buttons, etc.
+    },
+    secondary: {
+      main: '#ff4081', // Change to your preferred color for secondary elements
+    },
+    background: {
+      default: '#2f3136', // Background color
+      paper: '#ffffff', // Background color for paper components like cards
+    },
+  },
+});
 
 
 // Authentication state
@@ -104,7 +121,7 @@ function App() {
   // If not authenticated, show Sign-In Page
   if (!isAuthenticated) {
     return (
-      <AppProvider theme={theme}>
+      <AppProvider theme={customTheme}>
         <SignInPage
           signIn={signIn}
           providers={providers}
