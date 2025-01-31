@@ -4,10 +4,10 @@ import NavTabs from './components/NavTabs'
 import * as React from 'react';
 
 // MUI Toolpad (Auth Page)
-import { useTheme } from '@mui/material/styles';
 import { AppProvider } from '@toolpad/core/AppProvider';
 import { SignInPage } from '@toolpad/core/SignInPage';
 import { createTheme } from '@mui/material/styles';
+import CircularProgress from '@mui/material/CircularProgress';
 
 // MUI Imports (AppView Table)
 import Table from '@mui/material/Table';
@@ -32,10 +32,10 @@ import * as motion from "motion/react-client";
 const customTheme = createTheme({
   palette: {
     primary: {
-      main: '#5865F2', // Change to your preferred color for primary buttons, etc.
+      main: '#5865F2', // Primary buttons color
     },
     secondary: {
-      main: '#ff4081', // Change to your preferred color for secondary elements
+      main: '#ff4081', // Secondary
     },
     background: {
       default: '#2f3136', // Background color
@@ -56,14 +56,14 @@ function App() {
   const [contacts, setContacts] = useState([])
   const [roleInsights, setRoleInsights] = useState([])
   const [loading, setLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null)
-  const theme = useTheme()
 
-  // Mock sign-in function
+  // Sign-in function
   const signIn = async (provider, formData) => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        alert(`Signing in as ${formData.get("email")}`);
+        setIsLoading(false); ;
         setIsAuthenticated(true); // Set user as authenticated
         resolve();
       }, 300);
@@ -122,11 +122,17 @@ function App() {
   if (!isAuthenticated) {
     return (
       <AppProvider theme={customTheme}>
-        <SignInPage
-          signIn={signIn}
-          providers={providers}
-          slotProps={{ emailField: { autoFocus: false } }}
-        />
+        {isLoading ? (
+              // Show the spinner while loading
+              <CircularProgress />
+            ) : (
+              // Show the SignInPage when not loading
+              <SignInPage
+                signIn={signIn}
+                providers={providers}
+                slotProps={{ emailField: { autoFocus: false } }}
+              />
+            )}
       </AppProvider>
     );
   }
