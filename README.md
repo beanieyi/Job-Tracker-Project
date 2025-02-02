@@ -14,39 +14,37 @@ The Job Tracker Application enables users to:
 
 The application implements a modern three-tier architecture designed for scalability and maintainability:
 
-### Frontend Layer
+### Frontend Layer (React 18.3)
 
-The presentation layer utilizes React 18 with Vite, delivering:
+- Single-page application architecture with hot module replacement
+- Material UI 6.4 for consistent, responsive design
+- Motion library for enhanced user interactions
+- Efficient state management for real-time updates
+- ESLint 9.17 for code quality
 
-- Single-page application architecture for smooth user interactions
-- Responsive design supporting multiple device formats
-- Real-time updates through efficient state management
-- Optimized development workflow with hot module replacement
+### Backend Layer (FastAPI 0.109.0)
 
-### Backend Layer
+- RESTful API endpoints with automatic OpenAPI documentation
+- JWT-based authentication system
+- Pydantic 2.5.3 for request/response validation
+- Comprehensive error handling
+- Type-safe operations
 
-The service layer leverages FastAPI, providing:
+### Data Layer (PostgreSQL 14)
 
-- RESTful API endpoints with comprehensive documentation
-- Type-safe request and response handling
-- Efficient database operations
-- Robust error handling and validation
-
-### Data Layer
-
-PostgreSQL serves as the data persistence layer, ensuring:
-
-- Reliable data storage with ACID compliance
+- ACID-compliant data storage
 - Efficient query performance
-- Data integrity through proper constraints
-- Backup and recovery capabilities
+- Data integrity through constraints
+- Proper indexing and optimization
+- Backup and recovery support
 
-## Development Setup
+## Quick Start
 
-### System Requirements
+### Prerequisites
 
-- Docker Desktop
+- Docker Desktop 4.0+ with WSL 2
 - Git
+- Modern web browser
 
 ### Initial Setup
 
@@ -66,45 +64,51 @@ docker-compose up --build
 
 3. Access the application:
 
-- Frontend: http://localhost:5173
+- Frontend Dashboard: http://localhost:5173
 - API Documentation: http://localhost:8000/docs
 - Database: localhost:5432
-
-### Development Workflow
-
-The project follows a containerized development approach, with services automatically reloading when code changes are detected. Source code is organized into three main directories:
-
-- `frontend/`: React application code and assets
-- `backend/`: FastAPI service implementation
-- `infrastructure/`: Docker and deployment configurations
 
 ## Project Structure
 
 ```
 job-tracker/
-├── frontend/             # React frontend application
-│   ├── src/             # Application source code
-│   ├── public/          # Static assets
-│   └── Dockerfile.dev   # Development container configuration
-├── backend/             # FastAPI backend service
-│   ├── app/             # Application package
-│   └── Dockerfile.dev   # Development container configuration
-└── infrastructure/      # Deployment and container configurations
-    └── docker/          # Docker Compose and related files
+├── frontend/                 # React frontend application
+│   ├── src/                 # Application source code
+│   │   ├── components/      # React components
+│   │   ├── App.jsx         # Main application component
+│   │   └── main.jsx        # Entry point
+│   ├── package.json        # Dependencies and scripts
+│   └── vite.config.js      # Vite configuration
+├── backend/                 # FastAPI backend service
+│   ├── app/                # Application package
+│   │   ├── routers/        # API endpoints
+│   │   ├── models/         # Data models
+│   │   ├── queries/        # SQL queries
+│   │   └── utils/          # Helper functions
+│   └── requirements.txt    # Python dependencies
+└── infrastructure/         # Deployment configurations
+    └── docker/            # Docker related files
+        ├── docker-compose.yml
+        └── init.sql       # Database initialization
 ```
 
-## Configuration Management
+## Component Documentation
 
-Each component maintains its own configuration files:
+Each component has its own detailed documentation:
 
-- Frontend: Environment variables for API endpoints
-- Backend: Database connections and security settings
-- Infrastructure: Docker Compose service definitions
+- [Frontend Documentation](frontend/README.md)
 
-## Support and Documentation
+  - React components and state management
+  - Development workflow
+  - Available scripts
 
-Detailed documentation is available in component-specific README files:
+- [Backend Documentation](backend/README.md)
 
-- Frontend documentation: [frontend/README.md](frontend/README.md)
-- Backend documentation: [backend/README.md](backend/README.md)
-- Infrastructure documentation: [infrastructure/README.md](infrastructure/README.md)
+  - API endpoints and authentication
+  - Database models
+  - Development guidelines
+
+- [Infrastructure Documentation](infrastructure/README.md)
+  - Docker configuration
+  - Development environment
+  - Database management

@@ -2,25 +2,25 @@
 
 ## Overview
 
-The infrastructure configuration for the Job Tracker application provides a containerized development environment using Docker and Docker Compose. This setup ensures consistency across development environments and simplifies the deployment process.
+The infrastructure configuration provides a containerized development environment using Docker and Docker Compose. This setup ensures consistency across development environments and simplifies the deployment process.
 
 ## Architecture Components
 
 ### Services
 
 1. **Frontend Service (React/Vite)**
-
+   - Node.js 18 Alpine-based
    - Development server with hot-reload
    - Port: 5173
-   - Environment variables for API configuration
    - Volume-mounted source code
+   - Tailwind CSS configuration
 
 2. **Backend Service (FastAPI)**
-
+   - Python 3.12 slim-based
    - Auto-reloading development server
    - Port: 8000
-   - Database connection configuration
    - Volume-mounted source code
+   - Database connection configuration
 
 3. **Database Service (PostgreSQL)**
    - Alpine-based PostgreSQL 14
@@ -33,25 +33,24 @@ The infrastructure configuration for the Job Tracker application provides a cont
 
 ### Prerequisites
 
-- Docker Desktop 4.0 or higher with WSL 2 backend
-- Docker Compose version 2.0 or higher
-- Modern terminal (WSL recommended for Windows users)
+- Docker Desktop 4.0+ with WSL 2 backend
+- Docker Compose 2.0+
+- Modern terminal (WSL recommended for Windows)
 - Git for version control
 
 ### Environment Setup
 
-1. Clone the repository
-2. Navigate to the infrastructure/docker directory
-3. Run the following command:
+1. Navigate to the infrastructure/docker directory
+2. Create necessary environment files
+3. Run the development environment:
    ```bash
    docker-compose up --build
    ```
 
 ### Service Access Points
 
-After successful startup, services are available at:
-
-- Frontend Application: http://localhost:5173
+After startup, services are available at:
+- Frontend: http://localhost:5173
 - Backend API: http://localhost:8000
 - Database: localhost:5432
 
@@ -59,23 +58,20 @@ After successful startup, services are available at:
 
 ### Environment Variables
 
-The development environment uses the following configuration:
-
 **Frontend Service:**
-
 ```env
 VITE_API_URL=http://localhost:8000
 ```
 
 **Backend Service:**
-
 ```env
 DATABASE_URL=postgresql://jobtracker:jobtracker@db:5432/jobtracker
 SECRET_KEY=development_secret_key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
 ```
 
 **Database Service:**
-
 ```env
 POSTGRES_USER=jobtracker
 POSTGRES_PASSWORD=jobtracker
@@ -87,7 +83,6 @@ POSTGRES_DB=jobtracker
 The infrastructure uses Docker volumes for data persistence:
 
 1. **postgres_data**
-
    - Purpose: PostgreSQL data storage
    - Persistence: Survives container restarts
    - Management: Handled by Docker Compose
@@ -99,7 +94,7 @@ The infrastructure uses Docker volumes for data persistence:
 
 ## Development Workflow
 
-### Starting the Environment
+### Starting Services
 
 ```bash
 # Start all services
@@ -107,12 +102,18 @@ docker-compose up --build
 
 # Start specific service
 docker-compose up frontend --build
+
+# Start services in background
+docker-compose up -d
 ```
 
 ### Monitoring and Maintenance
 
 ```bash
-# View service logs
+# View logs for all services
+docker-compose logs
+
+# View logs for specific service
 docker-compose logs -f [service_name]
 
 # Check service status
@@ -125,7 +126,6 @@ docker-compose restart [service_name]
 ### Database Operations
 
 **Connection Parameters:**
-
 - Host: localhost (Windows) or Docker IP (WSL)
 - Port: 5432
 - Database: jobtracker
@@ -134,7 +134,6 @@ docker-compose restart [service_name]
 - Auth Method: scram-sha-256
 
 **Management Operations:**
-
 ```bash
 # Access PostgreSQL CLI
 docker-compose exec db psql -U jobtracker
@@ -146,9 +145,64 @@ docker-compose exec db pg_dump -U jobtracker jobtracker > backup.sql
 cat backup.sql | docker-compose exec -T db psql -U jobtracker jobtracker
 ```
 
+## Container Configuration
+
+### Frontend Container
+
+- Base Image: node:18-alpine
+- Working Directory: /app
+- Volume Mounts:
+  - Source code
+  - Node modules
+- Port: 5173
+- Environment: Development
+- Hot Reload: Enabled
+
+### Backend Container
+
+- Base Image: python:3.12-slim
+- Working Directory: /app
+- Volume Mounts:
+  - Source code
+- Port: 8000
+- Environment: Development
+- Auto Reload: Enabled
+
+### Database Container
+
+- Base Image: postgres:14-alpine
+- Volume Mounts:
+  - Data directory
+  - Init scripts
+- Port: 5432
+- Health Check: Enabled
+
 ## Troubleshooting Guide
 
-### Debugging Commands
+### Common Issues
+
+1. Port Conflicts
+```bash
+# Check for port usage
+lsof -i :5173
+lsof -i :8000
+lsof -i :5432
+```
+
+2. Volume Permissions
+```bash
+# Fix volume permissions
+sudo chown -R $(id -u):$(id -g) ./postgres_data
+```
+
+3. Network Issues
+```bash
+# Check Docker networks
+docker network ls
+docker network inspect job-tracker_default
+```
+
+### Debug Commands
 
 ```bash
 # Check container logs
@@ -157,15 +211,30 @@ docker-compose logs [service_name]
 # Inspect container
 docker-compose exec [service_name] sh
 
-# Check network connectivity
-docker network inspect job-tracker_default
+# Check resource usage
+docker stats
+
+# Validate compose file
+docker-compose config
 ```
 
-## Security Considerations
+### Database Backups
 
-### Development Environment
+1. Automated backups:
+```bash
+# Create cron job for backup
+0 0 * * * docker-compose exec db pg_dump -U jobtracker jobtracker > backup_$(date +%Y%m%d).sql
+```
 
-1. Default credentials are for development only
-2. Ports are exposed for local access
-3. Debug mode is enabled
-4. Source code is mounted for hot-reload
+2. Manual backups:
+```bash
+# Backup with timestamp
+docker-compose exec db pg_dump -U jobtracker jobtracker > backup_$(date +%Y%m%d_%H%M%S).sql
+```
+
+### Volume Backups
+
+```bash
+# Backup Docker volume
+docker run --rm -v job-tracker_postgres_data:/volume -v $(pwd):/backup alpine tar cvf /backup/postgres_data.tar /volume
+```
