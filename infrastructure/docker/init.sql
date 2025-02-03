@@ -21,6 +21,7 @@ CREATE TABLE users (
 -- Create job applications table with expanded tracking fields
 CREATE TABLE job_applications (
     id SERIAL PRIMARY KEY,
+    user_email VARCHAR(150) NOT NULL REFERENCES users(email) ON DELETE CASCADE,
     company VARCHAR(200) NOT NULL,
     position VARCHAR(200) NOT NULL,
     status VARCHAR(50) NOT NULL,
@@ -35,13 +36,18 @@ CREATE TABLE application_timeline (
     id SERIAL PRIMARY KEY,
     application_id INTEGER REFERENCES job_applications(id) ON DELETE CASCADE,
     status VARCHAR(50) NOT NULL,
-    date TIMESTAMP NOT NULL,
-    notes TEXT
+    date TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    notes TEXT,
+
+    -- Ensure each application has only one entry per status
+    CONSTRAINT unique_status_per_application UNIQUE(application_id, status)
+
 );
 
 -- Create network contacts table
 CREATE TABLE network_contacts (
     id SERIAL PRIMARY KEY,
+    user_email VARCHAR(150) NOT NULL REFERENCES users(email) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
     role VARCHAR(100) NOT NULL,
     company VARCHAR(200) NOT NULL,
@@ -65,51 +71,56 @@ CREATE INDEX idx_applications_status ON job_applications(status);
 CREATE INDEX idx_timeline_application_id ON application_timeline(application_id);
 CREATE INDEX idx_timeline_date ON application_timeline(date DESC);
 
+-- Insert a test user (for linking existing data)
+INSERT INTO users (username, email, password_hash, skills)
+VALUES ('Test User', 'test_user@example.com', '$2b$12$A6IW8NkCVAuobcGMEOeXeOBm.t4MR0lH.GR5tvkz72NG3VOg4mV0W', ARRAY['React', 'TypeScript', 'AWS'])
+ON CONFLICT (email) DO NOTHING;
+
 -- Insert job applications
-INSERT INTO job_applications (id, company, position, status, date, priority, matched_skills, required_skills) VALUES
-(1,  'Tech Corp',            'Frontend Developer',           'Offer',              '2025-01-15', 'High', 
+INSERT INTO job_applications (user_email, company, position, status, date, priority, matched_skills, required_skills) VALUES
+('test_user@example.com',  'Tech Corp',            'Frontend Developer',           'Offer',              '2025-01-15', 'High', 
      ARRAY['React', 'TypeScript'], 
      ARRAY['React', 'TypeScript', 'GraphQL']),
-(2,  'Design Co',            'Full Stack Developer',         'Accepted',           '2025-01-14', 'Medium',
+('test_user@example.com',  'Design Co',            'Full Stack Developer',         'Accepted',           '2025-01-14', 'Medium',
      ARRAY['React', 'Node.js'],
      ARRAY['React', 'Node.js', 'MongoDB']),
-(3,  'Startup Inc',          'Senior Frontend Developer',    'Rejected',           '2025-01-10', 'High',
+('test_user@example.com',  'Startup Inc',          'Senior Frontend Developer',    'Rejected',           '2025-01-10', 'High',
      ARRAY['React', 'TypeScript', 'AWS'],
      ARRAY['React', 'TypeScript', 'AWS', 'Vue.js']),
-(4,  'Cloud Systems',        'Frontend Engineer',            'Withdrawn',          '2025-01-08', 'Low',
+('test_user@example.com',  'Cloud Systems',        'Frontend Engineer',            'Withdrawn',          '2025-01-08', 'Low',
      ARRAY['React', 'AWS'],
      ARRAY['React', 'AWS', 'Angular']),
-(5,  'Data Systems Inc',     'UI Developer',                 'No Response',        '2025-01-05', 'Medium',
+('test_user@example.com',  'Data Systems Inc',     'UI Developer',                 'No Response',        '2025-01-05', 'Medium',
      ARRAY['React'],
      ARRAY['React', 'D3.js', 'TypeScript']),
-(6,  'TechGiant',            'Frontend Developer',           'Technical Interview','2025-01-17', 'High',
+('test_user@example.com',  'TechGiant',            'Frontend Developer',           'Technical Interview','2025-01-17', 'High',
      ARRAY['React', 'TypeScript', 'AWS'],
      ARRAY['React', 'TypeScript', 'AWS', 'Redux']),
-(7,  'DevHub',               'Full Stack Engineer',          'Initial Screen',     '2025-01-16', 'Medium',
+('test_user@example.com',  'DevHub',               'Full Stack Engineer',          'Initial Screen',     '2025-01-16', 'Medium',
      ARRAY['React', 'Node.js', 'Python'],
      ARRAY['React', 'Node.js', 'Python', 'PostgreSQL']),
-(8,  'AI Solutions',         'Frontend Engineer',            'Final Interview',    '2025-01-12', 'High',
+('test_user@example.com',  'AI Solutions',         'Frontend Engineer',            'Final Interview',    '2025-01-12', 'High',
      ARRAY['React', 'TypeScript', 'Python'],
      ARRAY['React', 'TypeScript', 'Python', 'TensorFlow.js']),
-(9,  'CloudTech',            'Senior Frontend Developer',    'Rejected',           '2025-01-11', 'Medium',
+('test_user@example.com',  'CloudTech',            'Senior Frontend Developer',    'Rejected',           '2025-01-11', 'Medium',
      ARRAY['React', 'AWS', 'Node.js'],
      ARRAY['React', 'AWS', 'Node.js', 'Kubernetes']),
-(10, 'FinTech Solutions',    'UI Engineer',                  'Applied',            '2025-01-19', 'Low',
+('test_user@example.com', 'FinTech Solutions',    'UI Engineer',                  'Applied',            '2025-01-19', 'Low',
      ARRAY['React', 'TypeScript'],
      ARRAY['React', 'TypeScript', 'D3.js']),
-(11, 'DataViz Corp',         'Frontend Developer',           'No Response',        '2025-01-07', 'Low',
+('test_user@example.com', 'DataViz Corp',         'Frontend Developer',           'No Response',        '2025-01-07', 'Low',
      ARRAY['React', 'D3.js'],
      ARRAY['React', 'D3.js', 'TypeScript', 'SVG']),
-(12, 'WebScale Inc',         'Full Stack Developer',         'Technical Interview','2025-01-18', 'High',
+('test_user@example.com', 'WebScale Inc',         'Full Stack Developer',         'Technical Interview','2025-01-18', 'High',
      ARRAY['React', 'Node.js', 'AWS'],
      ARRAY['React', 'Node.js', 'AWS', 'MongoDB']),
-(13, 'MobileTech',           'React Native Developer',       'Withdrawn',          '2025-01-09', 'Medium',
+('test_user@example.com', 'MobileTech',           'React Native Developer',       'Withdrawn',          '2025-01-09', 'Medium',
      ARRAY['React', 'JavaScript'],
      ARRAY['React', 'React Native', 'TypeScript', 'Mobile Development']),
-(14, 'DevOps Pro',           'Frontend Infrastructure Engineer','Rejected',        '2025-01-13', 'Medium',
+('test_user@example.com', 'DevOps Pro',           'Frontend Infrastructure Engineer','Rejected',        '2025-01-13', 'Medium',
      ARRAY['React', 'AWS', 'CI/CD'],
      ARRAY['React', 'AWS', 'Kubernetes', 'Jenkins', 'Docker']),
-(15, 'E-commerce Solutions', 'Frontend Developer',           'Initial Screen',     '2025-01-20', 'Medium',
+('test_user@example.com', 'E-commerce Solutions', 'Frontend Developer',           'Initial Screen',     '2025-01-20', 'Medium',
      ARRAY['React', 'TypeScript', 'Redux'],
      ARRAY['React', 'TypeScript', 'Redux', 'GraphQL']);
 
@@ -182,12 +193,12 @@ INSERT INTO application_timeline (application_id, status, date, notes) VALUES
 SELECT setval('application_timeline_id_seq', (SELECT MAX(id) FROM application_timeline));
 
 -- Insert network contacts
-INSERT INTO network_contacts (id, name, role, company, linkedin, email, phone) VALUES
-    (1, 'Alice Johnson',  'Recruiter',             'Tech Corp',            'LinkedIn',  'alice@techcorp.com',     '555-0101'),
-    (2, 'Bob Williams',   'HR Manager',            'Design Co',           'LinkedIn',   'bob@designco.com',       '555-0202'),
-    (3, 'Carol Smith',    'Engineering Manager',   'Startup Inc',         'LinkedIn',   'carol@startupinc.com',   '555-0303'),
-    (4, 'David Brown',    'DevOps Lead',           'Cloud Systems',       'LinkedIn',   'david@cloudsystems.com', '555-0404'),
-    (5, 'Eve Davis',      'CEO',                   'Data Systems Inc',    'LinkedIn',   'eve@datasystems.com',    '555-0505');
+INSERT INTO network_contacts (user_email, name, role, company, linkedin, email, phone) VALUES
+    ('test_user@example.com', 'Alice Johnson',  'Recruiter',             'Tech Corp',            'LinkedIn',  'alice@techcorp.com',     '555-0101'),
+    ('test_user@example.com', 'Bob Williams',   'HR Manager',            'Design Co',           'LinkedIn',   'bob@designco.com',       '555-0202'),
+    ('test_user@example.com', 'Carol Smith',    'Engineering Manager',   'Startup Inc',         'LinkedIn',   'carol@startupinc.com',   '555-0303'),
+    ('test_user@example.com', 'David Brown',    'DevOps Lead',           'Cloud Systems',       'LinkedIn',   'david@cloudsystems.com', '555-0404'),
+    ('test_user@example.com', 'Eve Davis',      'CEO',                   'Data Systems Inc',    'LinkedIn',   'eve@datasystems.com',    '555-0505');
 
 -- Reset network contacts sequence
 SELECT setval('network_contacts_id_seq', (SELECT MAX(id) FROM network_contacts));

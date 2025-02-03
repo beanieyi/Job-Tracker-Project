@@ -99,92 +99,71 @@ async def read_root():
 @app.get("/api/applications", response_model=List[JobApplication])
 async def get_applications():
     """Retrieve all job applications from the database"""
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
 
-        cur.execute(
+            cur.execute(
+                """
+                SELECT id, company, position, status, date, priority, 
+                    matched_skills, required_skills 
+                FROM job_applications 
+                ORDER BY date DESC
             """
-            SELECT id, company, position, status, date, priority, 
-                   matched_skills, required_skills 
-            FROM job_applications 
-            ORDER BY date DESC
-        """
-        )
-        applications = cur.fetchall()
-
-        cur.close()
-        conn.close()
-        return applications
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+            )
+            applications = cur.fetchall()
+    return applications
 
 
 @app.get("/api/timelines", response_model=List[TimelineEntry])
 async def get_timelines():
     """Retrieve all timeline entries"""
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
 
-        cur.execute(
+            cur.execute(
+                """
+                SELECT id, application_id, status, date, notes 
+                FROM application_timeline 
+                ORDER BY date DESC
             """
-            SELECT id, application_id, status, date, notes 
-            FROM application_timeline 
-            ORDER BY date DESC
-        """
-        )
-        timelines = cur.fetchall()
+            )
+            timelines = cur.fetchall()
 
-        cur.close()
-        conn.close()
-        return timelines
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return timelines
 
 
 @app.get("/api/contacts", response_model=List[NetworkContact])
 async def get_contacts():
     """Retrieve all network contacts"""
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
 
-        cur.execute(
+            cur.execute(
+                """
+                SELECT id, name, role, company, linkedin, 
+                    email, phone 
+                FROM network_contacts 
+                ORDER BY name DESC
             """
-            SELECT id, name, role, company, linkedin, 
-                   email, phone 
-            FROM network_contacts 
-            ORDER BY name DESC
-        """
-        )
-        contacts = cur.fetchall()
+            )
+            contacts = cur.fetchall()
 
-        cur.close()
-        conn.close()
-        return contacts
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return contacts
 
 
 @app.get("/api/role-insights", response_model=List[RoleInsight])
 async def get_role_insights():
     """Retrieve all role insights"""
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
 
-        cur.execute(
+            cur.execute(
+                """
+                SELECT role_title, common_skills, average_salary, 
+                    demand_trend, top_companies 
+                FROM role_insights
             """
-            SELECT role_title, common_skills, average_salary, 
-                   demand_trend, top_companies 
-            FROM role_insights
-        """
-        )
-        insights = cur.fetchall()
+            )
+            insights = cur.fetchall()
 
-        cur.close()
-        conn.close()
-        return insights
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return insights

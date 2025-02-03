@@ -1,3 +1,4 @@
+from passlib.context import CryptContext
 from fastapi import APIRouter, HTTPException, status, Depends
 from app.utils.hashing import hash_password, verify_password
 from app.utils.jwt_manager import create_access_token, get_current_user
@@ -18,11 +19,15 @@ async def register(registration_info: RegisterRequest):
     hashed_password = hash_password(password)
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+
             user_exists = cur.execute(FIND_USER, (email,))
             if user_exists:
                 raise HTTPException(
                     status_code=400, detail="Email already registered")
+
             cur.execute(CREATE_USER, (username, email, hashed_password))
+            conn.commit()
+
     token = create_access_token({"sub": email})
     return {"message": "User registered successfully", "access_token": token, "token_type": "Bearer"}
 
@@ -30,22 +35,17 @@ async def register(registration_info: RegisterRequest):
 @router.get("/users")
 async def get_users(current_user: dict = Depends(get_current_user)):
     """Retrieve users from the database"""
-    try:
-        conn = get_db_connection()
-        cur = conn.cursor()
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
 
-        cur.execute(
+            cur.execute(
+                """
+                SELECT * FROM USERS;
             """
-            SELECT * FROM USERS;
-        """
-        )
-        users = cur.fetchall()
+            )
+            users = cur.fetchall()
 
-        cur.close()
-        conn.close()
-        return users
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    return users
 
 
 @router.post("/login")
@@ -56,8 +56,9 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
             # form_data.username will be the email that the user provides since we are logging in with email
             cur.execute(GET_USER_BY_EMAIL, (form_data.username,))
             user = cur.fetchone()
-    if not user or not verify_password(form_data.password, user["password_hash"]):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+            if not user or not verify_password(form_data.password, user["password_hash"]):
+                raise HTTPException(
+                    status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
+            
     token = create_access_token({"sub": user["email"]})
     return {"message": "User logged in successfully", "access_token": token, "token_type": "Bearer"}
