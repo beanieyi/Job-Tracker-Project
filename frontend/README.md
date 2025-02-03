@@ -2,36 +2,44 @@
 
 ## Overview
 
-The frontend application for the Job Tracker project provides a modern, responsive user interface for managing job applications, tracking application statuses, and maintaining professional contacts. Built with React and Vite, it offers a seamless experience for job seekers to organize their job search process.
+The frontend application provides a modern, responsive user interface for managing job applications, tracking application statuses, and maintaining professional contacts. Built with React and Vite, it offers a seamless experience for job seekers to organize their job search process.
 
 ## Technology Stack
 
-- **React 18.3**: Modern UI framework for building component-based interfaces
-- **Vite**: Next-generation frontend tooling for faster development and optimized builds
-- **ESLint**: Static code analysis tool for identifying problematic patterns
-- **Docker**: Container platform for consistent development environments
+- **React 18.3**: Modern UI framework with hooks and functional components
+- **Vite 6.0**: Next-generation frontend tooling
+- **Material UI 6.4**: Component library and styling
+  - Lab Components
+  - Material Icons
+  - Styled Engine
+- **Motion**: Animation library for enhanced UX
+- **Headless UI & Heroicons**: Additional UI components and icons
+- **ESLint 9.17**: Code quality and style enforcement
+- **Emotion & Styled Components**: CSS-in-JS styling solutions
+
+## Features
+
+- Interactive job application dashboard
+- Real-time application status updates
+- Professional network contact management
+- Role insights visualization
+- Animated UI transitions
+- Responsive design for all devices
 
 ## Getting Started
 
 ### Prerequisites
 
 - Node.js 18 or higher
-- Docker and Docker Compose
+- Docker and Docker Compose (recommended)
+- Modern web browser
 
-### Environment Configuration
-
-Create a `.env` file in the project root with the following variables:
-
-```env
-VITE_API_URL=http://localhost:8000
-```
-
-### Installation and Setup
+### Development Setup
 
 #### Using Docker (Recommended)
 
 ```bash
-# Start the frontend service with Docker Compose
+# Start the frontend service
 docker-compose up frontend
 ```
 
@@ -52,69 +60,123 @@ npm run dev
 | `npm run dev`     | Start development server |
 | `npm run build`   | Build for production     |
 | `npm run preview` | Preview production build |
+| `npm run lint`    | Run ESLint               |
 
 ## Project Structure
 
 ```
 frontend/
-├── Dockerfile.dev         # Development container configuration
-├── eslint.config.js      # ESLint configuration
-├── index.html            # HTML entry point
-├── package.json          # Project dependencies and scripts
-├── public/               # Static assets
-├── src/                  # Application source code
-│   ├── App.jsx          # Root component
-│   ├── App.css          # Root styles
-│   ├── main.jsx         # Application entry point
-│   ├── assets/          # Project assets
+├── src/
+│   ├── components/
+│   │   └── NavTabs.jsx    # Navigation component
+│   ├── App.jsx           # Root component
+│   ├── App.css           # Root styles
+│   ├── main.jsx         # Entry point
 │   └── index.css        # Global styles
-└── vite.config.js       # Vite configuration
+├── public/              # Static assets
+├── package.json         # Dependencies and scripts
+├── vite.config.js       # Vite configuration
+└── eslint.config.js    # ESLint configuration
 ```
 
 ## Development Guidelines
 
-### Code Style and Standards
+### Code Style
 
-- Follow ESLint configuration guidelines
-- Use functional components with hooks
-- Implement proper prop-types validation
-- Follow React best practices for component organization
-- Use CSS modules for component-specific styles
+- Follow ESLint configuration
+- Use functional components
+- Implement proper prop-types
+- Follow React best practices
+- Use CSS modules for styles
 
-### Component Development
+### Component Organization
 
-1. Place new components in appropriate directories
-2. Include JSDoc documentation
-3. Maintain single responsibility principle
-4. Implement error boundaries
-5. Handle loading states appropriately
+- One component per file
+- Clear component hierarchy
+- Proper prop drilling management
+- Error boundary implementation
+- Loading state handling
 
-### State Management Best Practices
+### State Management
 
-- Utilize React hooks for local state
-- Implement proper data fetching patterns
-- Handle loading and error states comprehensively
-- Apply appropriate caching strategies
+- Use React hooks appropriately
+- Implement proper data fetching
+- Handle loading/error states
+- Apply caching as needed
 
-### API Integration
+### Animation Guidelines
+
+- Use Motion library for transitions
+- Keep animations subtle and purposeful
+- Ensure accessibility
+- Handle reduced motion preferences
+
+## API Integration
 
 The backend API is available at:
 
 - Development: http://localhost:8000
 - API Documentation: http://localhost:8000/docs
 
-## Deployment
+### Key Endpoints
 
-1. Build the application:
+- `/api/applications`: Job application data
+- `/api/timelines`: Application status updates
+- `/api/contacts`: Network contacts
+- `/api/role-insights`: Role analytics
 
-   ```bash
-   npm run build
-   ```
+## Environment Configuration
 
-2. Test the production build:
+Create a `.env` file with:
 
-   ```bash
-   npm run preview
-   ```
+```env
+VITE_API_URL=http://localhost:8000
+```
 
-3. Deploy the contents of the `dist` directory to your hosting platform
+## Build and Deployment
+
+1. Create production build:
+
+```bash
+npm run build
+```
+
+2. Test production build:
+
+```bash
+npm run preview
+```
+
+3. Deploy `dist` directory contents
+
+## Troubleshooting
+
+### Common Issues
+
+1. Port conflicts:
+
+   - Check if port 5173 is available
+   - Modify vite.config.js if needed
+
+2. API connection issues:
+
+   - Verify API URL in .env
+   - Check CORS configuration
+
+3. Build problems:
+   - Clear node_modules and reinstall
+   - Check for dependency conflicts
+
+### Development Tools
+
+- React Developer Tools
+- Vite Dev Tools
+- Browser DevTools
+
+## Contributing
+
+1. Follow the established code style
+2. Write meaningful commit messages
+3. Create feature branches
+4. Test thoroughly
+5. Submit pull requests
