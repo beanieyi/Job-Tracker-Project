@@ -2,15 +2,28 @@
 
 ## Overview
 
-The backend service for the Job Tracker application provides a robust API for managing job applications and user data. Built with FastAPI and PostgreSQL, it offers high-performance endpoints with automatic OpenAPI documentation and type safety.
+The backend service provides a robust API for managing job applications and user data. Built with FastAPI and PostgreSQL, it offers high-performance endpoints with automatic OpenAPI documentation and comprehensive type safety.
 
 ## Technology Stack
 
-- **FastAPI**: Modern, fast web framework for building APIs with Python 3.7+
-- **PostgreSQL**: Robust, open-source relational database
-- **Uvicorn**: Lightning-fast ASGI server implementation
-- **SQLAlchemy**: SQL toolkit and ORM for database operations
-- **Docker**: Container platform for consistent development and deployment
+- **FastAPI 0.109.0**: Modern, high-performance web framework
+- **Uvicorn 0.27.0**: Lightning-fast ASGI server
+- **SQLAlchemy 2.0.25**: SQL toolkit and ORM
+- **Pydantic 2.5.3**: Data validation using Python type hints
+- **PostgreSQL 14**: Robust relational database
+- **JWT & Passlib**: Authentication and security
+- **Python-dotenv 1.0.1**: Environment configuration
+- **Python-multipart 0.0.20**: Form data handling
+
+## Features
+
+- RESTful API endpoints
+- JWT-based authentication
+- Automatic API documentation
+- Type-safe request/response handling
+- Database connection pooling
+- Comprehensive error handling
+- CORS middleware configuration
 
 ## Getting Started
 
@@ -18,24 +31,15 @@ The backend service for the Job Tracker application provides a robust API for ma
 
 - Python 3.12 or higher
 - Docker and Docker Compose
-- PostgreSQL client (optional, for direct database access)
-- Git (for version control)
+- PostgreSQL client
+- Git
 
-### Environment Configuration
-
-Create a `.env` file in the project root with the following variables:
-
-```env
-DATABASE_URL=postgresql://jobtracker:jobtracker@db:5432/jobtracker
-SECRET_KEY=development_secret_key
-```
-
-### Installation and Setup
+### Development Setup
 
 #### Using Docker (Recommended)
 
 ```bash
-# Start the backend service with Docker Compose
+# Start the backend service
 docker-compose up backend
 ```
 
@@ -53,54 +57,118 @@ uvicorn app.main:app --reload
 
 ```
 backend/
-├── app/                    # Application package
-│   ├── __init__.py        # Package initializer
-│   └── main.py            # Application entry point and API routes
-├── Dockerfile.dev         # Development container configuration
-└── requirements.txt       # Python dependencies
+├── app/
+│   ├── routers/
+│   │   ├── applications.py
+│   │   ├── auth.py
+│   │   └── contacts.py
+│   ├── models/
+│   │   ├── applications.py
+│   │   ├── contacts.py
+│   │   └── user.py
+│   ├── queries/
+│   │   ├── applications.py
+│   │   ├── contacts.py
+│   │   └── users.py
+│   ├── utils/
+│   │   ├── hashing.py
+│   │   └── jwt_manager.py
+│   ├── config.py
+│   ├── database.py
+│   └── main.py
+└── requirements.txt
 ```
 
 ## API Documentation
 
+### Authentication Endpoints
+
+- POST `/auth/register`: Register new user
+- POST `/auth/login`: User login
+- GET `/auth/users`: List users (authenticated)
+
+### Application Endpoints
+
+- GET `/applications/get_applications`: List all job applications
+
+### Contact Endpoints
+
+- GET `/contacts/get_contacts`: List network contacts
+
 ### Interactive Documentation
 
-When running, the API documentation is available at:
+When running, access:
 
 - Swagger UI: http://localhost:8000/docs
 - ReDoc: http://localhost:8000/redoc
 
-### Available Endpoints
+## Database Schema
 
-- `GET /`: Health check endpoint
-- `GET /api/applications`: Retrieve all job applications
+### Core Tables
 
-## Development Guidelines
+1. **users**
 
-### Code Style and Standards
+   - Authentication and profile data
+   - Skills tracking
+   - Created timestamp
 
-1. Follow PEP 8 guidelines for Python code
-2. Use type hints for all function parameters and returns
-3. Include docstrings for all modules, classes, and functions
-4. Implement proper error handling and logging
-5. Maintain test coverage for critical paths
+2. **job_applications**
+
+   - Application details
+   - Status tracking
+   - Skills matching
+   - Priority levels
+
+3. **application_timeline**
+
+   - Status history
+   - Date tracking
+   - Application notes
+
+4. **network_contacts**
+
+   - Professional contacts
+   - Contact information
+   - Company associations
+
+5. **role_insights**
+   - Market analysis
+   - Salary data
+   - Skill requirements
+   - Company trends
 
 ### Database Management
 
 #### Connection Details
 
-Development database credentials:
+Development credentials:
 
-- Host: `db` (Docker service name)
+- Host: `db`
 - Port: 5432
 - Database: jobtracker
 - Username: jobtracker
 - Password: jobtracker
 
-### Environment Variables
+#### Management Operations
 
-Configure the following for production:
+```bash
+# Access PostgreSQL CLI
+docker-compose exec db psql -U jobtracker
 
-- `DATABASE_URL`: Production database connection string
-- `SECRET_KEY`: Secure secret key
-- `ALLOWED_ORIGINS`: Allowed CORS origins
-- `LOG_LEVEL`: Logging configuration
+# Backup database
+docker-compose exec db pg_dump -U jobtracker > backup.sql
+
+# Restore database
+cat backup.sql | docker-compose exec -T db psql -U jobtracker
+```
+
+## Environment Configuration
+
+Create `.env` file with:
+
+```env
+DATABASE_URL=postgresql://jobtracker:jobtracker@db:5432/jobtracker
+SECRET_KEY=development_secret_key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+```
