@@ -25,6 +25,9 @@ import CardContent from '@mui/material/CardContent';
 import Button from '@mui/material/Button';
 import Typography from '@mui/material/Typography';
 
+// MUI Button
+import Stack from '@mui/material/Stack';
+
 // motion.dev imports for animations
 import * as motion from "motion/react-client";
 
@@ -181,28 +184,37 @@ function ApplicationView({ applications }) {
           ease: [0, 0.71, 0.2, 1.01],
       }}
     >
-      <TableContainer component={Paper}>
+    <div style={{ textAlign: "right", marginBottom: "20px"}}>
+      <Button variant="contained" sx={{ backgroundColor: "#5865F2"}} >Add Application</Button>
+      
+    </div>
+
+      <TableContainer component={Paper} sx={{backgroundColor: "#282b30"}}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
-            <TableRow>
-              <TableCell>Job Title</TableCell>
-              <TableCell align="right">Company</TableCell>
-              <TableCell align="right">Date Applied</TableCell>
-              <TableCell align="right">Status</TableCell>
+            <TableRow sx={{borderBottom: "2.5px solid #5865F2"}}>
+              <TableCell sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>Job Title</TableCell>
+              <TableCell align="right" sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>Company</TableCell>
+              <TableCell align="right" sx={{ color: "white",fontSize: "1rem", fontWeight: "bold" }}>Date Applied</TableCell>
+              <TableCell align="right" sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>Status</TableCell>
+              <TableCell align="right" sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>Edit</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {applications.map((app) => (
               <TableRow
                 key={app.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
+                sx={{ '&:last-child td, &:last-child th': { border: 0 }}}
               >
-                <TableCell component="th" scope="app">
+                <TableCell component="th" scope="app" sx={{color: "white" }}>
                   {app.position}
                 </TableCell>
-                <TableCell align="right">{app.company}</TableCell>
-                <TableCell align="right">{app.date}</TableCell>
-                <TableCell align="right">{app.status}</TableCell>
+                <TableCell align="right" sx={{color: "white"}}>{app.company}</TableCell>
+                <TableCell align="right" sx={{color: "white"}}>{app.date}</TableCell>
+                <TableCell align="right" sx={{color: "white"}}>{app.status}</TableCell>
+                <TableCell align="right">
+                  <Button variant="contained" size="small" sx={{ backgroundColor: "#5865F2"}}>Edit</Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
@@ -247,7 +259,7 @@ function NetworkView({ contacts }) {
                 <Typography sx={{color:'#FFFFFF'}} gutterBottom variant="h5" component="div">
                   {contact.name || "Unknown Name"}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', color:'#FFFFFF'}}>
+                <Typography variant="body2" sx={{ color: 'text.secondary', color:'#FFFFFF' }}>
                   {contact.company || "Company not found."}
                 </Typography>
               </CardContent>
