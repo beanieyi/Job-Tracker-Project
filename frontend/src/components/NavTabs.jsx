@@ -29,11 +29,15 @@ export default function LabTabs({ timelines, applications, contacts, roleInsight
           }}
         >
           <Box sx={{ borderBottom: 1, borderColor: 'divider' }}>
-            <TabList onChange={handleChange} aria-label="navigation bar">
-              <Tab label="Application" value="applications" />
-              <Tab label="Timeline" value="timelines" />
-              <Tab label="Network" value="contacts" />
-              <Tab label="Insight" value="roleInsights" />
+            <TabList 
+              onChange={handleChange} 
+              aria-label="navigation bar"  
+              TabIndicatorProps={{sx: { backgroundColor: '#5865F2' } // Underline color
+            }}>
+              <Tab label="Application" value="applications" sx={{ color: 'white', '&.Mui-selected': { color: 'white' }  }} />
+              <Tab label="Timeline" value="timelines" sx={{ color: 'white', '&.Mui-selected': { color: 'white' }  }} />
+              <Tab label="Network" value="contacts" sx={{ color: 'white', '&.Mui-selected': { color: 'white' }  }} />
+              <Tab label="Insight" value="roleInsights" sx={{ color: 'white', '&.Mui-selected': { color: 'white' } }} />
             </TabList>
           </Box>
         </motion.div>
