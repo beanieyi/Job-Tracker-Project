@@ -48,6 +48,9 @@ def verify_access_token(token: str) -> dict:
     )
     try:
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
-        return payload
+        email = payload.get("sub")
+        if not email:
+            raise HTTPException(status_code=401, detail="Invalid token")
+        return email  # Use email as the user identifier
     except InvalidTokenError:
         raise credentials_exception
