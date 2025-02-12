@@ -3,11 +3,9 @@ import "./App.css"
 import NavTabs from './components/NavTabs'
 import * as React from 'react';
 
-// MUI Toolpad (Auth Page)
-import { AppProvider } from '@toolpad/core/AppProvider';
-import { SignInPage } from '@toolpad/core/SignInPage';
+// MUI SignIn Component
+import SlotsSignIn from "./components/SignIn";
 import { createTheme } from '@mui/material/styles';
-import CircularProgress from '@mui/material/CircularProgress';
 
 // MUI Imports (AppView Table)
 import Table from '@mui/material/Table';
@@ -31,26 +29,6 @@ import Stack from '@mui/material/Stack';
 // motion.dev imports for animations
 import * as motion from "motion/react-client";
 
-// Create theme for Auth page
-const customTheme = createTheme({
-  palette: {
-    primary: {
-      main: '#5865F2', // Primary buttons color
-    },
-    secondary: {
-      main: '#ff4081', // Secondary
-    },
-    background: {
-      default: '#2f3136', // Background color
-      paper: '#ffffff', // Background color for paper components like cards
-    },
-  },
-});
-
-
-// Authentication state
-const providers = [{ id: 'credentials', name: 'Email and Password' }];
-
 // Main App function
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -61,24 +39,52 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null)
+  const signIn = async (formData) => {
+    setIsLoading(true);
+    setError(null);
 
-  // Sign-in function
-  const signIn = async (provider, formData) => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setIsLoading(false); ;
-        setIsAuthenticated(true); // Set user as authenticated
-        resolve();
-      }, 300);
-    });
+    try {
+      const response = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          username: formData.email, 
+          password: formData.password,
+        }).toString(),
+      });
+
+      if (!response.ok) {
+        throw new Error("Invalid Email or Password");
+      }
+
+      const data = await response.json();
+      localStorage.setItem("access_token", data.access_token);
+      setIsAuthenticated(true);
+    } catch (err) {
+      console.error("Failed to Login:", err.message);
+      setError(err.message);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
+
+  // Log out
+  const byebye = () => {
+    localStorage.removeItem("access_token");
+    setIsAuthenticated(false);
+  };
+
+
   useEffect(() => {
-
-    if (!isAuthenticated) return;
-
     const fetchData = async () => {
       try {
+
+        // Token for specified user data
+        const token = localStorage.getItem("access_token"); 
+        
         const [applicationsRes, timelinesRes, contactsRes, insightsRes] =
           await Promise.all([
             fetch("http://localhost:8000/api/applications"),
@@ -121,23 +127,8 @@ function App() {
     fetchData()
   }, [isAuthenticated])
 
-  // If not authenticated, show Sign-In Page
   if (!isAuthenticated) {
-    return (
-      <AppProvider theme={customTheme}>
-        {isLoading ? (
-              // Show the spinner while loading
-              <CircularProgress />
-            ) : (
-              // Show the SignInPage when not loading
-              <SignInPage
-                signIn={signIn}
-                providers={providers}
-                slotProps={{ emailField: { autoFocus: false } }}
-              />
-            )}
-      </AppProvider>
-    );
+    return <SlotsSignIn signIn={signIn} />;
   }
 
   if (loading) return <div className="p-4">Loading data...</div>
@@ -154,6 +145,7 @@ function App() {
 
       <h1 className="header">
         Job Tracker Application
+        <Button onClick={byebye}>Logout</Button>
       </h1>
       <nav>
         <NavTabs
