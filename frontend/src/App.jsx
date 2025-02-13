@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import PropTypes from "prop-types"
 import "./App.css"
 import NavTabs from "./components/NavTabs"
 import { AppProvider } from "@toolpad/core/AppProvider"
@@ -308,6 +309,29 @@ function NetworkView({ contacts }) {
 // Insight page
 function InsightView() {
   return <p>Insights View</p>
+}
+
+// PropTypes definitions
+ApplicationView.propTypes = {
+  applications: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      position: PropTypes.string,
+      company: PropTypes.string,
+      date: PropTypes.string,
+      status: PropTypes.string,
+    })
+  ),
+}
+
+NetworkView.propTypes = {
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      name: PropTypes.string,
+      company: PropTypes.string,
+    })
+  ),
 }
 
 export { ApplicationView, TimelineView, NetworkView, InsightView }
