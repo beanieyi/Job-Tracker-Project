@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react"
 import PropTypes from "prop-types"
 import "./App.css"
-import NavTabs from "./components/NavTabs"
-import { AppProvider } from "@toolpad/core/AppProvider"
-import { SignInPage } from "@toolpad/core/SignInPage"
-import { createTheme } from "@mui/material/styles"
-import CircularProgress from "@mui/material/CircularProgress"
 
 // MUI Imports (AppView Table)
 import Table from "@mui/material/Table"
@@ -26,25 +21,6 @@ import Typography from "@mui/material/Typography"
 // motion.dev imports for animations
 import * as motion from "motion/react-client"
 
-// Create theme for Auth page
-const customTheme = createTheme({
-  palette: {
-    primary: {
-      main: "#5865F2",
-    },
-    secondary: {
-      main: "#ff4081",
-    },
-    background: {
-      default: "#2f3136",
-      paper: "#ffffff",
-    },
-  },
-})
-
-// Authentication state
-const providers = [{ id: "credentials", name: "Email and Password" }]
-
 // Main App function
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -55,23 +31,33 @@ function App() {
   const [loading, setLoading] = useState(true)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
+  const signIn = async (formData) => {
+    setIsLoading(true);
+    setError(null);
 
-  // Sign-in function
-  const signIn = async () => {
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        setIsLoading(false)
-        setIsAuthenticated(true)
-        resolve()
-      }, 300)
-    })
-  }
+    try {
+      const response = await fetch("http://localhost:8000/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        body: new URLSearchParams({
+          username: formData.email, 
+          password: formData.password,
+        }).toString(),
+      });
+
+      if (!response.ok) {
+        throw new Error("Invalid Email or Password");
+      }
 
   useEffect(() => {
-    if (!isAuthenticated) return
-
     const fetchData = async () => {
       try {
+
+        // Token for specified user data
+        const token = localStorage.getItem("access_token"); 
+        
         const [applicationsRes, timelinesRes, contactsRes, insightsRes] =
           await Promise.all([
             fetch("http://localhost:8000/api/applications"),
@@ -115,19 +101,6 @@ function App() {
   }, [isAuthenticated])
 
   if (!isAuthenticated) {
-    return (
-      <AppProvider theme={customTheme}>
-        {isLoading ? (
-          <CircularProgress />
-        ) : (
-          <SignInPage
-            signIn={signIn}
-            providers={providers}
-            slotProps={{ emailField: { autoFocus: false } }}
-          />
-        )}
-      </AppProvider>
-    )
   }
 
   if (loading) return <div className="p-4">Loading data...</div>
@@ -141,7 +114,6 @@ function App() {
         `}
       </style>
 
-      <h1 className="header">Job Tracker Application</h1>
       <nav>
         <NavTabs
           timelines={timelines}
