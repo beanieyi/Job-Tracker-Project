@@ -8,7 +8,7 @@ import TabPanel from "@mui/lab/TabPanel"
 import { ApplicationView, TimelineView, NetworkView, InsightView } from "../App"
 import * as motion from "motion/react-client"
 
-function NavTabs({ timelines, applications, contacts, roleInsights }) {
+const NavTabs = ({ timelines, applications, contacts, roleInsights }) => {
   const [value, setValue] = React.useState("applications")
 
   const handleChange = (event, newValue) => {
@@ -75,11 +75,48 @@ function NavTabs({ timelines, applications, contacts, roleInsights }) {
   )
 }
 
-LabTabs.propTypes = {
-  timelines: PropTypes.array.isRequired,
-  applications: PropTypes.array.isRequired,
-  contacts: PropTypes.array.isRequired,
-  roleInsights: PropTypes.array.isRequired,
+NavTabs.propTypes = {
+  timelines: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      application_id: PropTypes.number.isRequired,
+      status: PropTypes.string.isRequired,
+      date: PropTypes.string.isRequired,
+      notes: PropTypes.string,
+    })
+  ).isRequired,
+  applications: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      company: PropTypes.string.isRequired,
+      position: PropTypes.string.isRequired,
+      status: PropTypes.string.isRequired,
+      date: PropTypes.string.isRequired,
+      priority: PropTypes.string.isRequired,
+      matched_skills: PropTypes.arrayOf(PropTypes.string),
+      required_skills: PropTypes.arrayOf(PropTypes.string),
+    })
+  ).isRequired,
+  contacts: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number.isRequired,
+      name: PropTypes.string.isRequired,
+      role: PropTypes.string.isRequired,
+      company: PropTypes.string.isRequired,
+      linkedin: PropTypes.string.isRequired,
+      email: PropTypes.string,
+      phone: PropTypes.string,
+    })
+  ).isRequired,
+  roleInsights: PropTypes.arrayOf(
+    PropTypes.shape({
+      role_title: PropTypes.string.isRequired,
+      common_skills: PropTypes.arrayOf(PropTypes.string).isRequired,
+      average_salary: PropTypes.string.isRequired,
+      demand_trend: PropTypes.string.isRequired,
+      top_companies: PropTypes.arrayOf(PropTypes.string).isRequired,
+    })
+  ).isRequired,
 }
 
-export default LabTabs
+export default NavTabs
