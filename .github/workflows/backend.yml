@@ -59,7 +59,7 @@ jobs:
           ALGORITHM: HS256
           ACCESS_TOKEN_EXPIRE_MINUTES: 30
         run: |
-          pytest --cov=./app --cov-report=xml
+          python -m pytest --cov=./app --cov-report=xml
 
   build:
     needs: test

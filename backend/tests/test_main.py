@@ -1,6 +1,8 @@
+import pytest
 from fastapi.testclient import TestClient
 from app.main import app
 
+# Create a test client
 client = TestClient(app)
 
 
@@ -17,4 +19,10 @@ def test_read_root():
 def test_get_applications_unauthorized():
     """Test that applications endpoint requires authentication"""
     response = client.get("/api/applications")
-    assert response.status_code == 401  # Unauthorized
+    assert response.status_code == 401
+
+
+def test_get_contacts_unauthorized():
+    """Test that contacts endpoint requires authentication"""
+    response = client.get("/api/contacts")
+    assert response.status_code == 401
