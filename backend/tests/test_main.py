@@ -1,7 +1,8 @@
-from fastapi.testclient import TestClient
 import pytest
+from fastapi.testclient import TestClient
 from app.main import app
 
+# Create test client without using 'app' keyword argument
 client = TestClient(app)
 
 
@@ -29,13 +30,14 @@ def test_get_contacts_unauthorized():
     assert "detail" in response.json()
 
 
-# Add a basic test configuration fixture
 @pytest.fixture(autouse=True)
 def setup_test_env(monkeypatch):
     """Setup test environment variables"""
-    monkeypatch.setenv(
-        "DATABASE_URL", "postgresql://jobtracker:jobtracker@localhost:5432/jobtracker"
-    )
-    monkeypatch.setenv("SECRET_KEY", "test_secret_key")
-    monkeypatch.setenv("ALGORITHM", "HS256")
-    monkeypatch.setenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
+    test_env_vars = {
+        "DATABASE_URL": "postgresql://jobtracker:jobtracker@localhost:5432/jobtracker",
+        "SECRET_KEY": "test_secret_key",
+        "ALGORITHM": "HS256",
+        "ACCESS_TOKEN_EXPIRE_MINUTES": "30",
+    }
+    for key, value in test_env_vars.items():
+        monkeypatch.setenv(key, value)
