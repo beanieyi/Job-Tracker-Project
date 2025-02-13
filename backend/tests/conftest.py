@@ -1,7 +1,34 @@
 import os
 import sys
+import pytest
+import psycopg2
 from pathlib import Path
 
-root_dir = Path(__file__).parent
+root_dir = str(Path(__file__).parent.parent)
+sys.path.insert(0, root_dir)
 
-sys.path.insert(0, str(root_dir))
+
+def init_database():
+    """Initialize test database with schema"""
+    conn = psycopg2.connect(
+        dbname="jobtracker",
+        user="jobtracker",
+        password="jobtracker",
+        host="localhost",
+        port="5432",
+    )
+
+    conn.autocommit = True
+    with conn.cursor() as cur:
+        sql_file = os.path.join(root_dir, "..", "infrastructure", "docker", "init.sql")
+        with open(sql_file, "r") as f:
+            cur.execute(f.read())
+
+    conn.close()
+
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_db():
+    """Fixture to set up test database before any tests run"""
+    init_database()
+    yield
