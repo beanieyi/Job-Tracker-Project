@@ -1,81 +1,73 @@
 import { useState, useEffect } from "react"
 import "./App.css"
-import NavTabs from './components/NavTabs'
-import * as React from 'react';
-
-// MUI Toolpad (Auth Page)
-import { AppProvider } from '@toolpad/core/AppProvider';
-import { SignInPage } from '@toolpad/core/SignInPage';
-import { createTheme } from '@mui/material/styles';
-import CircularProgress from '@mui/material/CircularProgress';
+import NavTabs from "./components/NavTabs"
+import { AppProvider } from "@toolpad/core/AppProvider"
+import { SignInPage } from "@toolpad/core/SignInPage"
+import { createTheme } from "@mui/material/styles"
+import CircularProgress from "@mui/material/CircularProgress"
 
 // MUI Imports (AppView Table)
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
+import Table from "@mui/material/Table"
+import TableBody from "@mui/material/TableBody"
+import TableCell from "@mui/material/TableCell"
+import TableContainer from "@mui/material/TableContainer"
+import TableHead from "@mui/material/TableHead"
+import TableRow from "@mui/material/TableRow"
+import Paper from "@mui/material/Paper"
 
 // MUI Imports (NetworkView Cards)
-import Card from '@mui/material/Card';
-import CardActions from '@mui/material/CardActions';
-import CardContent from '@mui/material/CardContent';
-import Button from '@mui/material/Button';
-import Typography from '@mui/material/Typography';
-
-// MUI Button
-import Stack from '@mui/material/Stack';
+import Card from "@mui/material/Card"
+import CardActions from "@mui/material/CardActions"
+import CardContent from "@mui/material/CardContent"
+import Button from "@mui/material/Button"
+import Typography from "@mui/material/Typography"
 
 // motion.dev imports for animations
-import * as motion from "motion/react-client";
+import * as motion from "motion/react-client"
 
 // Create theme for Auth page
 const customTheme = createTheme({
   palette: {
     primary: {
-      main: '#5865F2', // Primary buttons color
+      main: "#5865F2",
     },
     secondary: {
-      main: '#ff4081', // Secondary
+      main: "#ff4081",
     },
     background: {
-      default: '#2f3136', // Background color
-      paper: '#ffffff', // Background color for paper components like cards
+      default: "#2f3136",
+      paper: "#ffffff",
     },
   },
-});
-
+})
 
 // Authentication state
-const providers = [{ id: 'credentials', name: 'Email and Password' }];
+const providers = [{ id: "credentials", name: "Email and Password" }]
 
 // Main App function
 function App() {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
   const [contacts, setContacts] = useState([])
   const [roleInsights, setRoleInsights] = useState([])
   const [loading, setLoading] = useState(true)
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState(null)
 
   // Sign-in function
-  const signIn = async (provider, formData) => {
+  const signIn = async () => {
     return new Promise((resolve) => {
       setTimeout(() => {
-        setIsLoading(false); ;
-        setIsAuthenticated(true); // Set user as authenticated
-        resolve();
-      }, 300);
-    });
-  };
+        setIsLoading(false)
+        setIsAuthenticated(true)
+        resolve()
+      }, 300)
+    })
+  }
 
   useEffect(() => {
-
-    if (!isAuthenticated) return;
+    if (!isAuthenticated) return
 
     const fetchData = async () => {
       try {
@@ -121,23 +113,20 @@ function App() {
     fetchData()
   }, [isAuthenticated])
 
-  // If not authenticated, show Sign-In Page
   if (!isAuthenticated) {
     return (
       <AppProvider theme={customTheme}>
         {isLoading ? (
-              // Show the spinner while loading
-              <CircularProgress />
-            ) : (
-              // Show the SignInPage when not loading
-              <SignInPage
-                signIn={signIn}
-                providers={providers}
-                slotProps={{ emailField: { autoFocus: false } }}
-              />
-            )}
+          <CircularProgress />
+        ) : (
+          <SignInPage
+            signIn={signIn}
+            providers={providers}
+            slotProps={{ emailField: { autoFocus: false } }}
+          />
+        )}
       </AppProvider>
-    );
+    )
   }
 
   if (loading) return <div className="p-4">Loading data...</div>
@@ -145,75 +134,106 @@ function App() {
 
   return (
     <div>
-      {/* Import fonts */}
       <style>
         {`
           @import url('https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap');
         `}
       </style>
 
-      <h1 className="header">
-        Job Tracker Application
-      </h1>
+      <h1 className="header">Job Tracker Application</h1>
       <nav>
         <NavTabs
-        timelines={timelines}
-        applications={applications}
-        contacts={contacts}
-        roleInsights={roleInsights}
+          timelines={timelines}
+          applications={applications}
+          contacts={contacts}
+          roleInsights={roleInsights}
         />
       </nav>
     </div>
   )
 }
 
-
 // Applications page
 function ApplicationView({ applications }) {
-
-  // Debugging Purposes
-  // console.log(applications);
+  if (!applications) return null
 
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.5 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{
-          duration: 0.6,
-          delay: 0.3,
-          ease: [0, 0.71, 0.2, 1.01],
+        duration: 0.6,
+        delay: 0.3,
+        ease: [0, 0.71, 0.2, 1.01],
       }}
     >
-    <div style={{ textAlign: "right", marginBottom: "20px"}}>
-      <Button variant="contained" sx={{ backgroundColor: "#5865F2"}} >Add Application</Button>
-      
-    </div>
+      <div style={{ textAlign: "right", marginBottom: "20px" }}>
+        <Button variant="contained" sx={{ backgroundColor: "#5865F2" }}>
+          Add Application
+        </Button>
+      </div>
 
-      <TableContainer component={Paper} sx={{backgroundColor: "#282b30"}}>
+      <TableContainer component={Paper} sx={{ backgroundColor: "#282b30" }}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
-            <TableRow sx={{borderBottom: "2.5px solid #5865F2"}}>
-              <TableCell sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>Job Title</TableCell>
-              <TableCell align="right" sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>Company</TableCell>
-              <TableCell align="right" sx={{ color: "white",fontSize: "1rem", fontWeight: "bold" }}>Date Applied</TableCell>
-              <TableCell align="right" sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>Status</TableCell>
-              <TableCell align="right" sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>Edit</TableCell>
+            <TableRow sx={{ borderBottom: "2.5px solid #5865F2" }}>
+              <TableCell
+                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
+              >
+                Job Title
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
+              >
+                Company
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
+              >
+                Date Applied
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
+              >
+                Status
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
+              >
+                Edit
+              </TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {applications.map((app) => (
               <TableRow
                 key={app.id}
-                sx={{ '&:last-child td, &:last-child th': { border: 0 }}}
+                sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
               >
-                <TableCell component="th" scope="app" sx={{color: "white" }}>
+                <TableCell component="th" scope="app" sx={{ color: "white" }}>
                   {app.position}
                 </TableCell>
-                <TableCell align="right" sx={{color: "white"}}>{app.company}</TableCell>
-                <TableCell align="right" sx={{color: "white"}}>{app.date}</TableCell>
-                <TableCell align="right" sx={{color: "white"}}>{app.status}</TableCell>
+                <TableCell align="right" sx={{ color: "white" }}>
+                  {app.company}
+                </TableCell>
+                <TableCell align="right" sx={{ color: "white" }}>
+                  {app.date}
+                </TableCell>
+                <TableCell align="right" sx={{ color: "white" }}>
+                  {app.status}
+                </TableCell>
                 <TableCell align="right">
-                  <Button variant="contained" size="small" sx={{ backgroundColor: "#5865F2"}}>Edit</Button>
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{ backgroundColor: "#5865F2" }}
+                  >
+                    Edit
+                  </Button>
                 </TableCell>
               </TableRow>
             ))}
@@ -221,51 +241,61 @@ function ApplicationView({ applications }) {
         </Table>
       </TableContainer>
     </motion.div>
-  );
+  )
 }
-export { ApplicationView }
-
 
 // Timeline of applications page
 function TimelineView() {
-  return (
-    <p>Wowwww</p>
-  )
+  return <p>Timeline View</p>
 }
-export { TimelineView }
-
 
 // Network Page
 function NetworkView({ contacts }) {
+  if (!contacts) return null
+
   return (
     <motion.div
-    initial={{ opacity: 0, scale: 0.5 }}
-    animate={{ opacity: 1, scale: 1 }}
-    transition={{
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
         duration: 0.6,
         delay: 0.3,
         ease: [0, 0.71, 0.2, 1.01],
       }}
     >
       <h2 className="network-header">Professional Network</h2>
-      
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '50px', justifyContent: 'flex-start' }}>
-        {contacts.map((contact, index) => (
-          <motion.div
-            whileHover={{ scale: 1.2 }}
-          >
-            <Card key={index} sx={{ width: 300, backgroundColor: '#282b30' }}>
+
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          gap: "50px",
+          justifyContent: "flex-start",
+        }}
+      >
+        {contacts.map((contact) => (
+          <motion.div key={contact.id} whileHover={{ scale: 1.2 }}>
+            <Card sx={{ width: 300, backgroundColor: "#282b30" }}>
               <CardContent>
-                <Typography sx={{color:'#FFFFFF'}} gutterBottom variant="h5" component="div">
+                <Typography
+                  sx={{ color: "#FFFFFF" }}
+                  gutterBottom
+                  variant="h5"
+                  component="div"
+                >
                   {contact.name || "Unknown Name"}
                 </Typography>
-                <Typography variant="body2" sx={{ color: 'text.secondary', color:'#FFFFFF' }}>
+                <Typography variant="body2" sx={{ color: "#FFFFFF" }}>
                   {contact.company || "Company not found."}
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button sx={{color:'#5865F2'}} size="small">Email</Button>
-                <Button sx={{color:'#5865F2'}} size="small">LinkedIn</Button>
+                <Button sx={{ color: "#5865F2" }} size="small">
+                  Email
+                </Button>
+                <Button sx={{ color: "#5865F2" }} size="small">
+                  LinkedIn
+                </Button>
               </CardActions>
             </Card>
           </motion.div>
@@ -274,16 +304,11 @@ function NetworkView({ contacts }) {
     </motion.div>
   )
 }
-export { NetworkView }
-
 
 // Insight page
 function InsightView() {
-  return (
-    <p>hello</p>
-  )
+  return <p>Insights View</p>
 }
-export { InsightView }
 
-
-export default App;
+export { ApplicationView, TimelineView, NetworkView, InsightView }
+export default App
