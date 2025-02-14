@@ -78,9 +78,9 @@ function App() {
 
         const [applicationsRes, timelinesRes, contactsRes, insightsRes] =
           await Promise.all([
-            fetch("http://localhost:8000/bpi/applications", { headers }),
-            fetch("http://localhost:8000/bpi/timelines", { headers }),
-            fetch("http://localhost:8000/bpi/contacts", { headers }),
+            fetch("http://localhost:8000/api/applications", { headers }),
+            fetch("http://localhost:8000/api/timelines", { headers }),
+            fetch("http://localhost:8000/api/contacts", { headers }),
             fetch("http://localhost:8000/api/role-insights", { headers }),
           ])
 

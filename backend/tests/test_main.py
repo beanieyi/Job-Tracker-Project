@@ -18,14 +18,14 @@ def test_read_root():
 
 def test_get_applications_unauthorized():
     """Test that applications endpoint requires authentication"""
-    response = client.get("/bpi/applications")
+    response = client.get("/api/applications")
     assert response.status_code == 401
     assert "detail" in response.json()
 
 
 def test_get_contacts_unauthorized():
     """Test that contacts endpoint requires authentication"""
-    response = client.get("/bpi/contacts")
+    response = client.get("/api/contacts")
     assert response.status_code == 401
     assert "detail" in response.json()
 
