@@ -1,5 +1,5 @@
 from passlib.context import CryptContext
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, HTTPException, status, Depends, Response
 from app.utils.hashing import hash_password, verify_password
 from app.utils.jwt_manager import create_access_token, get_current_user
 from app.database import get_db_connection
@@ -11,7 +11,7 @@ router = APIRouter(prefix="/auth", tags=["Auth"])
 
 
 @router.post("/register")
-async def register(registration_info: RegisterRequest):
+async def register(response: Response, registration_info: RegisterRequest):
     """Register users in the database with a hashed password"""
     username = registration_info.username
     password = registration_info.password
@@ -29,7 +29,17 @@ async def register(registration_info: RegisterRequest):
             conn.commit()
 
     token = create_access_token({"sub": email})
-    return {"message": "User registered successfully", "access_token": token, "token_type": "Bearer"}
+
+    # Set the token as an HTTP-only cookie
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        secure=False, # set to true when prod
+        samesite="Lax",
+        max_age=3600
+    )
+    return {"message": "User registered successfully"}
 
 
 @router.get("/users")
@@ -49,7 +59,7 @@ async def get_users(current_user: dict = Depends(get_current_user)):
 
 
 @router.post("/login")
-async def login(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login(response: Response, form_data: OAuth2PasswordRequestForm = Depends()):
     """Login and send bearer token"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
@@ -61,4 +71,22 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends()):
                     status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid credentials")
             
     token = create_access_token({"sub": user["email"]})
+
+    # Set the token as an HTTP-only cookie
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {token}",
+        httponly=True,
+        secure=False,  # set to true when prod
+        samesite="Lax",
+        max_age=3600
+    )
     return {"message": "User logged in successfully", "access_token": token, "token_type": "Bearer"}
+
+@router.post("/logout")
+async def logout(response: Response):
+    """Clears the authentication token by setting an expired cookie."""
+    response.delete_cookie("access_token")
+    return {"message": "Logged out successfully"}
+
+

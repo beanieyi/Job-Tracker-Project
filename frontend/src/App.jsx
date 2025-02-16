@@ -46,6 +46,7 @@ function App() {
           username: formData.email,
           password: formData.password,
         }).toString(),
+        credentials: "include"
       })
 
       if (!response.ok) {
@@ -70,18 +71,18 @@ function App() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Token for specified user data
-        const bearerToken = localStorage.getItem("access_token")
-        const headers = bearerToken
-          ? { Authorization: `Bearer ${bearerToken}` }
-          : {}
+        // // Token for specified user data
+        // const bearerToken = localStorage.getItem("access_token")
+        // const headers = bearerToken
+        //   ? { Authorization: `Bearer ${bearerToken}` }
+        //   : {}
 
         const [applicationsRes, timelinesRes, contactsRes, insightsRes] =
           await Promise.all([
-            fetch("http://localhost:8000/api/applications", { headers }),
-            fetch("http://localhost:8000/api/timelines", { headers }),
-            fetch("http://localhost:8000/api/contacts", { headers }),
-            fetch("http://localhost:8000/api/role-insights", { headers }),
+            fetch("http://localhost:8000/api/applications", { method: "GET",credentials: "include" }),
+            fetch("http://localhost:8000/api/timelines", { method: "GET",credentials: "include" }),
+            fetch("http://localhost:8000/api/contacts", { method: "GET",credentials: "include" }),
+            fetch("http://localhost:8000/api/role-insights", { method: "GET",credentials: "include" }),
           ])
 
         if (!applicationsRes.ok)

@@ -1,20 +1,24 @@
 from datetime import datetime, timedelta
-from fastapi import HTTPException, status, Depends
+from fastapi import HTTPException, status, Depends, Request
 import jwt
 from jwt.exceptions import InvalidTokenError
 from fastapi.security import OAuth2PasswordBearer
 from app.config import settings
 
 
-# Define the token URL (used for login)
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 
 
-def get_current_user(token: str = Depends(oauth2_scheme)) -> dict:
+def get_current_user(request: Request) -> dict:
     """
     Extracts and validates the Bearer token, returning the payload (e.g., user details).
     """
+
+    token = request.cookies.get("access_token")
+    if not token:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Missing authentication token")
     try:
+        token = token.replace("Bearer ", "")
         payload = verify_access_token(token)
         # Return the decoded JWT payload (e.g., {"sub": "username"})
         return payload

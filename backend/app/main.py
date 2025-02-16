@@ -90,28 +90,8 @@ app.include_router(contacts.router)
 app.include_router(applications.router)
 
 
-@app.get("/")
-async def read_root():
-    """Root endpoint to verify API status"""
-    return {"status": "online", "message": "Welcome to the Job Tracker API"}
 
 
-@app.get("/api/applications", response_model=List[JobApplication])
-async def get_applications():
-    """Retrieve all job applications from the database"""
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-
-            cur.execute(
-                """
-                SELECT id, company, position, status, date, priority, 
-                    matched_skills, required_skills 
-                FROM job_applications 
-                ORDER BY date DESC
-            """
-            )
-            applications = cur.fetchall()
-    return applications
 
 
 @app.get("/api/timelines", response_model=List[TimelineEntry])
@@ -131,24 +111,6 @@ async def get_timelines():
 
     return timelines
 
-
-@app.get("/api/contacts", response_model=List[NetworkContact])
-async def get_contacts():
-    """Retrieve all network contacts"""
-    with get_db_connection() as conn:
-        with conn.cursor() as cur:
-
-            cur.execute(
-                """
-                SELECT id, name, role, company, linkedin, 
-                    email, phone 
-                FROM network_contacts 
-                ORDER BY name DESC
-            """
-            )
-            contacts = cur.fetchall()
-
-    return contacts
 
 
 @app.get("/api/role-insights", response_model=List[RoleInsight])
