@@ -54,7 +54,7 @@ function App() {
       }
 
       const data = await response.json()
-      localStorage.setItem("access_token", data.access_token)
+      // localStorage.setItem("access_token", data.access_token)
       setIsAuthenticated(true)
     } catch (err) {
       console.error("Failed to Login:", err.message)
@@ -63,8 +63,14 @@ function App() {
   }
 
   // Log out
-  const byebye = () => {
-    localStorage.removeItem("access_token")
+  const byebye = async () => {
+    // localStorage.removeItem("access_token")
+    const response = await fetch("http://localhost:8000/auth/logout", {
+      method: "POST",
+      credentials: "include"
+    })
+    const data = await response.json()
+    console.log(data)
     setIsAuthenticated(false)
   }
 

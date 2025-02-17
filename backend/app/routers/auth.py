@@ -3,8 +3,8 @@ from fastapi import APIRouter, HTTPException, status, Depends, Response
 from app.utils.hashing import hash_password, verify_password
 from app.utils.jwt_manager import create_access_token, get_current_user
 from app.database import get_db_connection
-from app.queries.users import CREATE_USER, GET_USER_BY_EMAIL, FIND_USER
-from app.models.user import RegisterRequest
+from app.queries.users import CREATE_USER, GET_USER_BY_EMAIL, FIND_USER, UPDATE_USER_SKILLS
+from app.models.user import RegisterRequest, UserSkills
 from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -89,4 +89,26 @@ async def logout(response: Response):
     response.delete_cookie("access_token")
     return {"message": "Logged out successfully"}
 
+
+@router.put("/skills")
+async def update_user_skills(
+    skills_update: UserSkills,
+    current_user: str = Depends(get_current_user)
+):
+    """Update a user's skills in the database."""
+    with get_db_connection() as conn:
+        with conn.cursor() as cur:
+            # Check if user exists
+            cur.execute("SELECT * FROM users WHERE email = %s",
+                        (current_user,))
+            user = cur.fetchone()
+            if not user:
+                raise HTTPException(status_code=404, detail="User not found")
+
+            # Update skills in the database
+            cur.execute(UPDATE_USER_SKILLS,
+                        (skills_update.skills, current_user))
+            conn.commit()
+
+    return {"message": "User skills updated successfully", "skills": skills_update.skills}
 
