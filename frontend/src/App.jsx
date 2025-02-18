@@ -53,7 +53,7 @@ function App() {
         throw new Error("Invalid Email or Password")
       }
 
-      const data = await response.json()
+      // const data = await response.json()
       // localStorage.setItem("access_token", data.access_token)
       setIsAuthenticated(true)
     } catch (err) {

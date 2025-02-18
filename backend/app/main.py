@@ -90,8 +90,10 @@ app.include_router(contacts.router)
 app.include_router(applications.router)
 
 
-
-
+@app.get("/")
+async def read_root():
+    """Root endpoint to verify API status"""
+    return {"status": "online", "message": "Welcome to the Job Tracker API"}
 
 
 @app.get("/api/timelines", response_model=List[TimelineEntry])
