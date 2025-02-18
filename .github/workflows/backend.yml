@@ -1,0 +1,74 @@
+name: Backend CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'backend/**'
+      - '.github/workflows/backend.yml'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+        
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_USER: jobtracker
+          POSTGRES_PASSWORD: jobtracker
+          POSTGRES_DB: jobtracker
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v3
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+        
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install pytest pytest-cov flake8 httpx
+        
+    - name: Run linting
+      run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+        
+    - name: Run tests with coverage
+      env:
+        DATABASE_URL: postgresql://jobtracker:jobtracker@localhost:5432/jobtracker
+        SECRET_KEY: testing_secret_key
+        ALGORITHM: HS256
+        ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      run: python -m pytest --cov=./app --cov-report=xml
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Test Docker build
+      run: docker build -t jobtracker-backend:test -f Dockerfile.dev .

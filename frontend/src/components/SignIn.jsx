@@ -1,4 +1,5 @@
-import * as React from 'react';
+import * as React from "react"
+import PropTypes from "prop-types"
 import {
   Button,
   FormControl,
@@ -7,35 +8,16 @@ import {
   TextField,
   InputAdornment,
   Link,
-  Alert,
   IconButton,
-} from '@mui/material';
-import AccountCircle from '@mui/icons-material/AccountCircle';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { AppProvider } from '@toolpad/core/AppProvider';
-import { SignInPage } from '@toolpad/core/SignInPage';
-import { useTheme } from '@mui/material/styles';
+} from "@mui/material"
+import AccountCircle from "@mui/icons-material/AccountCircle"
+import Visibility from "@mui/icons-material/Visibility"
+import VisibilityOff from "@mui/icons-material/VisibilityOff"
+import { AppProvider } from "@toolpad/core/AppProvider"
+import { SignInPage } from "@toolpad/core/SignInPage"
+import { useTheme } from "@mui/material/styles"
 
-// Create theme for Auth page
-/*
-const customTheme = createTheme({
-    palette: {
-      primary: {
-        main: '#5865F2', // Primary buttons color
-      },
-      secondary: {
-        main: '#ff4081', // Secondary
-      },
-      background: {
-        default: '#2f3136', // Background color
-        paper: '#ffffff', // Background color for paper components like cards
-      },
-    },
-  });
-*/
-
-const providers = [{ id: 'credentials', name: 'Email and Password' }];
+const providers = [{ id: "credentials", name: "Email and Password" }]
 
 function CustomEmailField() {
   return (
@@ -58,17 +40,35 @@ function CustomEmailField() {
       }}
       variant="outlined"
     />
-  );
+  )
 }
 
-function CustomPasswordField() {
-  const [showPassword, setShowPassword] = React.useState(false);
+// Create theme for Auth page
+/*
+const customTheme = createTheme({
+    palette: {
+      primary: {
+        main: '#5865F2', // Primary buttons color
+      },
+      secondary: {
+        main: '#ff4081', // Secondary
+      },
+      background: {
+        default: '#2f3136', // Background color
+        paper: '#ffffff', // Background color for paper components like cards
+      },
+    },
+  });
+*/
 
-  const handleClickShowPassword = () => setShowPassword((show) => !show);
+function CustomPasswordField() {
+  const [showPassword, setShowPassword] = React.useState(false)
+
+  const handleClickShowPassword = () => setShowPassword((show) => !show)
 
   const handleMouseDownPassword = (event) => {
-    event.preventDefault();
-  };
+    event.preventDefault()
+  }
 
   return (
     <FormControl sx={{ my: 2 }} fullWidth variant="outlined">
@@ -77,7 +77,7 @@ function CustomPasswordField() {
       </InputLabel>
       <OutlinedInput
         id="outlined-adornment-password"
-        type={showPassword ? 'text' : 'password'}
+        type={showPassword ? "text" : "password"}
         name="password"
         size="small"
         endAdornment={
@@ -100,7 +100,7 @@ function CustomPasswordField() {
         label="Password"
       />
     </FormControl>
-  );
+  )
 }
 
 function CustomButton() {
@@ -116,7 +116,7 @@ function CustomButton() {
     >
       Log In
     </Button>
-  );
+  )
 }
 
 function SignUpLink() {
@@ -124,7 +124,7 @@ function SignUpLink() {
     <Link href="/" variant="body2">
       Sign up
     </Link>
-  );
+  )
 }
 
 function ForgotPasswordLink() {
@@ -132,15 +132,15 @@ function ForgotPasswordLink() {
     <Link href="/" variant="body2">
       Forgot password?
     </Link>
-  );
+  )
 }
 
 function Title() {
-  return <h2 style={{ marginBottom: 8 }}>Login</h2>;
+  return <h2 style={{ marginBottom: 8 }}>Login</h2>
 }
 
-export default function SlotsSignIn({ signIn }) {
-  const theme = useTheme();
+function SlotsSignIn({ signIn }) {
+  const theme = useTheme()
   return (
     <AppProvider theme={theme}>
       <SignInPage
@@ -161,5 +161,11 @@ export default function SlotsSignIn({ signIn }) {
         providers={providers}
       />
     </AppProvider>
-  );
+  )
 }
+
+SlotsSignIn.propTypes = {
+  signIn: PropTypes.func.isRequired,
+}
+
+export default SlotsSignIn
