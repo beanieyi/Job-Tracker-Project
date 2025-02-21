@@ -46,14 +46,15 @@ function App() {
           username: formData.email,
           password: formData.password,
         }).toString(),
+        credentials: "include"
       })
 
       if (!response.ok) {
         throw new Error("Invalid Email or Password")
       }
 
-      const data = await response.json()
-      localStorage.setItem("access_token", data.access_token)
+      // const data = await response.json()
+      // localStorage.setItem("access_token", data.access_token)
       setIsAuthenticated(true)
     } catch (err) {
       console.error("Failed to Login:", err.message)
@@ -62,26 +63,32 @@ function App() {
   }
 
   // Log out
-  const byebye = () => {
-    localStorage.removeItem("access_token")
+  const byebye = async () => {
+    // localStorage.removeItem("access_token")
+    const response = await fetch("http://localhost:8000/auth/logout", {
+      method: "POST",
+      credentials: "include"
+    })
+    const data = await response.json()
+    console.log(data)
     setIsAuthenticated(false)
   }
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Token for specified user data
-        const bearerToken = localStorage.getItem("access_token")
-        const headers = bearerToken
-          ? { Authorization: `Bearer ${bearerToken}` }
-          : {}
+        // // Token for specified user data
+        // const bearerToken = localStorage.getItem("access_token")
+        // const headers = bearerToken
+        //   ? { Authorization: `Bearer ${bearerToken}` }
+        //   : {}
 
         const [applicationsRes, timelinesRes, contactsRes, insightsRes] =
           await Promise.all([
-            fetch("http://localhost:8000/api/applications", { headers }),
-            fetch("http://localhost:8000/api/timelines", { headers }),
-            fetch("http://localhost:8000/api/contacts", { headers }),
-            fetch("http://localhost:8000/api/role-insights", { headers }),
+            fetch("http://localhost:8000/api/applications", { method: "GET",credentials: "include" }),
+            fetch("http://localhost:8000/api/timelines", { method: "GET",credentials: "include" }),
+            fetch("http://localhost:8000/api/contacts", { method: "GET",credentials: "include" }),
+            fetch("http://localhost:8000/api/role-insights", { method: "GET",credentials: "include" }),
           ])
 
         if (!applicationsRes.ok)

@@ -15,6 +15,5 @@ SELECT * FROM users WHERE email = %s;
 UPDATE_USER_SKILLS = """
 UPDATE users
 SET skills = %s
-WHERE id = %s
-RETURNING id, name, email, skills;
+WHERE email = %s
 """

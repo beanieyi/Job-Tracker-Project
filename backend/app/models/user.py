@@ -21,4 +21,9 @@ class User(BaseModel):
     email: str
     password: str
     skills: List[str]
-    name: str
+
+class UserSkills(BaseModel):
+    """
+    Pydantic model for updating user skills
+    """
+    skills: List[str]

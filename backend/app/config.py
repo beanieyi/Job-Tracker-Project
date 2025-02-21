@@ -9,6 +9,7 @@ class Settings:
     SECRET_KEY = os.environ.get("SECRET_KEY")
     ALGORITHM = os.environ.get("ALGORITHM")
     TOKEN_EXPIRY = os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES")
+    OPENAI_API_KEY = os.environ.get("OPENAI_API_KEY")
 
 
 settings = Settings()

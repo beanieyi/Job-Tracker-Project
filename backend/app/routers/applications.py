@@ -34,7 +34,7 @@ async def get_applications(current_user: str = Depends(get_current_user)):
     return jobs
 
 
-@router.get("/applications/{job_id}", response_model=JobApplicationResponse)
+@router.get("/applications/{job_id}", response_model=dict)
 async def get_job_application(
     job_id: int, current_user: str = Depends(get_current_user)
 ):
@@ -45,12 +45,18 @@ async def get_job_application(
             cur.execute(GET_JOB_APPLICATION_BY_ID, (job_id, current_user))
             job = cur.fetchone()
 
-    if not job:
-        raise HTTPException(
-            status_code=404, detail="Job application not found or unauthorized"
-        )
+            if not job:
+                raise HTTPException(
+                    status_code=404, detail="Job application not found or unauthorized"
+                )
+            
+            # Fetch application timeline
+            cur.execute(GET_APPLICATION_TIMELINE, (job_id,))
+            timeline = cur.fetchall()
 
-    return job
+            
+
+    return {"job_application": job, "timeline": timeline}
 
 
 @router.post("/applications", response_model=JobApplicationResponse)
