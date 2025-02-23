@@ -21,9 +21,14 @@ import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
 import Button from "@mui/material/Button"
 import Typography from "@mui/material/Typography"
+import TextField from "@mui/material/TextField";
 
 // motion.dev imports for animations
 import * as motion from "motion/react-client"
+
+// Application functionality
+import { deleteApplication } from "./api/applications"
+import { createApplication } from './api/applications';
 
 // Main App function
 function App() {
@@ -46,21 +51,20 @@ function App() {
           username: formData.email,
           password: formData.password,
         }).toString(),
-        credentials: "include"
-      })
-
+        credentials: "include",  // Ensure cookies are included
+      });
+  
       if (!response.ok) {
-        throw new Error("Invalid Email or Password")
+        throw new Error("Invalid Email or Password");
       }
-
-      // const data = await response.json()
-      // localStorage.setItem("access_token", data.access_token)
-      setIsAuthenticated(true)
+  
+      setIsAuthenticated(true); // User is authenticated after a successful login
     } catch (err) {
-      console.error("Failed to Login:", err.message)
-      throw err
+      console.error("Failed to Login:", err.message);
+      throw err;
     }
-  }
+  };
+  
 
   // Log out
   const byebye = async () => {
@@ -73,6 +77,7 @@ function App() {
     console.log(data)
     setIsAuthenticated(false)
   }
+
 
   useEffect(() => {
     const fetchData = async () => {
@@ -159,30 +164,119 @@ function App() {
 }
 
 // Applications page
-function ApplicationView({ applications }) {
+function ApplicationView({ applications, setApplications }) {
+  const [newApplication, setNewApplication] = useState({
+    position: '',
+    company: '',
+    date: '',
+    status: ''
+  });
+  const [showForm, setShowForm] = useState(false);
+
+  // Input change for new application
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewApplication((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  // Form submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Call Application
+      const createdApp = await createApplication(newApplication); 
+      setApplications((prevApplications) => [...prevApplications, createdApp])
+      setShowForm(false);
+      setNewApplication({ position: '', company: '', date: '', status: '' });
+    } catch (err) {
+      console.error('Failed to create application:', err.message);
+    }
+  };
+
+  // Toggle form visibility
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.5 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{
-        duration: 0.6,
-        delay: 0.3,
-        ease: [0, 0.71, 0.2, 1.01],
-      }}
-    >
+    <div>
+      {/* Add Application Button */}
       <div style={{ textAlign: "right", marginBottom: "20px" }}>
-        <Button variant="contained" sx={{ backgroundColor: "#5865F2" }}>
+        <Button variant="contained" sx={{ backgroundColor: "#5865F2" }} onClick={toggleForm}>
           Add Application
         </Button>
       </div>
 
+      {/* Add application Form */}
+      {showForm && (
+        <div
+        style={{
+          backgroundColor: 'white', 
+          padding: '30px', 
+          borderRadius: '8px',
+          width: '100%', 
+          maxWidth: '500px', 
+          margin: '0 auto',
+          marginBottom: '50px'
+        }}>
+        <form onSubmit={handleSubmit}>
+          <TextField
+            label="Job Title"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="position"
+            value={newApplication.position}
+            onChange={handleInputChange}
+          />
+          <TextField
+            label="Company"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="company"
+            value={newApplication.company}
+            onChange={handleInputChange}
+          />
+          <TextField
+            label="Date Applied"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="date"
+            value={newApplication.date}
+            onChange={handleInputChange}
+          />
+          <TextField
+            label="Status"
+            variant="outlined"
+            fullWidth
+            margin="normal"
+            name="status"
+            value={newApplication.status}
+            onChange={handleInputChange}
+          />
+          <div>
+            <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2" }}>
+              Submit
+            </Button>
+            <Button variant="contained" sx={{ backgroundColor: "#f44336", marginLeft: "10px" }} onClick={() => setShowForm(false)}>
+              Cancel
+            </Button>
+          </div>
+        </form>
+        </div>
+      )}
+
+      {/* Applications Table */}
       <TableContainer component={Paper} sx={{ backgroundColor: "#282b30" }}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow sx={{ borderBottom: "2.5px solid #5865F2" }}>
-              <TableCell
-                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
-              >
+              <TableCell sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>
                 Job Title
               </TableCell>
               <TableCell
@@ -208,6 +302,12 @@ function ApplicationView({ applications }) {
                 sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
               >
                 Edit
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
+              >
+                Delete
               </TableCell>
             </TableRow>
           </TableHead>
@@ -238,13 +338,26 @@ function ApplicationView({ applications }) {
                     Edit
                   </Button>
                 </TableCell>
+                <TableCell align="right">
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{ backgroundColor: "#5865F2" }}
+                    onClick={() => {
+                      console.log("Delete button clicked", app.id);
+                      handleDelete(app.id);
+                    }}
+                  >
+                    Delete
+                  </Button>
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-    </motion.div>
-  )
+    </div>
+  );
 }
 
 // Timeline of applications page
