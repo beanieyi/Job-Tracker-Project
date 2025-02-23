@@ -241,7 +241,7 @@ function ApplicationView({ applications, setApplications }) {
             value={newApplication.company}
             onChange={handleInputChange}
           />
-        <TextField
+          <TextField
             variant="outlined"
             fullWidth
             margin="normal"
