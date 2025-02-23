@@ -185,7 +185,22 @@ function ApplicationView({ applications, setApplications }) {
     }));
   };
 
-  // Form submit
+  // Delete App
+  const handleDelete = async (appId) => {
+    try {
+      // Delete Call
+      await deleteApplication(appId);
+      
+      // Update state
+      setApplications((prevApplications) =>
+        prevApplications.filter((app) => app.id !== appId)
+      );
+    } catch (err) {
+      console.error("Failed to delete application:", err.message);
+    }
+  };
+
+  // Application Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
@@ -213,7 +228,7 @@ function ApplicationView({ applications, setApplications }) {
         </Button>
       </div>
 
-      {/* Add application Form */}
+      {/* Add Application Form */}
       {showForm && (
         <motion.div
           initial={{ opacity: 0, scale: 0.5 }}
