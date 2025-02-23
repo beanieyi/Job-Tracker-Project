@@ -241,14 +241,14 @@ function ApplicationView({ applications, setApplications }) {
             value={newApplication.company}
             onChange={handleInputChange}
           />
-          <TextField
-            label="Date Applied"
+        <TextField
             variant="outlined"
             fullWidth
             margin="normal"
             name="date"
             value={newApplication.date}
             onChange={handleInputChange}
+            type="date"
           />
           <TextField
             label="Status"
