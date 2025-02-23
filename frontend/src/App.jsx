@@ -19,12 +19,12 @@ import Paper from "@mui/material/Paper"
 import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
-import Button from "@mui/material/Button"
+import { Button, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import Typography from "@mui/material/Typography"
-import TextField from "@mui/material/TextField";
 
 // motion.dev imports for animations
 import * as motion from "motion/react-client"
+
 
 // Application functionality
 import { deleteApplication } from "./api/applications"
@@ -169,7 +169,10 @@ function ApplicationView({ applications, setApplications }) {
     position: '',
     company: '',
     date: '',
-    status: ''
+    status: '',
+    priority: '',
+    matched_skills: [],
+    required_skills: []
   });
   const [showForm, setShowForm] = useState(false);
 
@@ -190,7 +193,7 @@ function ApplicationView({ applications, setApplications }) {
       const createdApp = await createApplication(newApplication); 
       setApplications((prevApplications) => [...prevApplications, createdApp])
       setShowForm(false);
-      setNewApplication({ position: '', company: '', date: '', status: '' });
+      setNewApplication({ position: '', company: '', date: '', status: '', priority:'' });
     } catch (err) {
       console.error('Failed to create application:', err.message);
     }
@@ -212,66 +215,101 @@ function ApplicationView({ applications, setApplications }) {
 
       {/* Add application Form */}
       {showForm && (
-        <div
-        style={{
-          backgroundColor: 'white', 
-          padding: '30px', 
-          borderRadius: '8px',
-          width: '100%', 
-          maxWidth: '500px', 
-          margin: '0 auto',
-          marginBottom: '50px'
-        }}>
-        <form onSubmit={handleSubmit}>
-          <TextField
-            label="Job Title"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            name="position"
-            value={newApplication.position}
-            onChange={handleInputChange}
-          />
-          <TextField
-            label="Company"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            name="company"
-            value={newApplication.company}
-            onChange={handleInputChange}
-          />
-          <TextField
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            name="date"
-            value={newApplication.date}
-            onChange={handleInputChange}
-            type="date"
-          />
-          <TextField
-            label="Status"
-            variant="outlined"
-            fullWidth
-            margin="normal"
-            name="status"
-            value={newApplication.status}
-            onChange={handleInputChange}
-          />
-          <div>
-            <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2" }}>
-              Submit
-            </Button>
-            <Button variant="contained" sx={{ backgroundColor: "#f44336", marginLeft: "10px" }} onClick={() => setShowForm(false)}>
-              Cancel
-            </Button>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 0.6,
+            delay: 0.3,
+            ease: [0, 0.71, 0.2, 1.01],
+          }}
+          >
+          <div
+          style={{
+            backgroundColor: 'white', 
+            padding: '30px', 
+            borderRadius: '8px',
+            width: '100%', 
+            maxWidth: '500px', 
+            margin: '0 auto',
+            marginBottom: '50px'
+          }}>
+            <form onSubmit={handleSubmit}>
+              <FormControl variant="outlined" fullWidth margin="normal">
+                <InputLabel htmlFor="priority">Priority</InputLabel>
+                  <Select
+                    label="Priority"
+                    name="priority"
+                    value={newApplication.priority}
+                    onChange={handleInputChange}
+                    inputProps={{ id: 'priority' }}
+                  >
+                    <MenuItem value="High">High</MenuItem>
+                    <MenuItem value="Medium">Medium</MenuItem>
+                    <MenuItem value="Low">Low</MenuItem>
+                  </Select>
+              </FormControl>
+              <TextField
+                label="Job Title"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="position"
+                value={newApplication.position}
+                onChange={handleInputChange}
+              />
+              <TextField
+                label="Company"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="company"
+                value={newApplication.company}
+                onChange={handleInputChange}
+              />
+              <TextField
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="date"
+                value={newApplication.date}
+                onChange={handleInputChange}
+                type="date"
+              />
+              <TextField
+                label="Status"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="status"
+                value={newApplication.status}
+                onChange={handleInputChange}
+              />
+            <div        
+              style={{marginTop: '20px'}}
+            >
+              <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2" }}>
+                Submit
+              </Button>
+              <Button variant="contained" sx={{ backgroundColor: "#f44336", marginLeft: "10px" }} onClick={() => setShowForm(false)}>
+                Cancel
+              </Button>          
+            </div>         
+          </form>   
           </div>
-        </form>
-        </div>
+        </motion.div>    
       )}
 
       {/* Applications Table */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          duration: 0.6,
+          delay: 0.3,
+          ease: [0, 0.71, 0.2, 1.01],
+        }}
+      >
       <TableContainer component={Paper} sx={{ backgroundColor: "#282b30" }}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
@@ -296,6 +334,12 @@ function ApplicationView({ applications, setApplications }) {
                 sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
               >
                 Status
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
+              >
+              Priority
               </TableCell>
               <TableCell
                 align="right"
@@ -329,6 +373,9 @@ function ApplicationView({ applications, setApplications }) {
                 <TableCell align="right" sx={{ color: "white" }}>
                   {app.status}
                 </TableCell>
+                <TableCell align="right" sx={{ color: "white" }}>
+                  {app.priority}
+                </TableCell>
                 <TableCell align="right">
                   <Button
                     variant="contained"
@@ -356,6 +403,7 @@ function ApplicationView({ applications, setApplications }) {
           </TableBody>
         </Table>
       </TableContainer>
+      </motion.div>
     </div>
   );
 }
