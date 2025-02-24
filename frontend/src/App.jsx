@@ -191,7 +191,6 @@ function ApplicationView({ applications, setApplications }) {
       // Delete Call
       await deleteApplication(appId);
       
-      // Update state
       setApplications((prevApplications) =>
         prevApplications.filter((app) => app.id !== appId)
       );
