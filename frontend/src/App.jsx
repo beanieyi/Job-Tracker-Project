@@ -31,7 +31,8 @@ import { deleteApplication } from "./api/applications"
 import { createApplication } from './api/applications'
 
 // Contact functionality
-import { createContact } from "./api/contacts";
+import { createContact } from "./api/contacts"
+import { deleteContact } from "./api/contacts"
 
 // Main App function
 function App() {
@@ -455,12 +456,26 @@ function NetworkView({ contacts, setContacts }) {
       // API call to save contact
       const createdContact = await createContact(newContact); 
       setContacts((prevContacts) => [...prevContacts, createdContact]); 
-      setNewContact({ name: "", company: "", role: "", linkedin: "", email: "" }); 
       setShowForm(false);
+      setNewContact({ name: "", company: "", role: "", linkedin: "", email: "" }); 
     } catch (error) {
       console.error("Failed to add contact:", error);
     }
   };
+
+    // Delete Contact
+    const handleDelete = async (contactId) => {
+      try {
+        // Delete Call
+        await deleteContact(contactId);
+        
+        setContacts((prevContacts) =>
+          prevContacts.filter((contact) => contact.id !== contactId)
+        );
+      } catch (err) {
+        console.error("Failed to delete contact:", err.message);
+      }
+    };
 
   return (
     <motion.div
@@ -585,8 +600,31 @@ function NetworkView({ contacts, setContacts }) {
                 <Button sx={{ color: "#5865F2" }} size="small">
                   LinkedIn
                 </Button>
-                <Button variant="contained" sx={{ backgroundColor: "#5865F2"}} size="small">
+                <Button 
+                  variant="contained" sx={{     
+                    backgroundColor: "#5865F2", 
+                    fontSize: "0.65rem",
+                    padding: "2px 7px",
+                    minWidth: "auto"
+                  }} 
+                  size="small"
+                  onClick={() => {
+                    console.log("Delete button clicked", contact.id);
+                    handleDelete(contact.id);
+                  }}
+                >
                   Delete
+                </Button>
+                <Button 
+                  variant="contained" sx={{     
+                    backgroundColor: "#5865F2", 
+                    fontSize: "0.65rem",
+                    padding: "2px 7px",
+                    minWidth: "auto"
+                  }} 
+                  size="small"
+                >
+                  Edit
                 </Button>
               </CardActions>
             </Card>
