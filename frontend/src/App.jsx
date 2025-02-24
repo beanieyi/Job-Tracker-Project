@@ -28,7 +28,7 @@ import * as motion from "motion/react-client"
 
 // Application functionality
 import { deleteApplication } from "./api/applications"
-import { createApplication } from './api/applications';
+import { createApplication } from './api/applications'
 
 // Main App function
 function App() {
@@ -214,7 +214,7 @@ function ApplicationView({ applications, setApplications }) {
     }
   };
 
-  // Toggle form visibility
+  // Toggle Add App form visibility
   const toggleForm = () => {
     setShowForm(!showForm);
   };
@@ -430,6 +430,25 @@ function TimelineView() {
 
 // Network Page
 function NetworkView({ contacts }) {
+  const [newContact, setNewContact] = useState({ name: "", company: "" });
+  const [showForm, setShowForm] = useState(false);
+
+  // Input change for new application
+  const handleInputChange = (e) => {
+    setNewContact({ ...newContact, [e.target.name]: e.target.value });
+  };
+
+  // Submit form
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!newContact.name.trim() || !newContact.company.trim()) return;
+
+    const newEntry = { id: Date.now(), ...newContact };
+    setContacts((prevContacts) => [...prevContacts, newEntry]); // Update contacts list
+    setNewContact({ name: "", company: "" });
+    setShowForm(false); 
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.5 }}
@@ -441,7 +460,57 @@ function NetworkView({ contacts }) {
       }}
     >
       <h2 className="network-header">Professional Network</h2>
+      
+      {/* Add Contact Button */}
+      <div style={{ textAlign: "right", marginBottom: "20px" }}>
+        <Button 
+          variant="contained" 
+          sx={{ backgroundColor: "#5865F2" }} 
+          onClick={() => setShowForm(!showForm)}
+        >
+          {showForm ? "Cancel" : "Add Contact"}
+        </Button>
+      </div>
 
+      {/* Contact Form */}
+      {showForm && (
+        <div
+        style={{
+          backgroundColor: 'white', 
+          padding: '30px', 
+          borderRadius: '8px',
+          width: '100%', 
+          maxWidth: '500px', 
+          margin: '0 auto',
+          marginBottom: '50px'
+        }}>
+        <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+          <TextField
+            label="Name"
+            name="name"
+            value={newContact.name}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
+          <TextField
+            label="Company"
+            name="company"
+            value={newContact.company}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
+          <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2", marginTop: "10px" }}>
+            Submit
+          </Button>
+        </form>
+        </div>
+      )}
+
+      {/* Contact Cards */}
       <div
         style={{
           display: "flex",
@@ -472,6 +541,9 @@ function NetworkView({ contacts }) {
                 </Button>
                 <Button sx={{ color: "#5865F2" }} size="small">
                   LinkedIn
+                </Button>
+                <Button variant="contained" sx={{ backgroundColor: "#5865F2"}} size="small">
+                  Delete
                 </Button>
               </CardActions>
             </Card>
