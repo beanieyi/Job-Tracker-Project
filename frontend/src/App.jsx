@@ -430,7 +430,13 @@ function TimelineView() {
 
 // Network Page
 function NetworkView({ contacts }) {
-  const [newContact, setNewContact] = useState({ name: "", company: "" });
+  const [newContact, setNewContact] = useState({ 
+    name: "", 
+    company: "", 
+    role: "", 
+    linkedin: "", 
+    email: "" 
+  });
   const [showForm, setShowForm] = useState(false);
 
   // Input change for new application
@@ -445,7 +451,7 @@ function NetworkView({ contacts }) {
 
     const newEntry = { id: Date.now(), ...newContact };
     setContacts((prevContacts) => [...prevContacts, newEntry]); // Update contacts list
-    setNewContact({ name: "", company: "" });
+    setNewContact({ name: "", company: "", role: "", linkedin: "", email: "" });
     setShowForm(false); 
   };
 
@@ -503,6 +509,33 @@ function NetworkView({ contacts }) {
             margin="dense"
             required
           />
+          <TextField
+            label="Role"
+            name="role"
+            value={newContact.role}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
+          <TextField
+            label="LinkedIn"
+            name="linkedin"
+            value={newContact.linkedin}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
+          <TextField
+            label="Email"
+            name="email"
+            value={newContact.email}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
           <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2", marginTop: "10px" }}>
             Submit
           </Button>
@@ -533,6 +566,9 @@ function NetworkView({ contacts }) {
                 </Typography>
                 <Typography variant="body2" sx={{ color: "#FFFFFF" }}>
                   {contact.company || "Company not found."}
+                </Typography>
+                <Typography variant="body2" sx={{ color: "#FFFFFF" }}>
+                  {contact.role || "Rolenot found."}
                 </Typography>
               </CardContent>
               <CardActions>
