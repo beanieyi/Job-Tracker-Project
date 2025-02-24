@@ -30,6 +30,9 @@ import * as motion from "motion/react-client"
 import { deleteApplication } from "./api/applications"
 import { createApplication } from './api/applications'
 
+// Contact functionality
+import { createContact } from "./api/contacts";
+
 // Main App function
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -428,7 +431,7 @@ function TimelineView() {
 }
 
 // Network Page
-function NetworkView({ contacts }) {
+function NetworkView({ contacts, setContacts }) {
   const [newContact, setNewContact] = useState({ 
     name: "", 
     company: "", 
@@ -444,14 +447,19 @@ function NetworkView({ contacts }) {
   };
 
   // Submit form
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newContact.name.trim() || !newContact.company.trim()) return;
-
-    const newEntry = { id: Date.now(), ...newContact };
-    setContacts((prevContacts) => [...prevContacts, newEntry]); // Update contacts list
-    setNewContact({ name: "", company: "", role: "", linkedin: "", email: "" });
-    setShowForm(false); 
+  
+    try {
+      // API call to save contact
+      const createdContact = await createContact(newContact); 
+      setContacts((prevContacts) => [...prevContacts, createdContact]); 
+      setNewContact({ name: "", company: "", role: "", linkedin: "", email: "" }); 
+      setShowForm(false);
+    } catch (error) {
+      console.error("Failed to add contact:", error);
+    }
   };
 
   return (
