@@ -33,6 +33,7 @@ import { createApplication } from './api/applications'
 // Contact functionality
 import { createContact } from "./api/contacts"
 import { deleteContact } from "./api/contacts"
+import { updateContact } from "./api/contacts"
 
 // Main App function
 function App() {
@@ -441,41 +442,74 @@ function NetworkView({ contacts, setContacts }) {
     email: "" 
   });
   const [showForm, setShowForm] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
 
-  // Input change for new application
+  // Input change for new/edit application
   const handleInputChange = (e) => {
-    setNewContact({ ...newContact, [e.target.name]: e.target.value });
+    if (showEditForm) {
+      setSelectedContact({ ...selectedContact, [e.target.name]: e.target.value });
+    } else {
+      setNewContact({ ...newContact, [e.target.name]: e.target.value });
+    }
   };
 
   // Submit form
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!newContact.name.trim() || !newContact.company.trim()) return;
-  
+
     try {
-      // API call to save contact
-      const createdContact = await createContact(newContact); 
-      setContacts((prevContacts) => [...prevContacts, createdContact]); 
+      const createdContact = await createContact(newContact);
+      setContacts((prevContacts) => [...prevContacts, createdContact]);
       setShowForm(false);
-      setNewContact({ name: "", company: "", role: "", linkedin: "", email: "" }); 
+      setNewContact({ name: "", company: "", role: "", linkedin: "", email: "" });
     } catch (error) {
       console.error("Failed to add contact:", error);
     }
   };
 
-    // Delete Contact
-    const handleDelete = async (contactId) => {
-      try {
-        // Delete Call
-        await deleteContact(contactId);
-        
-        setContacts((prevContacts) =>
-          prevContacts.filter((contact) => contact.id !== contactId)
-        );
-      } catch (err) {
-        console.error("Failed to delete contact:", err.message);
-      }
-    };
+  // Delete Contact
+  const handleDelete = async (contactId) => {
+    try {
+      // Delete Call
+      await deleteContact(contactId);
+      
+      setContacts((prevContacts) =>
+        prevContacts.filter((contact) => contact.id !== contactId)
+      );
+    } catch (err) {
+      console.error("Failed to delete contact:", err.message);
+    }
+  };
+
+      // Handle edit button click
+  const handleEditClick = (contact) => {
+    setSelectedContact(contact);
+    setShowEditForm(true);
+  };
+
+  // Handle updating contact
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (!selectedContact.name.trim() || !selectedContact.company.trim()) return;
+  
+    try {
+      const updatedContact = await updateContact(selectedContact.id, selectedContact);
+  
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact.id === selectedContact.id ? updatedContact : contact
+        )
+      );
+  
+      setShowEditForm(false);
+      setSelectedContact(null);
+    } catch (error) {
+      console.error("Failed to update contact:", error);
+    }
+  };
 
   return (
     <motion.div
@@ -575,6 +609,84 @@ function NetworkView({ contacts, setContacts }) {
         </motion.div>
       )}
 
+      {/* Edit Contact Form */}
+      {showEditForm && selectedContact && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0, 0.71, 0.2, 1.01] }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white', 
+              padding: '30px', 
+              borderRadius: '8px',
+              width: '100%', 
+              maxWidth: '500px', 
+              margin: '0 auto',
+              marginBottom: '50px'
+            }}
+          >
+            <form onSubmit={handleUpdateSubmit} style={{ marginBottom: "20px" }}>
+              <TextField 
+                label="Name" 
+                name="name" 
+                value={selectedContact.name} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <TextField 
+                label="Company" 
+                name="company" 
+                value={selectedContact.company} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <TextField 
+                label="Role" 
+                name="role" 
+                value={selectedContact.role} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <TextField 
+                label="LinkedIn" 
+                name="linkedin" 
+                value={selectedContact.linkedin} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <TextField 
+                label="Email" 
+                name="email" 
+                value={selectedContact.email} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <Button 
+                type="submit" 
+                variant="contained" 
+                sx={{ backgroundColor: "#5865F2", marginTop: "10px" }}
+                >
+                  Save Changes
+              </Button>
+              <Button 
+                onClick={() => setShowEditForm(false)} 
+                variant="contained" 
+                sx={{ backgroundColor: "#800020", marginTop: "10px", marginLeft: "10px" }}
+                >
+                  Cancel
+              </Button>
+            </form>
+          </div>
+        </motion.div>
+      )}
+
       {/* Contact Cards */}
       <div
         style={{
@@ -618,6 +730,7 @@ function NetworkView({ contacts, setContacts }) {
                     minWidth: "auto"
                   }} 
                   size="small"
+                  onClick={() => handleEditClick(contact)}
                 >
                   Edit
                 </Button>
