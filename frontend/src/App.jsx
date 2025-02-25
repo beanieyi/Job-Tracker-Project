@@ -153,7 +153,7 @@ function App() {
 
       <h1 className="header">
         Job Tracker Application
-        <Button onClick={byebye}>Logout</Button>
+        <Button variant="contained" sx={{ backgroundColor: "#5865F2" }} onClick={byebye}>Logout</Button>
       </h1>
       <nav>
         <NavTabs
@@ -407,7 +407,7 @@ function ApplicationView({ applications, setApplications }) {
                   <Button
                     variant="contained"
                     size="small"
-                    sx={{ backgroundColor: "#5865F2" }}
+                    sx={{ backgroundColor: "#800020" }}
                     onClick={() => {
                       console.log("Delete button clicked", app.id);
                       handleDelete(app.id);
@@ -608,23 +608,23 @@ function NetworkView({ contacts, setContacts }) {
                     minWidth: "auto"
                   }} 
                   size="small"
+                >
+                  Edit
+                </Button>
+                <Button 
+                  variant="contained" sx={{     
+                    backgroundColor: "#800020", 
+                    fontSize: "0.65rem",
+                    padding: "2px 7px",
+                    minWidth: "auto"
+                  }} 
+                  size="small"
                   onClick={() => {
                     console.log("Delete button clicked", contact.id);
                     handleDelete(contact.id);
                   }}
                 >
                   Delete
-                </Button>
-                <Button 
-                  variant="contained" sx={{     
-                    backgroundColor: "#5865F2", 
-                    fontSize: "0.65rem",
-                    padding: "2px 7px",
-                    minWidth: "auto"
-                  }} 
-                  size="small"
-                >
-                  Edit
                 </Button>
               </CardActions>
             </Card>
