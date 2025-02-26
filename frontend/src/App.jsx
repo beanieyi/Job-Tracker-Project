@@ -153,7 +153,7 @@ function App() {
       </style>
 
       <h1 className="header">
-        Job Tracker Application
+        JOB TRACKER
         <Button variant="contained" sx={{ backgroundColor: "#5865F2" }} onClick={byebye}>Logout</Button>
       </h1>
       <nav>
