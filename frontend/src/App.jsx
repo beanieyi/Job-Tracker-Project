@@ -901,6 +901,8 @@ ApplicationView.propTypes = {
       company: PropTypes.string,
       date: PropTypes.string,
       status: PropTypes.string,
+      applications: PropTypes.array,
+      setApplications: PropTypes.func
     })
   ),
 }
@@ -911,6 +913,8 @@ NetworkView.propTypes = {
       id: PropTypes.number,
       name: PropTypes.string,
       company: PropTypes.string,
+      contacts: PropTypes.array, 
+      setContacts: PropTypes.func,
     })
   ),
 }
