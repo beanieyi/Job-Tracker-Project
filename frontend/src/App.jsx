@@ -483,7 +483,7 @@ function NetworkView({ contacts, setContacts }) {
     }
   };
 
-      // Handle edit button click
+  // Handle edit button click
   const handleEditClick = (contact) => {
     setSelectedContact(contact);
     setShowEditForm(true);
