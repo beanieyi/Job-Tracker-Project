@@ -29,6 +29,7 @@ import * as motion from "motion/react-client"
 // Application functionality
 import { deleteApplication } from "./api/applications"
 import { createApplication } from './api/applications'
+import { updateApplication } from './api/applications'
 
 // Contact functionality
 import { createContact } from "./api/contacts"
@@ -180,6 +181,13 @@ function ApplicationView({ applications, setApplications }) {
     required_skills: []
   });
   const [showForm, setShowForm] = useState(false);
+  const [editingApplication, setEditingApplication] = useState(null);
+
+  // Edit handle
+  const handleEditClick = (app) => {
+    setEditingApplication({ ...app }); 
+    setShowForm(false);
+  };
 
   // Input change for new application
   const handleInputChange = (e) => {
@@ -190,12 +198,34 @@ function ApplicationView({ applications, setApplications }) {
     }));
   };
 
+  // Edit input change
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditingApplication((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  // Handle edit form submission
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const updatedApp = await updateApplication(editingApplication.id, editingApplication);
+      setApplications((prevApplications) =>
+        prevApplications.map((app) => (app.id === updatedApp.id ? updatedApp : app))
+      );
+      setEditingApplication(null);
+    } catch (err) {
+      console.error('Failed to update application:', err.message);
+    }
+  };
+
   // Delete App
   const handleDelete = async (appId) => {
     try {
       // Delete Call
-      await deleteApplication(appId);
-      
+      await deleteApplication(appId);    
       setApplications((prevApplications) =>
         prevApplications.filter((app) => app.id !== appId)
       );
@@ -307,16 +337,114 @@ function ApplicationView({ applications, setApplications }) {
             <div        
               style={{marginTop: '20px'}}
             >
-              <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2" }}>
-                Submit
+              <Button 
+                type="submit" 
+                variant="contained" 
+                sx={{ backgroundColor: "#5865F2" }}
+                >
+                  Submit
               </Button>
-              <Button variant="contained" sx={{ backgroundColor: "#f44336", marginLeft: "10px" }} onClick={() => setShowForm(false)}>
-                Cancel
+              <Button 
+                variant="contained" 
+                sx={{ backgroundColor: "#f44336", marginLeft: "10px" }} 
+                onClick={() => setShowForm(false)}
+                >
+                  Cancel
               </Button>          
             </div>         
           </form>   
           </div>
         </motion.div>    
+      )}
+
+      {/* Edit Application Form */}
+      {editingApplication && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 0.6,
+            delay: 0.3,
+            ease: [0, 0.71, 0.2, 1.01],
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "30px",
+              borderRadius: "8px",
+              width: "100%",
+              maxWidth: "500px",
+              margin: "0 auto",
+              marginBottom: "50px",
+            }}
+          >
+            <form onSubmit={handleEditSubmit}>
+              <TextField
+                label="Job Title"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="position"
+                value={editingApplication.position}
+                onChange={handleEditInputChange}
+              />
+              <TextField
+                label="Company"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="company"
+                value={editingApplication.company}
+                onChange={handleEditInputChange}
+              />
+              <TextField
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="date"
+                value={editingApplication.date}
+                onChange={handleEditInputChange}
+                type="date"
+              />
+              <TextField
+                label="Status"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="status"
+                value={editingApplication.status}
+                onChange={handleEditInputChange}
+              />
+              <FormControl variant="outlined" fullWidth margin="normal">
+                <InputLabel htmlFor="priority">Priority</InputLabel>
+                <Select
+                  label="Priority"
+                  name="priority"
+                  value={editingApplication.priority}
+                  onChange={handleEditInputChange}
+                  inputProps={{ id: "priority" }}
+                >
+                  <MenuItem value="High">High</MenuItem>
+                  <MenuItem value="Medium">Medium</MenuItem>
+                  <MenuItem value="Low">Low</MenuItem>
+                </Select>
+              </FormControl>
+              <div style={{ marginTop: "20px" }}>
+                <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2" }}>
+                  Save
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{ backgroundColor: "#f44336", marginLeft: "10px" }}
+                  onClick={() => setEditingApplication(null)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </div>
+        </motion.div>
       )}
 
       {/* Applications Table */}
@@ -400,6 +528,7 @@ function ApplicationView({ applications, setApplications }) {
                     variant="contained"
                     size="small"
                     sx={{ backgroundColor: "#5865F2" }}
+                    onClick={() => handleEditClick(app)}
                   >
                     Edit
                   </Button>
