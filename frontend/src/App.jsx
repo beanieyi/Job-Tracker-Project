@@ -3,8 +3,9 @@ import PropTypes from "prop-types"
 import "./App.css"
 import NavTabs from "./components/NavTabs"
 
-// MUI SignIn Component
+// MUI SignIn & SignUp Component
 import SlotsSignIn from "./components/SignIn"
+import SignUpForm from "./components/SignUp";
 
 // MUI Imports (AppView Table)
 import Table from "@mui/material/Table"
@@ -25,7 +26,6 @@ import Typography from "@mui/material/Typography"
 // motion.dev imports for animations
 import * as motion from "motion/react-client"
 
-
 // Application functionality
 import { deleteApplication } from "./api/applications"
 import { createApplication } from './api/applications'
@@ -39,6 +39,7 @@ import { updateContact } from "./api/contacts"
 // Main App function
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showSignUp, setShowSignUp] = useState(false)
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
   const [contacts, setContacts] = useState([])
@@ -84,6 +85,7 @@ function App() {
     setIsAuthenticated(false)
   }
 
+  const toggleForm = () => setShowSignUp(!showSignUp);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -139,7 +141,11 @@ function App() {
   }, [isAuthenticated])
 
   if (!isAuthenticated) {
-    return <SlotsSignIn signIn={signIn} />
+    return showSignUp ? (
+      <SignUpForm register={register} />
+    ) : (
+      <SlotsSignIn signIn={signIn} />
+    );
   }
 
   if (loading) return <div className="p-4">Loading data...</div>
