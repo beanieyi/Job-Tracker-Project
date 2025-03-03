@@ -36,6 +36,8 @@ import { createContact } from "./api/contacts"
 import { deleteContact } from "./api/contacts"
 import { updateContact } from "./api/contacts"
 
+import register from "./api/auth"
+
 // Main App function
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -84,8 +86,6 @@ function App() {
     console.log(data)
     setIsAuthenticated(false)
   }
-
-  const toggleForm = () => setShowSignUp(!showSignUp);
 
   useEffect(() => {
     const fetchData = async () => {
