@@ -41,7 +41,7 @@ import register from "./api/auth"
 // Main App function
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [showSignUp, setShowSignUp] = useState(false)
+  const [showSignUp] = useState(false)
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
   const [contacts, setContacts] = useState([])
