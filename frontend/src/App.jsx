@@ -36,12 +36,12 @@ import { createContact } from "./api/contacts"
 import { deleteContact } from "./api/contacts"
 import { updateContact } from "./api/contacts"
 
-import register from "./api/auth"
+import { register } from "./api/auth"
 
 // Main App function
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
-  const [showSignUp] = useState(false)
+  const [showSignUp, setShowSignUp] = useState(false);
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
   const [contacts, setContacts] = useState([])
@@ -140,13 +140,13 @@ function App() {
     }
   }, [isAuthenticated])
 
-  if (!isAuthenticated) {
-    return showSignUp ? (
-      <SignUpForm register={register} />
-    ) : (
-      <SlotsSignIn signIn={signIn} />
-    );
-  }
+if (!isAuthenticated) {
+  return showSignUp ? (
+    <SignUpForm register={register} setShowSignUp={setShowSignUp} />
+  ) : (
+    <SlotsSignIn signIn={signIn} setShowSignUp={setShowSignUp} />
+  );
+}
 
   if (loading) return <div className="p-4">Loading data...</div>
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>
@@ -163,14 +163,16 @@ function App() {
         JOB TRACKER
         <Button variant="contained" sx={{ backgroundColor: "#5865F2" }} onClick={byebye}>Logout</Button>
       </h1>
-      <nav>
-        <NavTabs
-          timelines={timelines}
-          applications={applications}
-          contacts={contacts}
-          roleInsights={roleInsights}
-        />
-      </nav>
+<nav>
+  <NavTabs
+    timelines={timelines}
+    applications={applications}
+    contacts={contacts}
+    roleInsights={roleInsights}
+    setApplications={setApplications}
+    setContacts={setContacts}
+  />
+</nav>
     </div>
   )
 }

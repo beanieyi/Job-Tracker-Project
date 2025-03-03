@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { register } from '../api/auth';
 
-function SignUpForm() {
+function SignUpForm({ register, setShowSignUp }) {
   const [formData, setFormData] = useState({
     username: '',
     password: '',
@@ -22,6 +22,7 @@ function SignUpForm() {
     try {
       await register(formData);
       alert("Registration successful!");
+      setShowSignUp(false); // Return to login after successful registration
     } catch (err) {
       setError("Registration failed. Please try again.");
     }
@@ -67,6 +68,9 @@ function SignUpForm() {
         </div>
         <div>
           <button type="submit">Register</button>
+          <button type="button" onClick={() => setShowSignUp(false)}>
+            Back to Login
+          </button>
         </div>
       </form>
     </div>

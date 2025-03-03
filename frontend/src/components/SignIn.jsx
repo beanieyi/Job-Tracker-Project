@@ -119,12 +119,19 @@ function CustomButton() {
   )
 }
 
-function SignUpLink() {
+function SignUpLink({ setShowSignUp }) {
   return (
-    <Link href="/" variant="body2">
+    <Link 
+      href="#" 
+      variant="body2" 
+      onClick={(e) => {
+        e.preventDefault();
+        setShowSignUp(true);
+      }}
+    >
       Sign up
     </Link>
-  )
+  );
 }
 
 function ForgotPasswordLink() {
@@ -139,8 +146,8 @@ function Title() {
   return <h2 style={{ marginBottom: 8 }}>Login</h2>
 }
 
-function SlotsSignIn({ signIn }) {
-  const theme = useTheme()
+function SlotsSignIn({ signIn, setShowSignUp }) {
+  const theme = useTheme();
   return (
     <AppProvider theme={theme}>
       <SignInPage
@@ -155,17 +162,18 @@ function SlotsSignIn({ signIn }) {
           emailField: CustomEmailField,
           passwordField: CustomPasswordField,
           submitButton: CustomButton,
-          signUpLink: SignUpLink,
+          signUpLink: () => <SignUpLink setShowSignUp={setShowSignUp} />,
           forgotPasswordLink: ForgotPasswordLink,
         }}
         providers={providers}
       />
     </AppProvider>
-  )
+  );
 }
 
 SlotsSignIn.propTypes = {
   signIn: PropTypes.func.isRequired,
+    setShowSignUp: PropTypes.func.isRequired,
 }
 
 export default SlotsSignIn
