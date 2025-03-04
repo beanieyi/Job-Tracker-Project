@@ -20,25 +20,47 @@ import Paper from "@mui/material/Paper"
 import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
-import { Button, TextField, Select, MenuItem, FormControl, InputLabel, Autocomplete, Chip, } from '@mui/material';
+import { Button, TextField, Select, MenuItem, FormControl, InputLabel, Autocomplete, Chip, Modal, Box  } from '@mui/material';
 import Typography from "@mui/material/Typography"
 
 // motion.dev imports for animations
 import * as motion from "motion/react-client"
 
 // Application functionality
-import { deleteApplication } from "./api/applications"
-import { createApplication } from './api/applications'
-import { updateApplication } from './api/applications'
+import { 
+  deleteApplication, 
+  createApplication, 
+  updateApplication, 
+  getApplicationTimeline, 
+  addTimelineEntry 
+} from "./api/applications";
 
 // Contact functionality
 import { createContact } from "./api/contacts"
 import { deleteContact } from "./api/contacts"
 import { updateContact } from "./api/contacts"
 
+
+
 import { register } from "./api/auth"
 
 // Main App function
+const modalStyle = {
+  position: 'absolute',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: 500, // Increased width
+  maxHeight: '80vh',
+  overflow: 'auto', // Add scrolling for long content
+  bgcolor: '#282b30',
+  border: '2px solid #5865F2',
+  boxShadow: 24,
+  p: 4,
+  color: 'white',
+  borderRadius: '8px'
+};
+
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [showSignUp, setShowSignUp] = useState(false);
@@ -196,9 +218,36 @@ function ApplicationView({ applications, setApplications }) {
   });
   const [showForm, setShowForm] = useState(false);
   const [editingApplication, setEditingApplication] = useState(null);
+  const [openModal, setOpenModal] = useState(false);
+  const [selectedAppDetails, setSelectedAppDetails] = useState(null);
+  const [timelineData, setTimelineData] = useState([]);
+const [timelineLoading, setTimelineLoading] = useState(false);
+const handleOpenDetails = async (app) => {
+  setSelectedAppDetails(app);
+  setOpenModal(true);
+  setTimelineLoading(true);
+  
+  try {
+    // Import the getApplicationTimeline function from your API file
+    const timeline = await getApplicationTimeline(app.id);
+    setTimelineData(timeline);
+  } catch (err) {
+    console.error('Failed to fetch timeline:', err.message);
+    setTimelineData([]);
+  } finally {
+    setTimelineLoading(false);
+  }
+};
+
+
+const handleCloseModal = () => {
+  setOpenModal(false);
+  };
+  
 
   // Edit handle
-  const handleEditClick = (app) => {
+  const handleEditClick = (event, app) => {
+    event.stopPropagation()
     setEditingApplication({ ...app }); 
     setShowForm(false);
   };
@@ -222,21 +271,39 @@ function ApplicationView({ applications, setApplications }) {
   };
 
   // Handle edit form submission
-  const handleEditSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const updatedApp = await updateApplication(editingApplication.id, editingApplication);
-      setApplications((prevApplications) =>
-        prevApplications.map((app) => (app.id === updatedApp.id ? updatedApp : app))
-      );
-      setEditingApplication(null);
-    } catch (err) {
-      console.error('Failed to update application:', err.message);
+const handleEditSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Check if status has changed
+    const originalApp = applications.find(app => app.id === editingApplication.id);
+    const statusChanged = originalApp.status !== editingApplication.status;
+    
+    // Update the application
+    const updatedApp = await updateApplication(editingApplication.id, editingApplication);
+    
+    // If status changed, create a timeline entry
+    if (statusChanged) {
+      // Use the addTimelineEntry function imported from your API
+      await addTimelineEntry(updatedApp.id, {
+        application_id: updatedApp.id,
+        status: updatedApp.status,
+        date: new Date().toISOString(), // Today's date
+        notes: `Status changed to ${updatedApp.status}`
+      });
     }
-  };
+    
+    setApplications((prevApplications) =>
+      prevApplications.map((app) => (app.id === updatedApp.id ? updatedApp : app))
+    );
+    setEditingApplication(null);
+  } catch (err) {
+    console.error('Failed to update application:', err.message);
+  }
+};
 
   // Delete App
-  const handleDelete = async (appId) => {
+  const handleDelete = async (event, appId) => {
+    event.stopPropagation()
     try {
       // Delete Call
       await deleteApplication(appId);    
@@ -590,7 +657,7 @@ function ApplicationView({ applications, setApplications }) {
               <TableRow
                 key={app.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
-                onClick={()=> handleApplicationClick(app)}
+                onClick={() => handleOpenDetails(app)}
               >
                 <TableCell component="th" scope="app" sx={{ color: "white" }}>
                   {app.position}
@@ -612,7 +679,7 @@ function ApplicationView({ applications, setApplications }) {
                     variant="contained"
                     size="small"
                     sx={{ backgroundColor: "#5865F2" }}
-                    onClick={() => handleEditClick(app)}
+                    onClick={(event) => handleEditClick(event,app)}
                   >
                     Edit
                   </Button>
@@ -622,9 +689,9 @@ function ApplicationView({ applications, setApplications }) {
                     variant="contained"
                     size="small"
                     sx={{ backgroundColor: "#800020" }}
-                    onClick={() => {
+                    onClick={(event) => {
                       console.log("Delete button clicked", app.id);
-                      handleDelete(app.id);
+                      handleDelete(event, app.id);
                     }}
                   >
                     Delete
@@ -634,8 +701,122 @@ function ApplicationView({ applications, setApplications }) {
             ))}
           </TableBody>
         </Table>
-      </TableContainer>
+        </TableContainer>
+<Modal
+  open={openModal}
+  onClose={handleCloseModal}
+  aria-labelledby="application-details-modal"
+  aria-describedby="application-details-description"
+>
+  <Box sx={modalStyle}>
+    {selectedAppDetails && (
+      <>
+        <Typography variant="h6" component="h2" sx={{ mb: 2, color: '#5865F2', fontWeight: 'bold' }}>
+          {selectedAppDetails.position} at {selectedAppDetails.company}
+        </Typography>
+        
+        <Typography sx={{ mt: 2 }}>
+          <strong>Date Applied:</strong> {selectedAppDetails.date}
+        </Typography>
+        
+        <Typography sx={{ mt: 1 }}>
+          <strong>Current Status:</strong> {selectedAppDetails.status}
+        </Typography>
+        
+        <Typography sx={{ mt: 1 }}>
+          <strong>Priority:</strong> {selectedAppDetails.priority}
+        </Typography>
+        
+        {/* Skills Section */}
+        <Typography sx={{ mt: 2, mb: 1 }}>
+          <strong>Required Skills:</strong>
+        </Typography>
+        
+        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+          {selectedAppDetails.required_skills && selectedAppDetails.required_skills.length > 0 ? (
+            selectedAppDetails.required_skills.map((skill, index) => (
+              <Chip 
+                key={index} 
+                label={skill} 
+                variant="outlined" 
+                sx={{ bgcolor: '#5865F2', color: 'white', mb: 1 }} 
+              />
+            ))
+          ) : (
+            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>No skills listed</Typography>
+          )}
+        </Box>
+        
+        {/* Timeline Section */}
+        <Typography sx={{ mt: 3, mb: 1 }}>
+          <strong>Status Timeline:</strong>
+        </Typography>
+        
+        {timelineLoading ? (
+          <Typography>Loading timeline...</Typography>
+        ) : timelineData.length > 0 ? (
+          <Box sx={{ ml: 2 }}>
+            {timelineData
+              .sort((a, b) => new Date(b.date) - new Date(a.date))
+              .map((entry, index) => (
+                <Box 
+                  key={index} 
+                  sx={{ 
+                    position: 'relative',
+                    ml: 4,
+                    pb: 3,
+                    '&:before': {
+                      content: '""',
+                      position: 'absolute',
+                      left: '-10px',
+                      top: '8px',
+                      height: '12px',
+                      width: '12px',
+                      borderRadius: '50%',
+                      backgroundColor: '#5865F2',
+                    },
+                    '&:after': {
+                      content: index < timelineData.length - 1 ? '""' : 'none',
+                      position: 'absolute',
+                      left: '-5px',
+                      top: '20px',
+                      bottom: '-10px',
+                      width: '2px',
+                      backgroundColor: '#5865F2',
+                    }
+                  }}
+                >
+                  <Typography variant="subtitle1" sx={{ color: '#5865F2', fontWeight: 'bold', paddingLeft: '5px' }}>
+                    {entry.status}
+                  </Typography>
+                  <Typography variant="body2" sx={{ color: '#aaa',paddingLeft: '5px' }}>
+                    {new Date(entry.date).toLocaleDateString()}
+                  </Typography>
+                </Box>
+              ))
+            }
+          </Box>
+        ) : (
+          <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+            No status changes recorded
+          </Typography>
+        )}
+        
+        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+          <Button 
+            onClick={handleCloseModal} 
+            variant="contained" 
+            sx={{ backgroundColor: "#5865F2" }}
+          >
+            Close
+          </Button>
+        </Box>
+      </>
+    )}
+  </Box>
+</Modal>
       </motion.div>
+
     </div>
   );
 }

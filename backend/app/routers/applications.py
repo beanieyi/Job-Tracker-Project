@@ -190,7 +190,7 @@ async def get_application_timeline(
 
 
 @router.post(
-    "/applications/{job_id}/timeline", response_model=ApplicationTimelineResponse
+    "/applications/{job_id}/timeline"
 )
 async def add_timeline_entry(
     job_id: int,
