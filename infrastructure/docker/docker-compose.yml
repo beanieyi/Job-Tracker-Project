@@ -21,6 +21,7 @@ services:
     environment:
       # Configure API endpoint for frontend service
       - VITE_API_URL=http://localhost:8000
+      - CHOKIDAR_USEPOLLING=true
     # Ensure backend is available before starting frontend
     depends_on:
       - backend

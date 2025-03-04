@@ -1,18 +1,17 @@
-const BASE_URL = "http://localhost:8000/auth"
+const BASE_URL = "http://localhost:8000"
 
 export const register = async (formData) => {
-        try {
+    try {
         const response = await fetch(`${BASE_URL}/auth/register`, {
             method: "POST",
             headers: {
-                "Content-Type": "application/x-www-form-urlencoded",
+                "Content-Type": "application/json",
             },
-            body: new URLSearchParams({
-                username: formData.username,
-                password: formData.password,
-                email: formData.email
-            }).toString(),
-            credentials: "include"
+            body: JSON.stringify({
+                username: formData.username, 
+                email: formData.email,
+                password: formData.password, 
+                })
         })
 
         if (!response.ok) {
