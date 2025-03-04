@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { register } from '../api/auth';
 
 function SignUpForm({ register, setShowSignUp }) {
   const [formData, setFormData] = useState({

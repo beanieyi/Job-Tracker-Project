@@ -173,7 +173,7 @@ function SlotsSignIn({ signIn, setShowSignUp }) {
 
 SlotsSignIn.propTypes = {
   signIn: PropTypes.func.isRequired,
-    setShowSignUp: PropTypes.func.isRequired,
+  setShowSignUp: PropTypes.func.isRequired,
 }
 
 export default SlotsSignIn
