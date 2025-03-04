@@ -20,7 +20,7 @@ import Paper from "@mui/material/Paper"
 import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
-import { Button, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
+import { Button, TextField, Select, MenuItem, FormControl, InputLabel, Autocomplete, Chip, } from '@mui/material';
 import Typography from "@mui/material/Typography"
 
 // motion.dev imports for animations
@@ -179,6 +179,12 @@ if (!isAuthenticated) {
 
 // Applications page
 function ApplicationView({ applications, setApplications }) {
+
+  const skillOptions = [
+  "JavaScript", "React", "Node.js", "Python", "Java", "CSS", "HTML", 
+  "TypeScript", "SQL", "MongoDB", "Express", "AWS", "Docker", "Git",
+  "Redux", "REST API", "GraphQL", "Agile", "Testing", "CI/CD"
+];
   const [newApplication, setNewApplication] = useState({
     position: '',
     company: '',
@@ -242,6 +248,9 @@ function ApplicationView({ applications, setApplications }) {
     }
   };
 
+  const handleApplicationClick = (app) => {
+    console.log(app)
+  }
   // Application Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -342,6 +351,39 @@ function ApplicationView({ applications, setApplications }) {
                 value={newApplication.status}
                 onChange={handleInputChange}
               />
+              <Autocomplete
+                multiple
+                id="required-skills"
+                options={skillOptions}
+                freeSolo
+                value={newApplication.required_skills || []}
+                onChange={(event, newValue) => {
+                  setNewApplication({
+                    ...newApplication,
+                    required_skills: newValue
+                  });
+                }}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip 
+                      variant="outlined" 
+                      label={option} 
+                      {...getTagProps({ index })} 
+                      sx={{ backgroundColor: "#5865F2", color: "white" }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Required Skills"
+                    placeholder="Add skills"
+                    fullWidth
+                    margin="normal"
+                  />
+                )}
+              />
             <div        
               style={{marginTop: '20px'}}
             >
@@ -438,6 +480,39 @@ function ApplicationView({ applications, setApplications }) {
                   <MenuItem value="Low">Low</MenuItem>
                 </Select>
               </FormControl>
+              <Autocomplete
+                multiple
+                id="edit-required-skills"
+                options={skillOptions}
+                freeSolo
+                value={editingApplication.required_skills || []}
+                onChange={(event, newValue) => {
+                  setEditingApplication({
+                    ...editingApplication,
+                    required_skills: newValue
+                  });
+                }}
+                renderTags={(value, getTagProps) =>
+                  value.map((option, index) => (
+                    <Chip 
+                      variant="outlined" 
+                      label={option} 
+                      {...getTagProps({ index })} 
+                      sx={{ backgroundColor: "#5865F2", color: "white" }}
+                    />
+                  ))
+                }
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    variant="outlined"
+                    label="Required Skills"
+                    placeholder="Add skills"
+                    fullWidth
+                    margin="normal"
+                  />
+                )}
+              />
               <div style={{ marginTop: "20px" }}>
                 <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2" }}>
                   Save
@@ -515,6 +590,7 @@ function ApplicationView({ applications, setApplications }) {
               <TableRow
                 key={app.id}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
+                onClick={()=> handleApplicationClick(app)}
               >
                 <TableCell component="th" scope="app" sx={{ color: "white" }}>
                   {app.position}
