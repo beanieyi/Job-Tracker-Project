@@ -6,7 +6,8 @@ ORDER BY date ASC;
 
 INSERT_APPLICATION_TIMELINE = """
 INSERT INTO application_timeline (application_id, status, date, notes)
-VALUES (%s, %s, NOW(), %s);
+VALUES (%s, %s, NOW(), %s)
+RETURNING id, application_id, status, date, notes;
 """
 
 UPDATE_APPLICATION_TIMELINE = """

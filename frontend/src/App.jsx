@@ -186,21 +186,22 @@ if (!isAuthenticated) {
         <Button variant="contained" sx={{ backgroundColor: "#5865F2" }} onClick={byebye}>Logout</Button>
       </h1>
 <nav>
-  <NavTabs
-    timelines={timelines}
-    applications={applications}
-    contacts={contacts}
-    roleInsights={roleInsights}
-    setApplications={setApplications}
-    setContacts={setContacts}
-  />
+<NavTabs
+  timelines={timelines}
+  applications={applications}
+  contacts={contacts}
+  roleInsights={roleInsights}
+  setApplications={setApplications}
+  setContacts={setContacts}
+  setTimelines={setTimelines}
+/>
 </nav>
     </div>
   )
 }
 
 // Applications page
-function ApplicationView({ applications, setApplications }) {
+function ApplicationView({ applications, setApplications, setTimelines }) {
 
   const skillOptions = [
   "JavaScript", "React", "Node.js", "Python", "Java", "CSS", "HTML", 
@@ -283,13 +284,18 @@ const handleEditSubmit = async (e) => {
     
     // If status changed, create a timeline entry
     if (statusChanged) {
-      // Use the addTimelineEntry function imported from your API
-      await addTimelineEntry(updatedApp.id, {
+      // Create a new timeline entry
+      const newTimelineData = {
         application_id: updatedApp.id,
         status: updatedApp.status,
         date: new Date().toISOString(), // Today's date
         notes: `Status changed to ${updatedApp.status}`
-      });
+      };
+      
+      const newTimeline = await addTimelineEntry(updatedApp.id, newTimelineData);
+      
+      // Update timelines state with the new entry
+      setTimelines(prevTimelines => [...prevTimelines, newTimeline]);
     }
     
     setApplications((prevApplications) =>
@@ -317,18 +323,26 @@ const handleEditSubmit = async (e) => {
 
 
   // Application Submit
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      // Call Application
-      const createdApp = await createApplication(newApplication); 
-      setApplications((prevApplications) => [...prevApplications, createdApp])
-      setShowForm(false);
-      setNewApplication({ position: '', company: '', date: '', status: '', priority:'' });
-    } catch (err) {
-      console.error('Failed to create application:', err.message);
-    }
-  };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  try {
+    // Call Application
+    const createdApp = await createApplication(newApplication); 
+    
+    // The backend should create the initial timeline entry automatically,
+    // but we need to retrieve it to update our state
+    const appTimeline = await getApplicationTimeline(createdApp.id);
+    
+    // Update states
+    setApplications((prevApplications) => [...prevApplications, createdApp]);
+    setTimelines((prevTimelines) => [...prevTimelines, ...appTimeline]);
+    
+    setShowForm(false);
+    setNewApplication({ position: '', company: '', date: '', status: '', priority: '', required_skills: [] });
+  } catch (err) {
+    console.error('Failed to create application:', err.message);
+  }
+};
 
   // Toggle Add App form visibility
   const toggleForm = () => {
@@ -1319,6 +1333,7 @@ ApplicationView.propTypes = {
     })
   ),
   setApplications: PropTypes.func,
+  setTimelines: PropTypes.func
 }
 TimelineView.propTypes = {
   timelines: PropTypes.arrayOf(

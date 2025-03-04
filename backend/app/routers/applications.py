@@ -190,7 +190,8 @@ async def get_application_timeline(
 
 
 @router.post(
-    "/applications/{job_id}/timeline"
+    "/applications/{job_id}/timeline",
+    response_model=ApplicationTimelineResponse
 )
 async def add_timeline_entry(
     job_id: int,
@@ -212,9 +213,10 @@ async def add_timeline_entry(
                 INSERT_APPLICATION_TIMELINE,
                 (job_id, timeline_entry.status, timeline_entry.notes),
             )
+            new_timeline_entry = cur.fetchone()
             conn.commit()
 
-    return {"message": "Timeline entry added successfully"}
+    return new_timeline_entry
 
 
 @router.put(

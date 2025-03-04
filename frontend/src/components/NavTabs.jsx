@@ -14,7 +14,8 @@ const NavTabs = ({
   contacts, 
   roleInsights,
   setApplications,
-  setContacts 
+  setContacts,
+  setTimelines
 }) => {
   const [value, setValue] = React.useState("applications")
 
@@ -66,11 +67,19 @@ const NavTabs = ({
           </Box>
         </motion.div>
         <TabPanel value="applications">
-          <ApplicationView applications={applications} setApplications={setApplications} />
+          <ApplicationView 
+        applications={applications} 
+        setApplications={setApplications} 
+        setTimelines={setTimelines}
+      />
         </TabPanel>
-        <TabPanel value="timelines">
-          <TimelineView timelines={timelines} applications={applications} />
-        </TabPanel>
+<TabPanel value="timelines">
+  <TimelineView 
+    timelines={timelines} 
+    applications={applications} 
+    key={`timeline-view-${timelines.length}-${applications.length}`}
+  />
+</TabPanel>
         <TabPanel value="contacts">
           <NetworkView contacts={contacts} setContacts={setContacts} />
         </TabPanel>
@@ -125,7 +134,8 @@ NavTabs.propTypes = {
     })
   ).isRequired,
   setApplications: PropTypes.func.isRequired,
-  setContacts: PropTypes.func.isRequired
+  setContacts: PropTypes.func.isRequired,
+  setTimelines: PropTypes.func.isRequired
 }
 
 export default NavTabs
