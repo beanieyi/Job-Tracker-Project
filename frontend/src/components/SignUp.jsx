@@ -1,4 +1,5 @@
 import { useState } from "react";
+import PropTypes from "prop-types";
 
 function SignUpForm({ register, setShowSignUp }) {
   const [formData, setFormData] = useState({
@@ -23,7 +24,7 @@ function SignUpForm({ register, setShowSignUp }) {
       alert("Registration successful!");
       setShowSignUp(false); // Return to login after successful registration
     } catch (err) {
-      setError("Registration failed. Please try again.");
+      setError(err.message || "Registration failed.");
     }
   };
 
@@ -75,5 +76,10 @@ function SignUpForm({ register, setShowSignUp }) {
     </div>
   );
 }
+
+SignUpForm.propTypes = {
+  register: PropTypes.func.isRequired,
+  setShowSignUp: PropTypes.func.isRequired,
+};
 
 export default SignUpForm;
