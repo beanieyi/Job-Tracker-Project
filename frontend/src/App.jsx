@@ -185,17 +185,17 @@ if (!isAuthenticated) {
         JOB TRACKER
         <Button variant="contained" sx={{ backgroundColor: "#5865F2" }} onClick={byebye}>Logout</Button>
       </h1>
-<nav>
-<NavTabs
-  timelines={timelines}
-  applications={applications}
-  contacts={contacts}
-  roleInsights={roleInsights}
-  setApplications={setApplications}
-  setContacts={setContacts}
-  setTimelines={setTimelines}
-/>
-</nav>
+      <nav>
+        <NavTabs
+          timelines={timelines}
+          applications={applications}
+          contacts={contacts}
+          roleInsights={roleInsights}
+          setApplications={setApplications}
+          setContacts={setContacts}
+          setTimelines={setTimelines}
+        />
+      </nav>
     </div>
   )
 }
@@ -217,19 +217,20 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
     matched_skills: [],
     required_skills: []
   });
-  const [showForm, setShowForm] = useState(false);
+  // const [showForm, setShowForm] = useState(false);
   const [editingApplication, setEditingApplication] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
   const [selectedAppDetails, setSelectedAppDetails] = useState(null);
   const [timelineData, setTimelineData] = useState([]);
-const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineLoading, setTimelineLoading] = useState(false);
 const handleOpenDetails = async (app) => {
   setSelectedAppDetails(app);
   setOpenModal(true);
   setTimelineLoading(true);
   
   try {
-    // Import the getApplicationTimeline function from your API file
     const timeline = await getApplicationTimeline(app.id);
     setTimelineData(timeline);
   } catch (err) {
@@ -247,11 +248,11 @@ const handleCloseModal = () => {
   
 
   // Edit handle
-  const handleEditClick = (event, app) => {
-    event.stopPropagation()
-    setEditingApplication({ ...app }); 
-    setShowForm(false);
-  };
+const handleEditClick = (event, app) => {
+  event.stopPropagation();
+  setEditingApplication({ ...app }); 
+  setOpenEditModal(true);
+};
 
   // Input change for new application
   const handleInputChange = (e) => {
@@ -288,7 +289,7 @@ const handleEditSubmit = async (e) => {
       const newTimelineData = {
         application_id: updatedApp.id,
         status: updatedApp.status,
-        date: new Date().toISOString(), // Today's date
+        date: new Date().toISOString(),
         notes: `Status changed to ${updatedApp.status}`
       };
       
@@ -301,6 +302,7 @@ const handleEditSubmit = async (e) => {
     setApplications((prevApplications) =>
       prevApplications.map((app) => (app.id === updatedApp.id ? updatedApp : app))
     );
+    setOpenEditModal(false); // Close the modal
     setEditingApplication(null);
   } catch (err) {
     console.error('Failed to update application:', err.message);
@@ -329,56 +331,43 @@ const handleSubmit = async (e) => {
     // Call Application
     const createdApp = await createApplication(newApplication); 
     
-    // The backend should create the initial timeline entry automatically,
-    // but we need to retrieve it to update our state
     const appTimeline = await getApplicationTimeline(createdApp.id);
     
     // Update states
     setApplications((prevApplications) => [...prevApplications, createdApp]);
     setTimelines((prevTimelines) => [...prevTimelines, ...appTimeline]);
-    
-    setShowForm(false);
+    setOpenCreateModal(false); 
     setNewApplication({ position: '', company: '', date: '', status: '', priority: '', required_skills: [] });
   } catch (err) {
     console.error('Failed to create application:', err.message);
   }
 };
 
-  // Toggle Add App form visibility
-  const toggleForm = () => {
-    setShowForm(!showForm);
-  };
 
   return (
     <div>
       {/* Add Application Button */}
       <div style={{ textAlign: "right", marginBottom: "20px" }}>
-        <Button variant="contained" sx={{ backgroundColor: "#5865F2" }} onClick={toggleForm}>
+        <Button 
+          variant="contained" 
+          sx={{ backgroundColor: "#5865F2" }} 
+          onClick={() => setOpenCreateModal(true)}
+        >
           Add Application
         </Button>
-      </div>
+    </div>
 
       {/* Add Application Form */}
-      {showForm && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{
-            duration: 0.6,
-            delay: 0.3,
-            ease: [0, 0.71, 0.2, 1.01],
-          }}
-          >
-          <div
-          style={{
-            backgroundColor: 'white', 
-            padding: '30px', 
-            borderRadius: '8px',
-            width: '100%', 
-            maxWidth: '500px', 
-            margin: '0 auto',
-            marginBottom: '50px'
-          }}>
+
+      <Modal
+        open={openCreateModal}
+        onClose={() => setOpenCreateModal(false)}
+        aria-labelledby="create-application-modal"
+            >
+        <Box sx={modalStyle}>
+          <Typography variant="h6" component="h2" sx={{ mb: 3, color: '#5865F2', fontWeight: 'bold' }}>
+            Add New Application
+          </Typography>
             <form onSubmit={handleSubmit}>
               <FormControl variant="outlined" fullWidth margin="normal">
                 <InputLabel htmlFor="priority">Priority</InputLabel>
@@ -477,38 +466,28 @@ const handleSubmit = async (e) => {
               <Button 
                 variant="contained" 
                 sx={{ backgroundColor: "#f44336", marginLeft: "10px" }} 
-                onClick={() => setShowForm(false)}
+                onClick={() => setOpenCreateModal(false)}
                 >
                   Cancel
               </Button>          
             </div>         
           </form>   
-          </div>
-        </motion.div>    
-      )}
+          </Box>
+        </Modal> 
+      
 
       {/* Edit Application Form */}
-      {editingApplication && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{
-            duration: 0.6,
-            delay: 0.3,
-            ease: [0, 0.71, 0.2, 1.01],
-          }}
-        >
-          <div
-            style={{
-              backgroundColor: "white",
-              padding: "30px",
-              borderRadius: "8px",
-              width: "100%",
-              maxWidth: "500px",
-              margin: "0 auto",
-              marginBottom: "50px",
-            }}
-          >
+    <Modal
+      open={openEditModal && editingApplication !== null}
+      onClose={() => setOpenEditModal(false)}
+      aria-labelledby="edit-application-modal"
+    >
+      <Box sx={modalStyle}>
+        {editingApplication && (
+          <>
+            <Typography variant="h6" component="h2" sx={{ mb: 3, color: '#5865F2', fontWeight: 'bold' }}>
+              Edit Application
+            </Typography>
             <form onSubmit={handleEditSubmit}>
               <TextField
                 label="Job Title"
@@ -607,9 +586,10 @@ const handleSubmit = async (e) => {
                 </Button>
               </div>
             </form>
-          </div>
-        </motion.div>
-      )}
+            </>
+          )}
+        </Box>
+      </Modal>
 
       {/* Applications Table */}
       <motion.div
@@ -716,121 +696,120 @@ const handleSubmit = async (e) => {
           </TableBody>
         </Table>
         </TableContainer>
-<Modal
-  open={openModal}
-  onClose={handleCloseModal}
-  aria-labelledby="application-details-modal"
-  aria-describedby="application-details-description"
->
-  <Box sx={modalStyle}>
-    {selectedAppDetails && (
-      <>
-        <Typography variant="h6" component="h2" sx={{ mb: 2, color: '#5865F2', fontWeight: 'bold' }}>
-          {selectedAppDetails.position} at {selectedAppDetails.company}
-        </Typography>
-        
-        <Typography sx={{ mt: 2 }}>
-          <strong>Date Applied:</strong> {selectedAppDetails.date}
-        </Typography>
-        
-        <Typography sx={{ mt: 1 }}>
-          <strong>Current Status:</strong> {selectedAppDetails.status}
-        </Typography>
-        
-        <Typography sx={{ mt: 1 }}>
-          <strong>Priority:</strong> {selectedAppDetails.priority}
-        </Typography>
-        
-        {/* Skills Section */}
-        <Typography sx={{ mt: 2, mb: 1 }}>
-          <strong>Required Skills:</strong>
-        </Typography>
-        
-        <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
-          {selectedAppDetails.required_skills && selectedAppDetails.required_skills.length > 0 ? (
-            selectedAppDetails.required_skills.map((skill, index) => (
-              <Chip 
-                key={index} 
-                label={skill} 
-                variant="outlined" 
-                sx={{ bgcolor: '#5865F2', color: 'white', mb: 1 }} 
-              />
-            ))
-          ) : (
-            <Typography variant="body2" sx={{ fontStyle: 'italic' }}>No skills listed</Typography>
-          )}
-        </Box>
-        
-        {/* Timeline Section */}
-        <Typography sx={{ mt: 3, mb: 1 }}>
-          <strong>Status Timeline:</strong>
-        </Typography>
-        
-        {timelineLoading ? (
-          <Typography>Loading timeline...</Typography>
-        ) : timelineData.length > 0 ? (
-          <Box sx={{ ml: 2 }}>
-            {timelineData
-              .sort((a, b) => new Date(b.date) - new Date(a.date))
-              .map((entry, index) => (
-                <Box 
-                  key={index} 
-                  sx={{ 
-                    position: 'relative',
-                    ml: 4,
-                    pb: 3,
-                    '&:before': {
-                      content: '""',
-                      position: 'absolute',
-                      left: '-10px',
-                      top: '8px',
-                      height: '12px',
-                      width: '12px',
-                      borderRadius: '50%',
-                      backgroundColor: '#5865F2',
-                    },
-                    '&:after': {
-                      content: index < timelineData.length - 1 ? '""' : 'none',
-                      position: 'absolute',
-                      left: '-5px',
-                      top: '20px',
-                      bottom: '-10px',
-                      width: '2px',
-                      backgroundColor: '#5865F2',
-                    }
-                  }}
-                >
-                  <Typography variant="subtitle1" sx={{ color: '#5865F2', fontWeight: 'bold', paddingLeft: '5px' }}>
-                    {entry.status}
-                  </Typography>
-                  <Typography variant="body2" sx={{ color: '#aaa',paddingLeft: '5px' }}>
-                    {new Date(entry.date).toLocaleDateString()}
-                  </Typography>
-                </Box>
-              ))
-            }
-          </Box>
-        ) : (
-          <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
-            No status changes recorded
-          </Typography>
-        )}
-        
-        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
-          <Button 
-            onClick={handleCloseModal} 
-            variant="contained" 
-            sx={{ backgroundColor: "#5865F2" }}
+          <Modal
+            open={openModal}
+            onClose={handleCloseModal}
+            aria-labelledby="application-details-modal"
+            aria-describedby="application-details-description"
           >
-            Close
-          </Button>
-        </Box>
-      </>
-    )}
-  </Box>
-</Modal>
+          <Box sx={modalStyle}>
+            {selectedAppDetails && (
+              <>
+                <Typography variant="h6" component="h2" sx={{ mb: 2, color: '#5865F2', fontWeight: 'bold' }}>
+                  {selectedAppDetails.position} at {selectedAppDetails.company}
+                </Typography>
+                
+                <Typography sx={{ mt: 2 }}>
+                  <strong>Date Applied:</strong> {selectedAppDetails.date}
+                </Typography>
+                
+                <Typography sx={{ mt: 1 }}>
+                  <strong>Current Status:</strong> {selectedAppDetails.status}
+                </Typography>
+                
+                <Typography sx={{ mt: 1 }}>
+                  <strong>Priority:</strong> {selectedAppDetails.priority}
+                </Typography>
+                
+                {/* Skills Section */}
+                <Typography sx={{ mt: 2, mb: 1 }}>
+                  <strong>Required Skills:</strong>
+                </Typography>
+                
+                <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+                  {selectedAppDetails.required_skills && selectedAppDetails.required_skills.length > 0 ? (
+                    selectedAppDetails.required_skills.map((skill, index) => (
+                      <Chip 
+                        key={index} 
+                        label={skill} 
+                        variant="outlined" 
+                        sx={{ bgcolor: '#5865F2', color: 'white', mb: 1 }} 
+                      />
+                    ))
+                  ) : (
+                    <Typography variant="body2" sx={{ fontStyle: 'italic' }}>No skills listed</Typography>
+                  )}
+                </Box>
+                
+                {/* Timeline Section */}
+                <Typography sx={{ mt: 3, mb: 1 }}>
+                  <strong>Status Timeline:</strong>
+                </Typography>
+                
+                {timelineLoading ? (
+                  <Typography>Loading timeline...</Typography>
+                ) : timelineData.length > 0 ? (
+                  <Box sx={{ ml: 2 }}>
+                    {timelineData
+                      .sort((a, b) => new Date(b.date) - new Date(a.date))
+                      .map((entry, index) => (
+                        <Box 
+                          key={index} 
+                          sx={{ 
+                            position: 'relative',
+                            ml: 4,
+                            pb: 3,
+                            '&:before': {
+                              content: '""',
+                              position: 'absolute',
+                              left: '-10px',
+                              top: '8px',
+                              height: '12px',
+                              width: '12px',
+                              borderRadius: '50%',
+                              backgroundColor: '#5865F2',
+                            },
+                            '&:after': {
+                              content: index < timelineData.length - 1 ? '""' : 'none',
+                              position: 'absolute',
+                              left: '-5px',
+                              top: '20px',
+                              bottom: '-10px',
+                              width: '2px',
+                              backgroundColor: '#5865F2',
+                            }
+                          }}
+                        >
+                          <Typography variant="subtitle1" sx={{ color: '#5865F2', fontWeight: 'bold', paddingLeft: '5px' }}>
+                            {entry.status}
+                          </Typography>
+                          <Typography variant="body2" sx={{ color: '#aaa',paddingLeft: '5px' }}>
+                            {new Date(entry.date).toLocaleDateString()}
+                          </Typography>
+                        </Box>
+                      ))
+                    }
+                  </Box>
+                ) : (
+                  <Typography variant="body2" sx={{ fontStyle: 'italic' }}>
+                    No status changes recorded
+                  </Typography>
+                )}
+                
+                <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end' }}>
+                  <Button 
+                    onClick={handleCloseModal} 
+                    variant="contained" 
+                    sx={{ backgroundColor: "#5865F2" }}
+                  >
+                    Close
+                  </Button>
+                </Box>
+              </>
+            )}
+          </Box>
+        </Modal>
       </motion.div>
-
     </div>
   );
 }
@@ -999,9 +978,11 @@ function NetworkView({ contacts, setContacts }) {
     linkedin: "", 
     email: "" 
   });
-  const [showForm, setShowForm] = useState(false);
+
   const [selectedContact, setSelectedContact] = useState(null);
   const [showEditForm, setShowEditForm] = useState(false);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const [openEditModal, setOpenEditModal] = useState(false);
 
   // Input change for new/edit application
   const handleInputChange = (e) => {
@@ -1020,7 +1001,7 @@ function NetworkView({ contacts, setContacts }) {
     try {
       const createdContact = await createContact(newContact);
       setContacts((prevContacts) => [...prevContacts, createdContact]);
-      setShowForm(false);
+      setOpenCreateModal(false);
       setNewContact({ name: "", company: "", role: "", linkedin: "", email: "" });
     } catch (error) {
       console.error("Failed to add contact:", error);
@@ -1042,10 +1023,10 @@ function NetworkView({ contacts, setContacts }) {
   };
 
   // Handle edit button click
-  const handleEditClick = (contact) => {
-    setSelectedContact(contact);
-    setShowEditForm(true);
-  };
+const handleEditClick = (contact) => {
+  setSelectedContact(contact);
+  setOpenEditModal(true);
+};
 
   // Handle updating contact
   const handleUpdateSubmit = async (e) => {
@@ -1086,33 +1067,22 @@ function NetworkView({ contacts, setContacts }) {
         <Button 
           variant="contained" 
           sx={{ backgroundColor: "#5865F2" }} 
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => setOpenCreateModal(true)}
         >
-          {showForm ? "Cancel" : "Add Contact"}
+          Add Contact
         </Button>
       </div>
 
       {/* Contact Form */}
-      {showForm && (
-        <motion.div
-        initial={{ opacity: 0, scale: 0.5 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{
-          duration: 0.6,
-          delay: 0.3,
-          ease: [0, 0.71, 0.2, 1.01],
-        }}
-        >
-        <div
-        style={{
-          backgroundColor: 'white', 
-          padding: '30px', 
-          borderRadius: '8px',
-          width: '100%', 
-          maxWidth: '500px', 
-          margin: '0 auto',
-          marginBottom: '50px'
-        }}>
+    <Modal
+      open={openCreateModal}
+      onClose={() => setOpenCreateModal(false)}
+      aria-labelledby="create-contact-modal"
+    >
+      <Box sx={modalStyle}>
+        <Typography variant="h6" component="h2" sx={{ mb: 3, color: '#5865F2', fontWeight: 'bold' }}>
+          Add New Contact
+        </Typography>
         <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
           <TextField
             label="Name"
@@ -1161,30 +1131,36 @@ function NetworkView({ contacts, setContacts }) {
           />
           <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2", marginTop: "10px" }}>
             Submit
-          </Button>
-        </form>
-        </div>
-        </motion.div>
-      )}
+            </Button>
+          <Button 
+              onClick={() => {
+                setOpenCreateModal(false);
+              }} 
+                variant="contained" 
+                sx={{ backgroundColor: "#800020", marginTop: "10px", marginLeft: "10px" }}
+                >
+                  Cancel
+            </Button>
+          </form>
+        </Box>
+      </Modal>
 
       {/* Edit Contact Form */}
-      {showEditForm && selectedContact && (
-        <motion.div
-          initial={{ opacity: 0, scale: 0.5 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, delay: 0.3, ease: [0, 0.71, 0.2, 1.01] }}
-        >
-          <div
-            style={{
-              backgroundColor: 'white', 
-              padding: '30px', 
-              borderRadius: '8px',
-              width: '100%', 
-              maxWidth: '500px', 
-              margin: '0 auto',
-              marginBottom: '50px'
-            }}
-          >
+      <Modal
+        open={openEditModal && selectedContact !== null}
+        onClose={() => {
+          setOpenEditModal(false);
+          setSelectedContact(null);
+        }}
+        aria-labelledby="edit-contact-modal"
+      >
+        <Box sx={modalStyle}>
+          {selectedContact && (
+            <>
+              <Typography variant="h6" component="h2" sx={{ mb: 3, color: '#5865F2', fontWeight: 'bold' }}>
+                Edit Contact
+              </Typography>
+              
             <form onSubmit={handleUpdateSubmit} style={{ marginBottom: "20px" }}>
               <TextField 
                 label="Name" 
@@ -1234,16 +1210,20 @@ function NetworkView({ contacts, setContacts }) {
                   Save Changes
               </Button>
               <Button 
-                onClick={() => setShowEditForm(false)} 
+              onClick={() => {
+                setOpenEditModal(false);
+                setSelectedContact(null);
+              }} 
                 variant="contained" 
                 sx={{ backgroundColor: "#800020", marginTop: "10px", marginLeft: "10px" }}
                 >
                   Cancel
               </Button>
             </form>
-          </div>
-        </motion.div>
-      )}
+            </>
+          )}
+        </Box>
+      </Modal>
 
       {/* Contact Cards */}
       <div
