@@ -40,7 +40,7 @@ import { createContact } from "./api/contacts"
 import { deleteContact } from "./api/contacts"
 import { updateContact } from "./api/contacts"
 
-
+import ApplicationSankeyDiagram from "./components/SankeyDiagram";
 
 import { register } from "./api/auth"
 
@@ -315,9 +315,7 @@ const handleEditSubmit = async (e) => {
     }
   };
 
-  const handleApplicationClick = (app) => {
-    console.log(app)
-  }
+
   // Application Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -433,6 +431,7 @@ const handleEditSubmit = async (e) => {
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip 
+                      key={index}
                       variant="outlined" 
                       label={option} 
                       {...getTagProps({ index })} 
@@ -562,6 +561,7 @@ const handleEditSubmit = async (e) => {
                 renderTags={(value, getTagProps) =>
                   value.map((option, index) => (
                     <Chip 
+                      key={index}
                       variant="outlined" 
                       label={option} 
                       {...getTagProps({ index })} 
@@ -822,8 +822,158 @@ const handleEditSubmit = async (e) => {
 }
 
 // Timeline of applications page
-function TimelineView() {
-  return <p>Timeline View</p>
+function TimelineView({ applications, timelines }) {
+  const [timelineData, setTimelineData] = useState([]);
+  
+  useEffect(() => {
+    // Process and organize timeline data by date
+    try {
+      if (timelines && applications && Array.isArray(timelines) && Array.isArray(applications)) {
+        // Create a lookup of application IDs to their details
+        const appLookup = applications.reduce((acc, app) => {
+          if (app && app.id) {
+            acc[app.id] = app;
+          }
+          return acc;
+        }, {});
+        
+        // Enrich timeline data with application details
+        const enhancedTimelines = timelines
+          .filter(entry => entry && entry.application_id) // Filter out invalid entries
+          .map(entry => ({
+            ...entry,
+            applicationDetails: appLookup[entry.application_id] || {
+              position: 'Unknown Position',
+              company: 'Unknown Company'
+            }
+          }));
+        
+        // Sort by date (newest first)
+        const sorted = [...enhancedTimelines].sort((a, b) => {
+          const dateA = a.date ? new Date(a.date) : new Date(0);
+          const dateB = b.date ? new Date(b.date) : new Date(0);
+          return dateB - dateA;
+        });
+        
+        setTimelineData(sorted);
+      } else {
+        setTimelineData([]);
+      }
+    } catch (error) {
+      console.error("Error processing timeline data:", error);
+      setTimelineData([]);
+    }
+  }, [timelines, applications]);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.5 }}
+      animate={{ opacity: 1, scale: 1 }}
+      transition={{
+        duration: 0.6,
+        delay: 0.3,
+        ease: [0, 0.71, 0.2, 1.01],
+      }}
+    >
+      <h2 className="timeline-header" style={{ 
+        color: "white", 
+        marginBottom: "30px", 
+        fontSize: "1.8rem",
+        fontWeight: "bold"
+      }}>
+        Application Timeline & Status Flow
+      </h2>
+
+      {/* Sankey Diagram */}
+      <ApplicationSankeyDiagram 
+        applications={applications} 
+        timelines={timelines} 
+      />
+      
+      {/* Timeline List */}
+      <Paper sx={{ backgroundColor: "#282b30", padding: "20px", borderRadius: "8px" }}>
+        <Typography 
+          variant="h6" 
+          component="h2" 
+          sx={{ 
+            color: "white", 
+            fontSize: "1.2rem", 
+            fontWeight: "bold",
+            borderBottom: "2.5px solid #5865F2",
+            paddingBottom: "10px",
+            marginBottom: "20px"
+          }}
+        >
+          Recent Status Changes
+        </Typography>
+
+        {timelineData.length > 0 ? (
+          <div style={{ maxHeight: "500px", overflow: "auto" }}>
+            {timelineData.map((entry, index) => {
+              if (!entry || !entry.applicationDetails) {
+                return null;
+              }
+              
+              const position = entry.applicationDetails.position || 'Unknown Position';
+              const company = entry.applicationDetails.company || 'Unknown Company';
+              const status = entry.status || 'Status Update';
+              const dateString = entry.date ? new Date(entry.date).toLocaleDateString() : 'Unknown Date';
+              
+              return (
+                <div 
+                  key={entry.id || index} 
+                  style={{
+                    padding: "15px",
+                    marginBottom: "15px",
+                    borderLeft: "4px solid #5865F2",
+                    backgroundColor: "#36393f",
+                    borderRadius: "0 4px 4px 0",
+                    position: "relative"
+                  }}
+                >
+                  <Typography 
+                    variant="subtitle1" 
+                    sx={{ color: "#5865F2", fontWeight: "bold" }}
+                  >
+                    {position} at {company}
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ color: "white", marginTop: "5px" }}
+                  >
+                    Status changed to: <span style={{ fontWeight: "bold" }}>{status}</span>
+                  </Typography>
+                  <Typography 
+                    variant="body2" 
+                    sx={{ 
+                      color: "#aaa", 
+                      position: "absolute",
+                      top: "15px",
+                      right: "15px"
+                    }}
+                  >
+                    {dateString}
+                  </Typography>
+                  {/* {entry.notes && (
+                    <Typography 
+                      variant="body2" 
+                      sx={{ color: "#ddd", marginTop: "8px", fontStyle: "italic" }}
+                    >
+                      {entry.notes}
+                    </Typography>
+                  )} */}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <Typography variant="body1" sx={{ color: "white", textAlign: "center", padding: "30px 0" }}>
+            No timeline data available. Start applying to jobs to build your timeline!
+          </Typography>
+        )}
+      </Paper>
+    </motion.div>
+  );
 }
 
 // Network Page
@@ -1170,7 +1320,27 @@ ApplicationView.propTypes = {
   ),
   setApplications: PropTypes.func,
 }
-
+TimelineView.propTypes = {
+  timelines: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      application_id: PropTypes.number,
+      status: PropTypes.string,
+      date: PropTypes.string,
+      notes: PropTypes.string
+    })
+  ),
+  applications: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.number,
+      company: PropTypes.string,
+      position: PropTypes.string,
+      status: PropTypes.string,
+      date: PropTypes.string,
+      priority: PropTypes.string
+    })
+  )
+}
 NetworkView.propTypes = {
   contacts: PropTypes.arrayOf(
     PropTypes.shape({
