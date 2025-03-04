@@ -126,8 +126,13 @@ async def update_job_application(
             )
 
             conn.commit()
+            cur.execute(
+                "SELECT id, company, position, status, date, priority, matched_skills, required_skills, user_email FROM job_applications WHERE id = %s",
+                (job_id,),
+            )
+            updated_job = cur.fetchone()
 
-    return {"message": "Job application updated successfully"}
+    return updated_job
 
 
 @router.delete("/applications/{job_id}")

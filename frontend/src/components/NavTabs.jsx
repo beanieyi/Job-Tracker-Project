@@ -8,7 +8,14 @@ import TabPanel from "@mui/lab/TabPanel"
 import { ApplicationView, TimelineView, NetworkView, InsightView } from "../App"
 import * as motion from "motion/react-client"
 
-const NavTabs = ({ timelines, applications, contacts, roleInsights }) => {
+const NavTabs = ({ 
+  timelines, 
+  applications, 
+  contacts, 
+  roleInsights,
+  setApplications,
+  setContacts 
+}) => {
   const [value, setValue] = React.useState("applications")
 
   const handleChange = (event, newValue) => {
@@ -59,13 +66,13 @@ const NavTabs = ({ timelines, applications, contacts, roleInsights }) => {
           </Box>
         </motion.div>
         <TabPanel value="applications">
-          <ApplicationView applications={applications} />
+          <ApplicationView applications={applications} setApplications={setApplications} />
         </TabPanel>
         <TabPanel value="timelines">
           <TimelineView timelines={timelines} applications={applications} />
         </TabPanel>
         <TabPanel value="contacts">
-          <NetworkView contacts={contacts} />
+          <NetworkView contacts={contacts} setContacts={setContacts} />
         </TabPanel>
         <TabPanel value="roleInsights">
           <InsightView roleInsights={roleInsights} />
@@ -117,6 +124,8 @@ NavTabs.propTypes = {
       top_companies: PropTypes.arrayOf(PropTypes.string).isRequired,
     })
   ).isRequired,
+  setApplications: PropTypes.func.isRequired,
+  setContacts: PropTypes.func.isRequired
 }
 
 export default NavTabs

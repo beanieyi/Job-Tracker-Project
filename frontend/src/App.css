@@ -4,6 +4,11 @@
     text-align: left;
     font-size:  30px;
     font-family: "Noto Sans", sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-right: 50px;
+    padding-left: 20px;
 }
 
 body {

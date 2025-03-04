@@ -3,8 +3,9 @@ import PropTypes from "prop-types"
 import "./App.css"
 import NavTabs from "./components/NavTabs"
 
-// MUI SignIn Component
+// MUI SignIn & SignUp Component
 import SlotsSignIn from "./components/SignIn"
+import SignUpForm from "./components/SignUp";
 
 // MUI Imports (AppView Table)
 import Table from "@mui/material/Table"
@@ -19,15 +20,29 @@ import Paper from "@mui/material/Paper"
 import Card from "@mui/material/Card"
 import CardActions from "@mui/material/CardActions"
 import CardContent from "@mui/material/CardContent"
-import Button from "@mui/material/Button"
+import { Button, TextField, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
 import Typography from "@mui/material/Typography"
 
 // motion.dev imports for animations
 import * as motion from "motion/react-client"
 
+// Application functionality
+import { deleteApplication } from "./api/applications"
+import { createApplication } from './api/applications'
+import { updateApplication } from './api/applications'
+
+// Contact functionality
+import { createContact } from "./api/contacts"
+import { deleteContact } from "./api/contacts"
+import { updateContact } from "./api/contacts"
+
+// Auth functionality
+import { register } from "./api/auth"
+
 // Main App function
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [showSignUp, setShowSignUp] = useState(false);
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
   const [contacts, setContacts] = useState([])
@@ -46,21 +61,20 @@ function App() {
           username: formData.email,
           password: formData.password,
         }).toString(),
-        credentials: "include"
-      })
-
+        credentials: "include",  // Ensure cookies are included
+      });
+  
       if (!response.ok) {
-        throw new Error("Invalid Email or Password")
+        throw new Error("Invalid Email or Password");
       }
-
-      // const data = await response.json()
-      // localStorage.setItem("access_token", data.access_token)
-      setIsAuthenticated(true)
+  
+      setIsAuthenticated(true); // User is authenticated after a successful login
     } catch (err) {
-      console.error("Failed to Login:", err.message)
-      throw err
+      console.error("Failed to Login:", err.message);
+      throw err;
     }
-  }
+  };
+  
 
   // Log out
   const byebye = async () => {
@@ -127,9 +141,13 @@ function App() {
     }
   }, [isAuthenticated])
 
-  if (!isAuthenticated) {
-    return <SlotsSignIn signIn={signIn} />
-  }
+if (!isAuthenticated) {
+  return showSignUp ? (
+    <SignUpForm register={register} setShowSignUp={setShowSignUp} />
+  ) : (
+    <SlotsSignIn signIn={signIn} setShowSignUp={setShowSignUp} />
+  );
+}
 
   if (loading) return <div className="p-4">Loading data...</div>
   if (error) return <div className="p-4 text-red-600">Error: {error}</div>
@@ -143,46 +161,316 @@ function App() {
       </style>
 
       <h1 className="header">
-        Job Tracker Application
-        <Button onClick={byebye}>Logout</Button>
+        JOB TRACKER
+        <Button variant="contained" sx={{ backgroundColor: "#5865F2" }} onClick={byebye}>Logout</Button>
       </h1>
-      <nav>
-        <NavTabs
-          timelines={timelines}
-          applications={applications}
-          contacts={contacts}
-          roleInsights={roleInsights}
-        />
-      </nav>
+<nav>
+  <NavTabs
+    timelines={timelines}
+    applications={applications}
+    contacts={contacts}
+    roleInsights={roleInsights}
+    setApplications={setApplications}
+    setContacts={setContacts}
+  />
+</nav>
     </div>
   )
 }
 
 // Applications page
-function ApplicationView({ applications }) {
+function ApplicationView({ applications, setApplications }) {
+  const [newApplication, setNewApplication] = useState({
+    position: '',
+    company: '',
+    date: '',
+    status: '',
+    priority: '',
+    matched_skills: [],
+    required_skills: []
+  });
+  const [showForm, setShowForm] = useState(false);
+  const [editingApplication, setEditingApplication] = useState(null);
+
+  // Edit handle
+  const handleEditClick = (app) => {
+    setEditingApplication({ ...app }); 
+    setShowForm(false);
+  };
+
+  // Input change for new application
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setNewApplication((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  // Edit input change
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditingApplication((prevState) => ({
+      ...prevState,
+      [name]: value
+    }));
+  };
+
+  // Handle edit form submission
+  const handleEditSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      const updatedApp = await updateApplication(editingApplication.id, editingApplication);
+      setApplications((prevApplications) =>
+        prevApplications.map((app) => (app.id === updatedApp.id ? updatedApp : app))
+      );
+      setEditingApplication(null);
+    } catch (err) {
+      console.error('Failed to update application:', err.message);
+    }
+  };
+
+  // Delete App
+  const handleDelete = async (appId) => {
+    try {
+      // Delete Call
+      await deleteApplication(appId);    
+      setApplications((prevApplications) =>
+        prevApplications.filter((app) => app.id !== appId)
+      );
+    } catch (err) {
+      console.error("Failed to delete application:", err.message);
+    }
+  };
+
+  // Application Submit
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    try {
+      // Call Application
+      const createdApp = await createApplication(newApplication); 
+      setApplications((prevApplications) => [...prevApplications, createdApp])
+      setShowForm(false);
+      setNewApplication({ position: '', company: '', date: '', status: '', priority:'' });
+    } catch (err) {
+      console.error('Failed to create application:', err.message);
+    }
+  };
+
+  // Toggle Add App form visibility
+  const toggleForm = () => {
+    setShowForm(!showForm);
+  };
+
   return (
-    <motion.div
-      initial={{ opacity: 0, scale: 0.5 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{
-        duration: 0.6,
-        delay: 0.3,
-        ease: [0, 0.71, 0.2, 1.01],
-      }}
-    >
+    <div>
+      {/* Add Application Button */}
       <div style={{ textAlign: "right", marginBottom: "20px" }}>
-        <Button variant="contained" sx={{ backgroundColor: "#5865F2" }}>
+        <Button variant="contained" sx={{ backgroundColor: "#5865F2" }} onClick={toggleForm}>
           Add Application
         </Button>
       </div>
 
+      {/* Add Application Form */}
+      {showForm && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 0.6,
+            delay: 0.3,
+            ease: [0, 0.71, 0.2, 1.01],
+          }}
+          >
+          <div
+          style={{
+            backgroundColor: 'white', 
+            padding: '30px', 
+            borderRadius: '8px',
+            width: '100%', 
+            maxWidth: '500px', 
+            margin: '0 auto',
+            marginBottom: '50px'
+          }}>
+            <form onSubmit={handleSubmit}>
+              <FormControl variant="outlined" fullWidth margin="normal">
+                <InputLabel htmlFor="priority">Priority</InputLabel>
+                  <Select
+                    label="Priority"
+                    name="priority"
+                    value={newApplication.priority}
+                    onChange={handleInputChange}
+                    inputProps={{ id: 'priority' }}
+                  >
+                    <MenuItem value="High">High</MenuItem>
+                    <MenuItem value="Medium">Medium</MenuItem>
+                    <MenuItem value="Low">Low</MenuItem>
+                  </Select>
+              </FormControl>
+              <TextField
+                label="Job Title"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="position"
+                value={newApplication.position}
+                onChange={handleInputChange}
+              />
+              <TextField
+                label="Company"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="company"
+                value={newApplication.company}
+                onChange={handleInputChange}
+              />
+              <TextField
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="date"
+                value={newApplication.date}
+                onChange={handleInputChange}
+                type="date"
+              />
+              <TextField
+                label="Status"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="status"
+                value={newApplication.status}
+                onChange={handleInputChange}
+              />
+            <div        
+              style={{marginTop: '20px'}}
+            >
+              <Button 
+                type="submit" 
+                variant="contained" 
+                sx={{ backgroundColor: "#5865F2" }}
+                >
+                  Submit
+              </Button>
+              <Button 
+                variant="contained" 
+                sx={{ backgroundColor: "#f44336", marginLeft: "10px" }} 
+                onClick={() => setShowForm(false)}
+                >
+                  Cancel
+              </Button>          
+            </div>         
+          </form>   
+          </div>
+        </motion.div>    
+      )}
+
+      {/* Edit Application Form */}
+      {editingApplication && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{
+            duration: 0.6,
+            delay: 0.3,
+            ease: [0, 0.71, 0.2, 1.01],
+          }}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: "30px",
+              borderRadius: "8px",
+              width: "100%",
+              maxWidth: "500px",
+              margin: "0 auto",
+              marginBottom: "50px",
+            }}
+          >
+            <form onSubmit={handleEditSubmit}>
+              <TextField
+                label="Job Title"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="position"
+                value={editingApplication.position}
+                onChange={handleEditInputChange}
+              />
+              <TextField
+                label="Company"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="company"
+                value={editingApplication.company}
+                onChange={handleEditInputChange}
+              />
+              <TextField
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="date"
+                value={editingApplication.date}
+                onChange={handleEditInputChange}
+                type="date"
+              />
+              <TextField
+                label="Status"
+                variant="outlined"
+                fullWidth
+                margin="normal"
+                name="status"
+                value={editingApplication.status}
+                onChange={handleEditInputChange}
+              />
+              <FormControl variant="outlined" fullWidth margin="normal">
+                <InputLabel htmlFor="priority">Priority</InputLabel>
+                <Select
+                  label="Priority"
+                  name="priority"
+                  value={editingApplication.priority}
+                  onChange={handleEditInputChange}
+                  inputProps={{ id: "priority" }}
+                >
+                  <MenuItem value="High">High</MenuItem>
+                  <MenuItem value="Medium">Medium</MenuItem>
+                  <MenuItem value="Low">Low</MenuItem>
+                </Select>
+              </FormControl>
+              <div style={{ marginTop: "20px" }}>
+                <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2" }}>
+                  Save
+                </Button>
+                <Button
+                  variant="contained"
+                  sx={{ backgroundColor: "#f44336", marginLeft: "10px" }}
+                  onClick={() => setEditingApplication(null)}
+                >
+                  Cancel
+                </Button>
+              </div>
+            </form>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Applications Table */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          duration: 0.6,
+          delay: 0.3,
+          ease: [0, 0.71, 0.2, 1.01],
+        }}
+      >
       <TableContainer component={Paper} sx={{ backgroundColor: "#282b30" }}>
         <Table sx={{ minWidth: 650 }} aria-label="simple table">
           <TableHead>
             <TableRow sx={{ borderBottom: "2.5px solid #5865F2" }}>
-              <TableCell
-                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
-              >
+              <TableCell sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}>
                 Job Title
               </TableCell>
               <TableCell
@@ -207,7 +495,19 @@ function ApplicationView({ applications }) {
                 align="right"
                 sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
               >
+              Priority
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
+              >
                 Edit
+              </TableCell>
+              <TableCell
+                align="right"
+                sx={{ color: "white", fontSize: "1rem", fontWeight: "bold" }}
+              >
+                Delete
               </TableCell>
             </TableRow>
           </TableHead>
@@ -229,13 +529,30 @@ function ApplicationView({ applications }) {
                 <TableCell align="right" sx={{ color: "white" }}>
                   {app.status}
                 </TableCell>
+                <TableCell align="right" sx={{ color: "white" }}>
+                  {app.priority}
+                </TableCell>
                 <TableCell align="right">
                   <Button
                     variant="contained"
                     size="small"
                     sx={{ backgroundColor: "#5865F2" }}
+                    onClick={() => handleEditClick(app)}
                   >
                     Edit
+                  </Button>
+                </TableCell>
+                <TableCell align="right">
+                  <Button
+                    variant="contained"
+                    size="small"
+                    sx={{ backgroundColor: "#800020" }}
+                    onClick={() => {
+                      console.log("Delete button clicked", app.id);
+                      handleDelete(app.id);
+                    }}
+                  >
+                    Delete
                   </Button>
                 </TableCell>
               </TableRow>
@@ -243,8 +560,9 @@ function ApplicationView({ applications }) {
           </TableBody>
         </Table>
       </TableContainer>
-    </motion.div>
-  )
+      </motion.div>
+    </div>
+  );
 }
 
 // Timeline of applications page
@@ -253,7 +571,84 @@ function TimelineView() {
 }
 
 // Network Page
-function NetworkView({ contacts }) {
+function NetworkView({ contacts, setContacts }) {
+  const [newContact, setNewContact] = useState({ 
+    name: "", 
+    company: "", 
+    role: "", 
+    linkedin: "", 
+    email: "" 
+  });
+  const [showForm, setShowForm] = useState(false);
+  const [selectedContact, setSelectedContact] = useState(null);
+  const [showEditForm, setShowEditForm] = useState(false);
+
+  // Input change for new/edit application
+  const handleInputChange = (e) => {
+    if (showEditForm) {
+      setSelectedContact({ ...selectedContact, [e.target.name]: e.target.value });
+    } else {
+      setNewContact({ ...newContact, [e.target.name]: e.target.value });
+    }
+  };
+
+  // Submit form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!newContact.name.trim() || !newContact.company.trim()) return;
+
+    try {
+      const createdContact = await createContact(newContact);
+      setContacts((prevContacts) => [...prevContacts, createdContact]);
+      setShowForm(false);
+      setNewContact({ name: "", company: "", role: "", linkedin: "", email: "" });
+    } catch (error) {
+      console.error("Failed to add contact:", error);
+    }
+  };
+
+  // Delete Contact
+  const handleDelete = async (contactId) => {
+    try {
+      // Delete Call
+      await deleteContact(contactId);
+      
+      setContacts((prevContacts) =>
+        prevContacts.filter((contact) => contact.id !== contactId)
+      );
+    } catch (err) {
+      console.error("Failed to delete contact:", err.message);
+    }
+  };
+
+  // Handle edit button click
+  const handleEditClick = (contact) => {
+    setSelectedContact(contact);
+    setShowEditForm(true);
+  };
+
+  // Handle updating contact
+  const handleUpdateSubmit = async (e) => {
+    e.preventDefault();
+  
+    if (!selectedContact.name.trim() || !selectedContact.company.trim()) return;
+  
+    try {
+      const updatedContact = await updateContact(selectedContact.id, selectedContact);
+  
+      setContacts((prevContacts) =>
+        prevContacts.map((contact) =>
+          contact.id === selectedContact.id ? updatedContact : contact
+        )
+      );
+  
+      setShowEditForm(false);
+      setSelectedContact(null);
+    } catch (error) {
+      console.error("Failed to update contact:", error);
+    }
+  };
+
   return (
     <motion.div
       initial={{ opacity: 0, scale: 0.5 }}
@@ -265,7 +660,172 @@ function NetworkView({ contacts }) {
       }}
     >
       <h2 className="network-header">Professional Network</h2>
+      
+      {/* Add Contact Button */}
+      <div style={{ textAlign: "right", marginBottom: "20px" }}>
+        <Button 
+          variant="contained" 
+          sx={{ backgroundColor: "#5865F2" }} 
+          onClick={() => setShowForm(!showForm)}
+        >
+          {showForm ? "Cancel" : "Add Contact"}
+        </Button>
+      </div>
 
+      {/* Contact Form */}
+      {showForm && (
+        <motion.div
+        initial={{ opacity: 0, scale: 0.5 }}
+        animate={{ opacity: 1, scale: 1 }}
+        transition={{
+          duration: 0.6,
+          delay: 0.3,
+          ease: [0, 0.71, 0.2, 1.01],
+        }}
+        >
+        <div
+        style={{
+          backgroundColor: 'white', 
+          padding: '30px', 
+          borderRadius: '8px',
+          width: '100%', 
+          maxWidth: '500px', 
+          margin: '0 auto',
+          marginBottom: '50px'
+        }}>
+        <form onSubmit={handleSubmit} style={{ marginBottom: "20px" }}>
+          <TextField
+            label="Name"
+            name="name"
+            value={newContact.name}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
+          <TextField
+            label="Company"
+            name="company"
+            value={newContact.company}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
+          <TextField
+            label="Role"
+            name="role"
+            value={newContact.role}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
+          <TextField
+            label="LinkedIn"
+            name="linkedin"
+            value={newContact.linkedin}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
+          <TextField
+            label="Email"
+            name="email"
+            value={newContact.email}
+            onChange={handleInputChange}
+            fullWidth
+            margin="dense"
+            required
+          />
+          <Button type="submit" variant="contained" sx={{ backgroundColor: "#5865F2", marginTop: "10px" }}>
+            Submit
+          </Button>
+        </form>
+        </div>
+        </motion.div>
+      )}
+
+      {/* Edit Contact Form */}
+      {showEditForm && selectedContact && (
+        <motion.div
+          initial={{ opacity: 0, scale: 0.5 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0, 0.71, 0.2, 1.01] }}
+        >
+          <div
+            style={{
+              backgroundColor: 'white', 
+              padding: '30px', 
+              borderRadius: '8px',
+              width: '100%', 
+              maxWidth: '500px', 
+              margin: '0 auto',
+              marginBottom: '50px'
+            }}
+          >
+            <form onSubmit={handleUpdateSubmit} style={{ marginBottom: "20px" }}>
+              <TextField 
+                label="Name" 
+                name="name" 
+                value={selectedContact.name} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <TextField 
+                label="Company" 
+                name="company" 
+                value={selectedContact.company} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <TextField 
+                label="Role" 
+                name="role" 
+                value={selectedContact.role} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <TextField 
+                label="LinkedIn" 
+                name="linkedin" 
+                value={selectedContact.linkedin} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <TextField 
+                label="Email" 
+                name="email" 
+                value={selectedContact.email} 
+                onChange={handleInputChange} 
+                fullWidth margin="dense" 
+                required 
+                />
+              <Button 
+                type="submit" 
+                variant="contained" 
+                sx={{ backgroundColor: "#5865F2", marginTop: "10px" }}
+                >
+                  Save Changes
+              </Button>
+              <Button 
+                onClick={() => setShowEditForm(false)} 
+                variant="contained" 
+                sx={{ backgroundColor: "#800020", marginTop: "10px", marginLeft: "10px" }}
+                >
+                  Cancel
+              </Button>
+            </form>
+          </div>
+        </motion.div>
+      )}
+
+      {/* Contact Cards */}
       <div
         style={{
           display: "flex",
@@ -289,6 +849,9 @@ function NetworkView({ contacts }) {
                 <Typography variant="body2" sx={{ color: "#FFFFFF" }}>
                   {contact.company || "Company not found."}
                 </Typography>
+                <Typography variant="body2" sx={{ color: "#FFFFFF" }}>
+                  {contact.role || "Rolenot found."}
+                </Typography>
               </CardContent>
               <CardActions>
                 <Button sx={{ color: "#5865F2" }} size="small">
@@ -296,6 +859,33 @@ function NetworkView({ contacts }) {
                 </Button>
                 <Button sx={{ color: "#5865F2" }} size="small">
                   LinkedIn
+                </Button>
+                <Button 
+                  variant="contained" sx={{     
+                    backgroundColor: "#5865F2", 
+                    fontSize: "0.65rem",
+                    padding: "2px 7px",
+                    minWidth: "auto"
+                  }} 
+                  size="small"
+                  onClick={() => handleEditClick(contact)}
+                >
+                  Edit
+                </Button>
+                <Button 
+                  variant="contained" sx={{     
+                    backgroundColor: "#800020", 
+                    fontSize: "0.65rem",
+                    padding: "2px 7px",
+                    minWidth: "auto"
+                  }} 
+                  size="small"
+                  onClick={() => {
+                    console.log("Delete button clicked", contact.id);
+                    handleDelete(contact.id);
+                  }}
+                >
+                  Delete
                 </Button>
               </CardActions>
             </Card>
@@ -322,6 +912,7 @@ ApplicationView.propTypes = {
       status: PropTypes.string,
     })
   ),
+  setApplications: PropTypes.func,
 }
 
 NetworkView.propTypes = {
@@ -332,6 +923,7 @@ NetworkView.propTypes = {
       company: PropTypes.string,
     })
   ),
+  setContacts: PropTypes.func,
 }
 
 export { ApplicationView, TimelineView, NetworkView, InsightView }
