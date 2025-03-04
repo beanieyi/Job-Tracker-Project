@@ -1,11 +1,23 @@
 import { useState } from "react";
 import PropTypes from "prop-types";
+import {
+  CssBaseline,
+  Button,
+  Box,
+  Alert,
+  TextField,
+  Avatar,
+  Container,
+  Paper,
+  Typography,
+} from "@mui/material";
+import LockOutlinedIcon from "@mui/icons-material/LockOutlined";
 
 function SignUpForm({ register, setShowSignUp }) {
   const [formData, setFormData] = useState({
-    username: '',
-    password: '',
-    email: ''
+    username: "",
+    password: "",
+    email: "",
   });
   const [error, setError] = useState(null);
 
@@ -22,58 +34,80 @@ function SignUpForm({ register, setShowSignUp }) {
     try {
       await register(formData);
       alert("Registration successful!");
-      setShowSignUp(false); // Return to login after successful registration
+      setShowSignUp(false);
     } catch (err) {
       setError(err.message || "Registration failed.");
     }
   };
 
   return (
-    <div className="sign-up-form">
-      <h2>Sign Up</h2>
-      {error && <div className="error-message">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="username">Username:</label>
-          <input
-            type="text"
-            id="username"
+    <Container component="main" maxWidth="xs">
+      <CssBaseline />
+      <Box
+        component={Paper}
+        elevation={6}
+        sx={{
+          mt: 8,
+          p: 4,
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          borderRadius: 2,
+        }}
+      >
+        <Avatar sx={{ m: 1, bgcolor: "secondary.main" }}>
+          <LockOutlinedIcon />
+        </Avatar>
+        <Typography component="h1" variant="h5" fontWeight="bold">
+          Sign Up
+        </Typography>
+        {error && (
+          <Alert severity="error" sx={{ width: "100%", mt: 2 }}>
+            {error}
+          </Alert>
+        )}
+        <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3, width: "100%" }}>
+          <TextField
+            label="Username"
+            variant="outlined"
+            fullWidth
             name="username"
             value={formData.username}
             onChange={handleChange}
             required
+            margin="normal"
           />
-        </div>
-        <div>
-          <label htmlFor="email">Email:</label>
-          <input
+          <TextField
+            label="Email"
             type="email"
-            id="email"
+            variant="outlined"
+            fullWidth
             name="email"
             value={formData.email}
             onChange={handleChange}
             required
+            margin="normal"
           />
-        </div>
-        <div>
-          <label htmlFor="password">Password:</label>
-          <input
+          <TextField
+            label="Password"
             type="password"
-            id="password"
+            variant="outlined"
+            fullWidth
             name="password"
             value={formData.password}
             onChange={handleChange}
             required
+            margin="normal"
           />
-        </div>
-        <div>
-          <button type="submit">Register</button>
-          <button type="button" onClick={() => setShowSignUp(false)}>
+          <Button type="submit" variant="contained" fullWidth sx={{ mt: 3, mb: 2 }}>
+            Register
+          </Button>
+          <Button variant="text" fullWidth onClick={() => setShowSignUp(false)}>
             Back to Login
-          </button>
-        </div>
-      </form>
-    </div>
+          </Button>
+        </Box>
+      </Box>
+    </Container>
   );
 }
 
