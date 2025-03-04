@@ -176,4 +176,8 @@ SlotsSignIn.propTypes = {
   setShowSignUp: PropTypes.func.isRequired,
 }
 
+SignUpLink.propTypes = {
+  setShowSignUp: PropTypes.func.isRequired,
+};
+
 export default SlotsSignIn
