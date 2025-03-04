@@ -5,14 +5,13 @@ import Tab from "@mui/material/Tab"
 import TabContext from "@mui/lab/TabContext"
 import TabList from "@mui/lab/TabList"
 import TabPanel from "@mui/lab/TabPanel"
-import { ApplicationView, TimelineView, NetworkView, InsightView } from "../App"
+import { ApplicationView, TimelineView, NetworkView } from "../App"
 import * as motion from "motion/react-client"
 
 const NavTabs = ({ 
   timelines, 
   applications, 
   contacts, 
-  roleInsights,
   setApplications,
   setContacts,
   setTimelines
@@ -58,11 +57,6 @@ const NavTabs = ({
                 value="contacts"
                 sx={{ color: "white", "&.Mui-selected": { color: "white" } }}
               />
-              <Tab
-                label="Insight"
-                value="roleInsights"
-                sx={{ color: "white", "&.Mui-selected": { color: "white" } }}
-              />
             </TabList>
           </Box>
         </motion.div>
@@ -82,9 +76,6 @@ const NavTabs = ({
 </TabPanel>
         <TabPanel value="contacts">
           <NetworkView contacts={contacts} setContacts={setContacts} />
-        </TabPanel>
-        <TabPanel value="roleInsights">
-          <InsightView roleInsights={roleInsights} />
         </TabPanel>
       </TabContext>
     </Box>

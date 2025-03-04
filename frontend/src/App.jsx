@@ -67,7 +67,6 @@ function App() {
   const [applications, setApplications] = useState([])
   const [timelines, setTimelines] = useState([])
   const [contacts, setContacts] = useState([])
-  const [roleInsights, setRoleInsights] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState(null)
 
@@ -118,12 +117,11 @@ function App() {
         //   ? { Authorization: `Bearer ${bearerToken}` }
         //   : {}
 
-        const [applicationsRes, timelinesRes, contactsRes, insightsRes] =
+        const [applicationsRes, timelinesRes, contactsRes] =
           await Promise.all([
             fetch("http://localhost:8000/api/applications", { method: "GET",credentials: "include" }),
             fetch("http://localhost:8000/api/timelines", { method: "GET",credentials: "include" }),
             fetch("http://localhost:8000/api/contacts", { method: "GET",credentials: "include" }),
-            fetch("http://localhost:8000/api/role-insights", { method: "GET",credentials: "include" }),
           ])
 
         if (!applicationsRes.ok)
@@ -134,21 +132,20 @@ function App() {
           throw new Error(`Timelines fetch failed: ${timelinesRes.status}`)
         if (!contactsRes.ok)
           throw new Error(`Contacts fetch failed: ${contactsRes.status}`)
-        if (!insightsRes.ok)
-          throw new Error(`Insights fetch failed: ${insightsRes.status}`)
 
-        const [applicationsData, timelinesData, contactsData, insightsData] =
+
+        const [applicationsData, timelinesData, contactsData,] =
           await Promise.all([
             applicationsRes.json(),
             timelinesRes.json(),
             contactsRes.json(),
-            insightsRes.json(),
+
           ])
 
         setApplications(applicationsData)
         setTimelines(timelinesData)
         setContacts(contactsData)
-        setRoleInsights(insightsData)
+
         setLoading(false)
       } catch (err) {
         console.error("Fetch error:", err)
@@ -190,7 +187,7 @@ if (!isAuthenticated) {
           timelines={timelines}
           applications={applications}
           contacts={contacts}
-          roleInsights={roleInsights}
+
           setApplications={setApplications}
           setContacts={setContacts}
           setTimelines={setTimelines}
@@ -1296,10 +1293,7 @@ const handleEditClick = (contact) => {
   )
 }
 
-// Insight page
-function InsightView() {
-  return <p>Insights View</p>
-}
+
 
 // PropTypes
 ApplicationView.propTypes = {
@@ -1347,5 +1341,5 @@ NetworkView.propTypes = {
   setContacts: PropTypes.func,
 }
 
-export { ApplicationView, TimelineView, NetworkView, InsightView }
+export { ApplicationView, TimelineView, NetworkView }
 export default App
