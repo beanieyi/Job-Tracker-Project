@@ -977,13 +977,12 @@ function NetworkView({ contacts, setContacts }) {
   });
 
   const [selectedContact, setSelectedContact] = useState(null);
-  const [showEditForm, setShowEditForm] = useState(false);
   const [openCreateModal, setOpenCreateModal] = useState(false);
   const [openEditModal, setOpenEditModal] = useState(false);
 
   // Input change for new/edit application
   const handleInputChange = (e) => {
-    if (showEditForm) {
+    if (openEditModal) {
       setSelectedContact({ ...selectedContact, [e.target.name]: e.target.value });
     } else {
       setNewContact({ ...newContact, [e.target.name]: e.target.value });
@@ -1040,7 +1039,7 @@ const handleEditClick = (contact) => {
         )
       );
   
-      setShowEditForm(false);
+      setOpenEditModal(false);
       setSelectedContact(null);
     } catch (error) {
       console.error("Failed to update contact:", error);
