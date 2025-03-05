@@ -427,6 +427,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
               <Select
                 label="Priority"
                 name="priority"
+                required
                 value={newApplication.priority}
                 onChange={handleInputChange}
                 slotProps={{
@@ -461,6 +462,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
               label="Job Title"
               variant="outlined"
               fullWidth
+              required
               margin="normal"
               name="position"
               slotProps={{
@@ -491,6 +493,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
               label="Company"
               variant="outlined"
               fullWidth
+              required
               margin="normal"
               name="company"
               slotProps={{
@@ -520,6 +523,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
             <TextField
               variant="outlined"
               fullWidth
+              required
               margin="normal"
               name="date"
               slotProps={{
@@ -551,6 +555,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
               label="Status"
               variant="outlined"
               fullWidth
+              required
               margin="normal"
               name="status"
               slotProps={{
@@ -715,6 +720,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
                   label="Job Title"
                   variant="outlined"
                   fullWidth
+                  required
                   margin="normal"
                   name="position"
                   value={editingApplication.position}
@@ -724,6 +730,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
                   label="Company"
                   variant="outlined"
                   fullWidth
+                  required
                   margin="normal"
                   name="company"
                   slotProps={{
@@ -754,6 +761,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
                 <TextField
                   variant="outlined"
                   fullWidth
+                  required
                   margin="normal"
                   name="date"
                   slotProps={{
@@ -786,6 +794,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
                   label="Status"
                   variant="outlined"
                   fullWidth
+                  required
                   margin="normal"
                   name="status"
                   slotProps={{
@@ -820,6 +829,7 @@ function ApplicationView({ applications, setApplications, setTimelines }) {
                   <Select
                     label="Priority"
                     name="priority"
+                    required
                     value={editingApplication.priority}
                     slotProps={{
                       input: {
