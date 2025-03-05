@@ -7,16 +7,13 @@ import PropTypes from 'prop-types';
 const ApplicationSankeyDiagram = ({ applications, timelines }) => {
   
   const { nodes, links, hasValidData } = useMemo(() => {
-    // Default empty data
     const emptyResult = { nodes: [], links: [], hasValidData: false };
-    
     
     if (!applications || !timelines || !applications.length || !timelines.length) {
       return emptyResult;
     }
 
     try {
-      // First, extract all unique statuses from both applications and timelines
       const allStatuses = new Set();
       
       applications.forEach(app => {
@@ -27,15 +24,12 @@ const ApplicationSankeyDiagram = ({ applications, timelines }) => {
         if (entry && entry.status) allStatuses.add(entry.status);
       });
       
-
       if (allStatuses.size < 2) {
         return emptyResult;
       }
       
-      // Get all transitions from timelines
       const statusTransitions = {};
       
-      // Group timelines by application_id
       const timelinesByApp = timelines.reduce((acc, item) => {
         if (!item || !item.application_id) return acc;
         
@@ -46,16 +40,13 @@ const ApplicationSankeyDiagram = ({ applications, timelines }) => {
         return acc;
       }, {});
       
-      // For each application, analyze the status flow
       Object.values(timelinesByApp).forEach(appTimelines => {
         if (!appTimelines || appTimelines.length < 2) return;
         
-        // Sort by date
         const sortedTimelines = [...appTimelines].sort(
           (a, b) => new Date(a.date || 0) - new Date(b.date || 0)
         );
         
-        // Track direct transitions only
         for (let i = 0; i < sortedTimelines.length - 1; i++) {
           const sourceStatus = sortedTimelines[i].status;
           const targetStatus = sortedTimelines[i + 1].status;
@@ -67,23 +58,20 @@ const ApplicationSankeyDiagram = ({ applications, timelines }) => {
         }
       });
       
-      // If no transitions found, return empty result
       if (Object.keys(statusTransitions).length === 0) {
         return emptyResult;
       }
       
-
-      const nodes = Array.from(allStatuses).map(status => ({
-        name: status
+      const nodes = Array.from(allStatuses).map((status, index) => ({
+        name: status,
+        depth: index
       }));
       
-      // Create links array for Sankey diagram
       const links = Object.keys(statusTransitions).map(key => {
         const [source, target] = key.split('->');
         const sourceIndex = nodes.findIndex(node => node.name === source);
         const targetIndex = nodes.findIndex(node => node.name === target);
         
-        // Ensure valid source and target indices
         if (sourceIndex === -1 || targetIndex === -1) return null;
         
         return {
@@ -93,7 +81,6 @@ const ApplicationSankeyDiagram = ({ applications, timelines }) => {
         };
       }).filter(link => link !== null);
       
-      // Final validation: need at least one valid link
       if (links.length === 0) {
         return emptyResult;
       }
@@ -105,17 +92,41 @@ const ApplicationSankeyDiagram = ({ applications, timelines }) => {
     }
   }, [applications, timelines]);
 
-  // Custom colors for the Sankey diagram
-  const customColors = [
-    '#5865F2', // Discord blue
-    '#36393f', // Dark gray
-    '#4CAF50', // Green
-    '#FFC107', // Amber
-    '#FF5722', // Deep Orange
-    '#9C27B0', // Purple
-    '#2196F3', // Blue
-    '#E91E63', // Pink
-  ];
+  const colors = ['#3C898E', '#486DF0', '#6F50E5', '#FF5722', '#FFC107', '#4CAF50', '#E91E63'];
+
+  const CustomNode = ({ x, y, width, height, index }) => (
+    <rect x={x + 4} y={y - 2} width={width - 8} height={height + 4} fill={colors[index % colors.length]} rx={2.5} />
+  );
+
+  CustomNode.propTypes = {
+    x: PropTypes.number.isRequired,
+    y: PropTypes.number.isRequired,
+    width: PropTypes.number.isRequired,
+    height: PropTypes.number.isRequired,
+    index: PropTypes.number.isRequired,
+  };
+
+  const CustomLink = ({ sourceX, targetX, sourceY, targetY, sourceControlX, targetControlX, linkWidth, index }) => (
+    <path
+      d={`M${sourceX},${sourceY} C${sourceControlX},${sourceY} ${targetControlX},${targetY} ${targetX},${targetY}`}
+      fill="none"
+      stroke={colors[index % colors.length]}
+      strokeOpacity={0.4}
+      strokeWidth={linkWidth}
+      strokeLinecap="butt"
+    />
+  );
+
+  CustomLink.propTypes = {
+    sourceX: PropTypes.number.isRequired,
+    targetX: PropTypes.number.isRequired,
+    sourceY: PropTypes.number.isRequired,
+    targetY: PropTypes.number.isRequired,
+    sourceControlX: PropTypes.number.isRequired,
+    targetControlX: PropTypes.number.isRequired,
+    linkWidth: PropTypes.number.isRequired,
+    index: PropTypes.number.isRequired,
+  };
 
   return (
     <Paper 
@@ -149,11 +160,8 @@ const ApplicationSankeyDiagram = ({ applications, timelines }) => {
               nodeWidth={20}
               nodePadding={40}
               margin={{ top: 20, right: 20, bottom: 20, left: 20 }}
-              link={{ stroke: '#ffffff33' }}
-              node={{
-                fill: (nodeData) => customColors[(nodeData?.index || 5) % customColors.length],
-                stroke: '#282b30'
-              }}
+              node={CustomNode}
+              link={CustomLink}
             >
               <Tooltip 
                 formatter={(value, name) => [`${value} applications`, name]}
@@ -175,60 +183,19 @@ const ApplicationSankeyDiagram = ({ applications, timelines }) => {
             flexDirection: 'column',
             gap: '10px'
           }}>
-            <Typography 
-              variant="body1" 
-              sx={{ 
-                textAlign: 'center', 
-                color: 'white',
-                padding: '20px 0' 
-              }}
-            >
+            <Typography variant="body1" sx={{ textAlign: 'center', color: 'white', padding: '20px 0' }}>
               Not enough application status data to generate flow diagram.
-            </Typography>
-            <Typography 
-              variant="body2" 
-              sx={{ 
-                textAlign: 'center', 
-                color: '#aaa',
-                maxWidth: '80%'
-              }}
-            >
-              To see the Sankey diagram, you need at least two different application statuses 
-              and one status change (e.g., from &quot;Applied&quot; to &quot;Interview&quot;).
-              <br /><br />
-              Try updating the status of your applications to see the visualization.
             </Typography>
           </div>
         )}
       </div>
     </Paper>
-    );
+  );
 };
 
 ApplicationSankeyDiagram.propTypes = {
-  applications: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-      company: PropTypes.string,
-      position: PropTypes.string,
-      status: PropTypes.string,
-      date: PropTypes.string,
-      priority: PropTypes.string
-    })
-  ),
-  timelines: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.number,
-      application_id: PropTypes.number,
-      status: PropTypes.string,
-      date: PropTypes.string,
-      notes: PropTypes.string
-    })
-  )
-}
-ApplicationSankeyDiagram.defaultProps = {
-  applications: [],
-  timelines: []
-}
+  applications: PropTypes.array,
+  timelines: PropTypes.array
+};
 
 export default ApplicationSankeyDiagram;
