@@ -66,6 +66,11 @@ async def create_job_application(
     """Create a new job application and automatically insert the first timeline entry"""
     with get_db_connection() as conn:
         with conn.cursor() as cur:
+            cur.execute("SELECT skills FROM users WHERE email = %s",
+                        (current_user,))
+            user_record = cur.fetchone()
+            user_skills = user_record["skills"] or []
+            matched_skills = list(set(user_skills) & set(job.required_skills))
             cur.execute(
                 INSERT_JOB_APPLICATION,
                 (
@@ -75,7 +80,7 @@ async def create_job_application(
                     job.status,
                     job.date,
                     job.priority,
-                    job.matched_skills,
+                    matched_skills,
                     job.required_skills,
                 ),
             )
@@ -185,7 +190,8 @@ async def get_application_timeline(
 
 
 @router.post(
-    "/applications/{job_id}/timeline", response_model=ApplicationTimelineResponse
+    "/applications/{job_id}/timeline",
+    response_model=ApplicationTimelineResponse
 )
 async def add_timeline_entry(
     job_id: int,
@@ -207,9 +213,10 @@ async def add_timeline_entry(
                 INSERT_APPLICATION_TIMELINE,
                 (job_id, timeline_entry.status, timeline_entry.notes),
             )
+            new_timeline_entry = cur.fetchone()
             conn.commit()
 
-    return {"message": "Timeline entry added successfully"}
+    return new_timeline_entry
 
 
 @router.put(

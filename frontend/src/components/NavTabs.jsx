@@ -5,16 +5,16 @@ import Tab from "@mui/material/Tab"
 import TabContext from "@mui/lab/TabContext"
 import TabList from "@mui/lab/TabList"
 import TabPanel from "@mui/lab/TabPanel"
-import { ApplicationView, TimelineView, NetworkView, InsightView } from "../App"
+import { ApplicationView, TimelineView, NetworkView } from "../App"
 import * as motion from "motion/react-client"
 
 const NavTabs = ({ 
   timelines, 
   applications, 
   contacts, 
-  roleInsights,
   setApplications,
-  setContacts 
+  setContacts,
+  setTimelines
 }) => {
   const [value, setValue] = React.useState("applications")
 
@@ -57,25 +57,25 @@ const NavTabs = ({
                 value="contacts"
                 sx={{ color: "white", "&.Mui-selected": { color: "white" } }}
               />
-              <Tab
-                label="Insight"
-                value="roleInsights"
-                sx={{ color: "white", "&.Mui-selected": { color: "white" } }}
-              />
             </TabList>
           </Box>
         </motion.div>
         <TabPanel value="applications">
-          <ApplicationView applications={applications} setApplications={setApplications} />
+          <ApplicationView 
+        applications={applications} 
+        setApplications={setApplications} 
+        setTimelines={setTimelines}
+      />
         </TabPanel>
-        <TabPanel value="timelines">
-          <TimelineView timelines={timelines} applications={applications} />
-        </TabPanel>
+<TabPanel value="timelines">
+  <TimelineView 
+    timelines={timelines} 
+    applications={applications} 
+    key={`timeline-view-${timelines.length}-${applications.length}`}
+  />
+</TabPanel>
         <TabPanel value="contacts">
           <NetworkView contacts={contacts} setContacts={setContacts} />
-        </TabPanel>
-        <TabPanel value="roleInsights">
-          <InsightView roleInsights={roleInsights} />
         </TabPanel>
       </TabContext>
     </Box>
@@ -125,7 +125,8 @@ NavTabs.propTypes = {
     })
   ).isRequired,
   setApplications: PropTypes.func.isRequired,
-  setContacts: PropTypes.func.isRequired
+  setContacts: PropTypes.func.isRequired,
+  setTimelines: PropTypes.func.isRequired
 }
 
 export default NavTabs
